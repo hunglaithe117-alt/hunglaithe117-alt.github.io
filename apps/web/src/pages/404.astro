@@ -1,0 +1,32 @@
+---
+/**
+ * 404 page (default locale). Bilingual routes are prefixed, so a single root
+ * `404.html` is served for anything unmatched; copy defaults to Vietnamese with an
+ * English line for the other locale.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { homePath, UI } from "@/lib/i18n";
+
+const lang = "vi" as const;
+const t = UI[lang];
+const other = UI.en;
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${t.notFoundTitle} — ${t.siteTitle}`}
+  description={t.notFoundBody}
+  canonical="/404"
+>
+  <div class="mx-auto max-w-[var(--container-narrow)] py-8">
+    <p class="font-mono text-sm text-text-muted">404</p>
+    <h1 class="mt-2">{t.notFoundTitle}</h1>
+    <p class="mt-4 text-lg text-text-muted">{t.notFoundBody}</p>
+    <p class="mt-1 text-sm text-text-muted">{other.notFoundBody}</p>
+    <p class="mt-8">
+      <a class="btn btn-primary" href={homePath(lang)}>
+        {t.notFoundCta}
+      </a>
+    </p>
+  </div>
+</BaseLayout>

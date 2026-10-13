@@ -1,0 +1,74 @@
+---
+title: "Ghi chú khi dựng blog bằng Astro"
+description: "Vài ghi chú thực hành khi dựng một blog tĩnh song ngữ bằng Astro và Vue."
+date: 2026-09-14
+tags: ["astro", "web"]
+cover: "/covers/astro-ssg-notes.png"
+draft: false
+lang: "vi"
+translationKey: "astro-ssg-notes"
+---
+
+## Ghi chú khi dựng blog bằng Astro
+
+Bài này ghi lại vài điều tôi học được khi dựng blog tĩnh song ngữ: cấu trúc tuyến, bộ sưu
+tập nội dung, và cách giữ trang thật nhẹ.
+
+### Bộ sưu tập nội dung
+
+Mỗi bài là một tệp MDX nằm trong thư mục theo ngôn ngữ. Lược đồ frontmatter được kiểm tra
+bằng zod, nên một bài thiếu trường bắt buộc sẽ làm hỏng bản dựng ngay lập tức — đó là điều
+tôi muốn.
+
+<img
+  src="/images/diagram-1.png"
+  alt="Sơ đồ luồng dữ liệu từ nội dung MDX tới trang tĩnh"
+  width="1280"
+  height="720"
+  loading="lazy"
+  decoding="async"
+/>
+
+### Tuyến theo ngôn ngữ
+
+Cả hai ngôn ngữ đều có tiền tố trong đường dẫn, nhờ vậy `hreflang` và các nguồn cấp dữ liệu
+(feed) đối xứng với nhau:
+
+```ts
+export function postPath(lang: Lang, slug: string): string {
+  return `/${lang}/posts/${slug}`;
+}
+```
+
+### Đảo (island) bằng Vue
+
+Chỉ những phần thật sự cần tương tác mới được nạp JavaScript, và chúng được gắn nhãn
+`client:visible` để trì hoãn cho tới khi vào khung nhìn:
+
+```astro
+---
+import SmokeIsland from "@blog/ui/SmokeIsland.vue";
+---
+
+<SmokeIsland client:visible />
+```
+
+### Giữ cho trang nhẹ
+
+- Không có máy chủ nào chạy lúc truy cập: mọi thứ được dựng sẵn thành HTML.
+- Ảnh dùng kích thước nội tại để tránh nhảy bố cục.
+- Chỉ tải một tệp phông chữ ngay từ đầu; phần còn lại tải khi cần.
+
+<img
+  src="/images/diagram-2.png"
+  alt="Sơ đồ so sánh trước và sau khi tối ưu"
+  width="1280"
+  height="720"
+  loading="lazy"
+  decoding="async"
+/>
+
+### Ghi chú cuối
+
+Điều khó nhất không phải là dựng trang, mà là giữ cho cấu trúc đủ đơn giản để vẫn dễ đọc
+sau vài tháng nữa.

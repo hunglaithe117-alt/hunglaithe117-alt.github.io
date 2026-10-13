@@ -1,0 +1,51 @@
+---
+/**
+ * Language switcher (T3.3). A plain <a> between the paired routes — no JS, no TMS
+ * (D-026). The destination is resolved by the caller: on a post it points at the
+ * paired translation, elsewhere at the same page in the other locale.
+ *
+ * Rendered as plain Astro rather than a Vue island: there is no interactivity to
+ * hydrate, and a link keeps the language switch working with JS disabled (§5 a11y).
+ */
+import { HTML_LANG, LOCALE_LABEL, LOCALE_SHORT, UI, type Lang } from "@/lib/i18n";
+
+interface Props {
+  /** The locale the visitor is leaving (for aria labels). */
+  lang: Lang;
+  /** Locale of the destination. */
+  target: Lang;
+  /** Root-relative path of the destination. */
+  href: string;
+  /** `compact` shows the short code (VI/EN); otherwise the full language name. */
+  variant?: "full" | "compact";
+  class?: string;
+}
+const { lang, target, href, variant = "full", class: className = "" } = Astro.props;
+
+const aria = `${UI[lang].changeLanguage}: ${LOCALE_LABEL[target]}`;
+---
+
+<a
+  href={href}
+  hreflang={HTML_LANG[target]}
+  lang={HTML_LANG[target]}
+  class={`lang-switch inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border border-border-strong px-2.5 text-sm font-medium text-text no-underline transition-colors duration-fast ease-standard hover:bg-surface ${className}`}
+  aria-label={aria}
+>
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M3.6 9h16.8M3.6 15h16.8"></path>
+    <path d="M12 3c2.2 2.4 3.5 5.6 3.5 9s-1.3 6.6-3.5 9c-2.2-2.4-3.5-5.6-3.5-9S9.8 5.4 12 3Z"></path>
+  </svg>
+  {variant === "compact" ? LOCALE_SHORT[target] : LOCALE_LABEL[target]}
+</a>

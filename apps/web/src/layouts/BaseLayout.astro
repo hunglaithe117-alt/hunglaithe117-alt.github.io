@@ -1,0 +1,204 @@
+---
+/**
+ * Base layout (T3.1): document head/SEO, feed autodiscovery, skip-link, responsive
+ * nav (drawer on phone/tablet, inline on desktop per DESIGN-SYSTEM §6), footer.
+ * Every page composes this layout.
+ */
+import "@/styles/global.css";
+import atkLatin from "@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url";
+import Footer from "@/components/Footer.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Nav from "@/components/Nav.astro";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import SearchBox from "@blog/ui/SearchBox.vue";
+import {
+  absoluteUrl,
+  DEFAULT_LOCALE,
+  homePath,
+  HTML_LANG,
+  LOCALES,
+  LOCALE_LABEL,
+  tagsPath,
+  UI,
+  type Lang,
+} from "@/lib/i18n";
+
+interface Alternate {
+  lang: Lang;
+  /** Root-relative path of this locale's variant. */
+  path: string;
+}
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Root-relative canonical path. */
+  canonical: string;
+  alternates?: Alternate[];
+  /** Absolute URL of the social preview image. */
+  image?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  isHome?: boolean;
+}
+
+const {
+  lang,
+  title,
+  description,
+  canonical,
+  alternates = [{ lang, path: homePath(lang) }],
+  image,
+  jsonLd,
+  isHome = false,
+} = Astro.props;
+
+const site = Astro.site!;
+const t = UI[lang];
+const canonicalUrl = absoluteUrl(site, canonical);
+const ogImage = image ?? absoluteUrl(site, "/og-default.png");
+const rssHref = absoluteUrl(site, `/${lang}/rss.xml`);
+const jsonFeedHref = absoluteUrl(site, `/${lang}/feed.json`);
+const jsonLdNodes = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const jsonLdPayload = jsonLdNodes.length === 1 ? jsonLdNodes[0] : jsonLdNodes;
+
+const otherLang = LOCALES.find((l) => l !== lang)!;
+const otherAlt = alternates.find((a) => a.lang === otherLang);
+const switchHref = otherAlt?.path ?? homePath(otherLang);
+const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0]!;
+
+const navLinks = [
+  { href: homePath(lang), label: t.home },
+  { href: `/${lang}/posts/`, label: t.posts },
+  { href: tagsPath(lang), label: t.tags },
+  { href: `/${lang}/about/`, label: t.about },
+  { href: `/${lang}/contact/`, label: t.contact },
+];
+---
+
+<!doctype html>
+<html lang={HTML_LANG[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <!-- §6.1: viewport-fit=cover enables safe-area insets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- hreflang alternates + x-default (§T3.2 step 5) -->
+    {alternates.map((alt) => (
+      <link rel="alternate" hreflang={HTML_LANG[alt.lang]} href={absoluteUrl(site, alt.path)} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl(site, defaultAlt.path)} />
+
+    <!-- Feed autodiscovery (D-038): RSS 2.0 + JSON Feed -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t.siteTitle} — RSS`}
+      href={rssHref}
+    />
+    <link
+      rel="alternate"
+      type="application/feed+json"
+      title={`${t.siteTitle} — JSON Feed`}
+      href={jsonFeedHref}
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Preload ONLY the latin normal weight (§1.2); VI companion loads via unicode-range -->
+    <link rel="preload" href={atkLatin} as="font" type="font/woff2" crossorigin />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b1915" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:type" content={isHome ? "website" : "article"} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={t.siteTitle} />
+    <meta property="og:locale" content={HTML_LANG[lang].replace("-", "_")} />
+    {LOCALES.filter((l) => l !== lang).map((l) => (
+      <meta property="og:locale:alternate" content={HTML_LANG[l].replace("-", "_")} />
+    ))}
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {jsonLdNodes.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLdPayload)} />
+    )}
+
+    <!-- No-flash theme init: apply a stored choice before first paint (§2.3). -->
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch {
+          /* ignore */
+        }
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">
+      {t.skipToContent}
+    </a>
+
+    <header class="site-header sticky top-0 z-40 border-b border-border bg-bg" data-pagefind-ignore>
+      <div class="container-content flex min-h-15 flex-wrap items-center justify-between gap-3 py-2">
+        <a
+          href={homePath(lang)}
+          class="flex items-center text-base font-bold text-text no-underline"
+        >
+          {t.siteTitle}
+        </a>
+        <div class="flex items-center gap-1.5">
+          <Nav
+            lang={lang}
+            links={navLinks}
+            switchHref={switchHref}
+            switchLabel={LOCALE_LABEL[otherLang]}
+          />
+          <SearchBox
+            client:load
+            mode="trigger"
+            lang={lang}
+            triggerLabel={t.search}
+            placeholder={t.searchPlaceholder}
+            loadingLabel={t.searchLoading}
+            unavailableLabel={t.searchUnavailable}
+            defaultMessage={t.searchDefaultMessage}
+          />
+          <LanguageSwitcher
+            lang={lang}
+            target={otherLang}
+            href={switchHref}
+            variant="compact"
+            class="hidden desktop:inline-flex"
+          />
+          <a
+            href={rssHref}
+            class="hidden h-11 items-center rounded-md border border-border-strong px-3 text-sm text-text no-underline transition-colors duration-fast ease-standard hover:bg-surface desktop:inline-flex"
+            aria-label={t.rssFeed}
+          >
+            RSS
+          </a>
+          <ThemeToggle lang={lang} />
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="container-content py-8 desktop:py-12">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+  </body>
+</html>

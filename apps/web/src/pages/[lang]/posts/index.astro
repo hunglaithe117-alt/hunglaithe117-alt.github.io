@@ -1,0 +1,49 @@
+---
+/** Post index (T3.3) — every published note for a locale. */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { LOCALES, postsPath, tagsPath, UI, type Lang } from "@/lib/i18n";
+import { getPostsByLang } from "@/lib/posts";
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = UI[lang];
+const posts = await getPostsByLang(lang);
+const canonical = postsPath(lang);
+const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${t.postsTitle} — ${t.siteTitle}`}
+  description={t.postsLead}
+  canonical={canonical}
+  alternates={alternates}
+>
+  <div data-pagefind-body>
+    <header class="measure" data-reveal style="--reveal-index:0">
+      <h1>{t.postsTitle}</h1>
+      <p class="mt-4 text-lg text-text-muted">{t.postsLead}</p>
+      <p class="mt-4 text-sm">
+        <a class="link-tap" href={tagsPath(lang)}>
+          {t.browseByTag}
+        </a>
+      </p>
+    </header>
+
+    {posts.length === 0 ? (
+      <p class="mt-12 text-text-muted">{t.noPosts}</p>
+    ) : (
+      <ul class="card-grid mt-10 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
+        {posts.map((post, i) => (
+          <li data-reveal style={`--reveal-index:${Math.min(i, 6)}`}>
+            <PostCard post={post} eager={i === 0} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</BaseLayout>

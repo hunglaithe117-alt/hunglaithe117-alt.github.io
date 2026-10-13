@@ -3,11 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Shared Astro + Vue components — filled in T3.1",
+  "description": "Shared Astro + Vue components consumed by apps/web (T3.1)",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "vue": "^3.5.44"
+  },
   "scripts": {
-    "build": "echo \"@blog/ui: components arrive in T3.1\"",
-    "lint": "echo \"@blog/ui: lint pending (T3.1)\"",
-    "typecheck": "echo \"@blog/ui: typecheck pending (T3.1)\"",
+    "build": "echo \"@blog/ui: source-only components (built by apps/web)\"",
+    "lint": "echo \"@blog/ui: lint pending (T3.4)\"",
+    "typecheck": "echo \"@blog/ui: typecheck via apps/web astro check\"",
     "test": "echo \"@blog/ui: no tests yet\""
   }
 }

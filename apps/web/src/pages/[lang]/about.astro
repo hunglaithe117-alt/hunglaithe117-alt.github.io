@@ -1,0 +1,149 @@
+---
+/**
+ * About / portfolio (T3.3). Static page copy from `lib/pages-content.ts` (post-only
+ * content lives in the `posts` collection). Personal claims are placeholders and are
+ * marked with `data-placeholder` + inline comments until real copy lands.
+ */
+import { Image } from "astro:assets";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { diagramImage } from "@/lib/images";
+import { aboutPath, absoluteUrl, HTML_LANG, LOCALES, UI, type Lang } from "@/lib/i18n";
+import { ABOUT } from "@/lib/pages-content";
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = UI[lang];
+const about = ABOUT[lang];
+const canonical = aboutPath(lang);
+const alternates = LOCALES.map((l) => ({ lang: l, path: aboutPath(l) }));
+const portrait = diagramImage("/images/diagram-1.png");
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: t.aboutTitle,
+  url: absoluteUrl(Astro.site!, canonical),
+  inLanguage: HTML_LANG[lang],
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${t.aboutTitle} — ${t.siteTitle}`}
+  description={t.aboutLead}
+  canonical={canonical}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <div data-pagefind-body>
+    <!-- Hero: asymmetric split (content left, supporting image right) -->
+    <header
+      class="grid items-start gap-10 desktop:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"
+      data-reveal
+      style="--reveal-index:0"
+    >
+      <div class="measure">
+        <h1>{t.aboutTitle}</h1>
+        <p class="mt-4 text-lg text-text-muted">{t.aboutLead}</p>
+        <!-- PLACEHOLDER: name + role are stand-ins (CONTENT-INVENTORY.md). -->
+        <p
+          class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-muted"
+          data-placeholder="author"
+        >
+          <span class="font-semibold text-text">{about.name}</span>
+          <span aria-hidden="true">·</span>
+          <span>{about.role}</span>
+        </p>
+      </div>
+      {portrait && (
+        <Image
+          src={portrait}
+          alt=""
+          widths={[480, 800]}
+          sizes="(min-width: 64rem) 35vw, 90vw"
+          loading="eager"
+          class="aspect-[16/9] w-full rounded-lg border border-border object-cover"
+        />
+      )}
+    </header>
+
+    <section class="measure mt-12" aria-label={t.aboutTitle}>
+      {about.intro.map((paragraph) => (
+        <p class="text-text-muted">{paragraph}</p>
+      ))}
+    </section>
+
+    <!-- Focus areas -->
+    <section class="mt-16" aria-labelledby="focus">
+      <h2 id="focus" class="text-xl">
+        {t.focusTitle}
+      </h2>
+      <ul class="mt-6 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
+        {about.focus.map((item, i) => (
+          <li
+            class="rounded-lg border border-border bg-surface p-5 shadow-xs"
+            data-reveal
+            style={`--reveal-index:${i}`}
+          >
+            <h3 class="text-lg">{item.title}</h3>
+            <p class="mt-2 text-sm text-text-muted">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Timeline -->
+    <section class="mt-16" aria-labelledby="timeline">
+      <h2 id="timeline" class="text-xl">
+        {t.timelineTitle}
+      </h2>
+      <ol class="mt-6 flex list-none flex-col p-0">
+        {about.timeline.map((entry, i) => (
+          <li
+            class="grid gap-1 border-s border-border pb-8 ps-6 relative"
+            data-reveal
+            style={`--reveal-index:${i}`}
+          >
+            <span
+              class="absolute -start-[5px] top-1.5 size-2.5 rounded-full bg-primary"
+              aria-hidden="true"
+            />
+            {/* §1.3: never uppercase Vietnamese labels ("hiện tại"). */}
+            <span class="text-xs font-semibold text-text-muted">{entry.period}</span>
+            <h3 class="text-lg">{entry.title}</h3>
+            <p class="max-w-[60ch] text-sm text-text-muted">{entry.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Projects -->
+    <section class="mt-16" aria-labelledby="projects">
+      <h2 id="projects" class="text-xl">
+        {t.projectsTitle}
+      </h2>
+      <ul class="mt-6 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2">
+        {about.projects.map((project, i) => (
+          <li
+            class="flex flex-col rounded-lg border border-border bg-surface p-5 shadow-xs transition-transform duration-fast ease-standard hover:-translate-y-px"
+            data-reveal
+            style={`--reveal-index:${i}`}
+          >
+            <h3 class="text-lg">
+              {project.href ? <a href={project.href}>{project.name}</a> : project.name}
+            </h3>
+            <p class="mt-2 text-sm text-text-muted">{project.summary}</p>
+            <ul class="mt-4 flex list-none flex-wrap gap-2 p-0">
+              {project.tags.map((tag) => (
+                <li class="tag-chip">{tag}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

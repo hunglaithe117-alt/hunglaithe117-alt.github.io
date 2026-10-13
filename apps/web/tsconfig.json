@@ -1,4 +1,18 @@
 {
-  "extends": "../../packages/config/tsconfig.base.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "*.config.ts", "*.config.mjs"]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["../../packages/config/tsconfig.base.json", "astro/tsconfigs/strict"],
+  "compilerOptions": {
+    // Astro content-collection helpers index into arrays a lot; relax two base guards
+    // for the app while keeping the rest of the shared strict config.
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [".astro/types.d.ts", "src/**/*", "*.config.mjs", "*.config.ts"],
+  "exclude": ["dist"]
 }

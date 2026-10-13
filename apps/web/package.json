@@ -3,16 +3,36 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Astro SSG frontend (Vue islands) — real app arrives in T3.1",
+  "description": "Astro 7 SSG frontend — Vue 3 islands, Tailwind v4 tokens, bilingual vi/en (T3.1/T3.2)",
   "scripts": {
-    "build": "mkdir -p dist && printf '<!doctype html><html lang=\"vi\"><head><meta charset=\"utf-8\"><title>blog</title></head><body>placeholder</body></html>' > dist/index.html && echo \"@blog/web: placeholder dist (Astro build arrives in T3.1)\"",
-    "dev": "echo \"@blog/web: astro dev arrives in T3.1\"",
-    "lint": "echo \"@blog/web: lint pending (T3.1)\"",
-    "typecheck": "echo \"@blog/web: typecheck pending (T3.1)\"",
+    "dev": "astro dev",
+    "build": "astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "check": "astro check",
+    "typecheck": "astro check",
+    "lint": "echo \"@blog/web: lint pending (T3.4)\"",
     "test": "echo \"@blog/web: no tests yet\""
   },
+  "dependencies": {
+    "@astrojs/mdx": "8.0.3",
+    "@astrojs/rss": "4.0.19",
+    "@astrojs/sitemap": "3.7.4",
+    "@astrojs/vue": "7.0.3",
+    "@blog/ui": "workspace:*",
+    "@fontsource-variable/atkinson-hyperlegible-next": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/noto-sans": "5.3.0",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.3.8",
+    "tailwindcss": "4.3.3",
+    "vue": "^3.5.44"
+  },
   "devDependencies": {
+    "@astrojs/check": "0.9.10",
     "@blog/config": "workspace:*",
-    "@blog/types": "workspace:*"
+    "@blog/types": "workspace:*",
+    "pagefind": "1.5.2",
+    "sharp": "0.35.5",
+    "typescript": "^5.6.0"
   }
 }

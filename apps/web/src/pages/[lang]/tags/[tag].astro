@@ -1,0 +1,79 @@
+---
+/** Per-tag listing (T3.3) — posts carrying a tag, plus the per-tag feed link (D-038). */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { LOCALES, tagFeedPath, tagPath, tagsPath, UI, type Lang } from "@/lib/i18n";
+import { collectTags, getPostsByLang } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const paths: { params: { lang: Lang; tag: string } }[] = [];
+  for (const lang of LOCALES) {
+    const posts = await getPostsByLang(lang);
+    for (const tag of collectTags(posts)) {
+      paths.push({ params: { lang, tag } });
+    }
+  }
+  return paths;
+}
+
+const lang = Astro.params.lang as Lang;
+const tag = Astro.params.tag as string;
+const t = UI[lang];
+const all = await getPostsByLang(lang);
+const posts = all.filter((post) => post.data.tags.includes(tag));
+const title = t.postsWithTag(tag);
+const canonical = tagPath(lang, tag);
+const alternates = LOCALES.map((l) => ({ lang: l, path: tagPath(l, tag) }));
+const otherTags = collectTags(all).filter((other) => other !== tag);
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${title} — ${t.siteTitle}`}
+  description={`${t.tagsLead} ${title}.`}
+  canonical={canonical}
+  alternates={alternates}
+>
+  <div data-pagefind-body>
+    <nav aria-label={t.tagsTitle} class="text-sm" data-pagefind-ignore>
+      <a class="link-tap" href={tagsPath(lang)}>
+        {t.tagsTitle}
+      </a>
+    </nav>
+
+    <header class="measure mt-3" data-reveal style="--reveal-index:0">
+      <h1>{title}</h1>
+      <p class="mt-4 flex flex-wrap items-center gap-3 text-sm text-text-muted">
+        <span>{t.tagCount(posts.length)}</span>
+        <a class="link-tap" href={tagFeedPath(lang, tag)} aria-label={`${t.tagFeedLabel}: ${tag}`}>
+          {t.tagFeedLabel} (RSS)
+        </a>
+      </p>
+    </header>
+
+    <ul class="card-grid mt-10 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
+      {posts.map((post, i) => (
+        <li data-reveal style={`--reveal-index:${Math.min(i, 6)}`}>
+          <PostCard post={post} eager={i === 0} />
+        </li>
+      ))}
+    </ul>
+
+    {otherTags.length > 0 && (
+      <section class="mt-16" aria-labelledby="other-tags" data-pagefind-ignore>
+        <h2 id="other-tags" class="text-xl">
+          {t.tagFilters}
+        </h2>
+        <ul class="mt-4 flex list-none flex-wrap gap-3 p-0">
+          {otherTags.map((other) => (
+            <li>
+              <a class="tag-chip" href={tagPath(lang, other)}>
+                {other}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
+</BaseLayout>

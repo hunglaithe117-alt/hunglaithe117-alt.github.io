@@ -1,0 +1,174 @@
+---
+/**
+ * Post page (T3.3): rendered MDX prose marked with `data-pagefind-body`, a TOC
+ * (inline `<details>` on phone/tablet, sticky rail on desktop), an optimised cover
+ * via `astro:assets`, prev/next, and tag links. The language switcher lives in the
+ * base layout and resolves to the paired post through `translationKey`.
+ */
+import { render } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import PrevNext from "@/components/PrevNext.astro";
+import Toc from "@/components/Toc.astro";
+import { SITE_AUTHOR } from "@/consts";
+import { coverImage } from "@/lib/images";
+import { absoluteUrl, HTML_LANG, postPath, tagPath, UI, type Lang } from "@/lib/i18n";
+import {
+  getPostsByLang,
+  getPublishedPosts,
+  getTranslations,
+  readingTimeOf,
+  slugOf,
+  type Post,
+} from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { lang: post.data.lang, slug: slugOf(post) },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const lang = post.data.lang as Lang;
+const site = Astro.site!;
+const t = UI[lang];
+const slug = slugOf(post);
+const canonical = postPath(lang, slug);
+
+const { Content, headings } = await render(post);
+const translations = await getTranslations(post.data.translationKey);
+const alternates = translations.map((p) => ({
+  lang: p.data.lang,
+  path: postPath(p.data.lang, slugOf(p)),
+}));
+
+const dateFormatter = new Intl.DateTimeFormat(lang, { dateStyle: "long" });
+const dateIso = post.data.date.toISOString();
+const readingMinutes = readingTimeOf(post);
+const cover = coverImage(post.data.cover);
+const coverUrl = post.data.cover ? absoluteUrl(site, post.data.cover) : undefined;
+
+// Prev/next within the same locale: newest first, so "previous" is the older note.
+const siblings = await getPostsByLang(lang);
+const index = siblings.findIndex((p) => p.id === post.id);
+const older = index >= 0 ? siblings[index + 1] : undefined;
+const newer = index > 0 ? siblings[index - 1] : undefined;
+const toNav = (p?: Post) => (p ? { href: postPath(lang, slugOf(p)), title: p.data.title } : null);
+
+// Related: other posts sharing at least one tag, most overlap first.
+const related = siblings
+  .filter((p) => p.id !== post.id)
+  .map((p) => ({
+    post: p,
+    shared: p.data.tags.filter((tag) => post.data.tags.includes(tag)).length,
+  }))
+  .filter((entry) => entry.shared > 0)
+  .sort((a, b) => b.shared - a.shared)
+  .slice(0, 3)
+  .map((entry) => entry.post);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: dateIso,
+  dateModified: dateIso,
+  inLanguage: HTML_LANG[lang],
+  author: { "@type": "Person", name: SITE_AUTHOR },
+  mainEntityOfPage: absoluteUrl(site, canonical),
+  url: absoluteUrl(site, canonical),
+  keywords: post.data.tags,
+  ...(coverUrl ? { image: coverUrl } : {}),
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${post.data.title} — ${t.siteTitle}`}
+  description={post.data.description}
+  canonical={canonical}
+  alternates={alternates}
+  image={coverUrl}
+  jsonLd={jsonLd}
+>
+  <div class="article-layout">
+    <article class="article-main" data-pagefind-body>
+      <header class="measure" data-reveal style="--reveal-index:0">
+        <h1>{post.data.title}</h1>
+        <p class="mt-4 text-lg text-text-muted">{post.data.description}</p>
+        <p
+          class="mt-4 flex flex-wrap items-center gap-2 text-sm text-text-muted"
+          data-pagefind-ignore
+        >
+          <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{t.readingTime(readingMinutes)}</span>
+        </p>
+        {post.data.tags.length > 0 && (
+          <ul class="mt-4 flex list-none flex-wrap gap-2 p-0" data-pagefind-ignore>
+            {post.data.tags.map((tag) => (
+              <li>
+                <a class="tag-chip" href={tagPath(lang, tag)}>
+                  {tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </header>
+
+      {cover && (
+        <Image
+          src={cover}
+          alt=""
+          widths={[480, 800, 1200, 1600]}
+          sizes="(min-width: 64rem) 66ch, (min-width: 40rem) 90vw, 100vw"
+          loading="eager"
+          fetchpriority="high"
+          class="mt-8 aspect-[16/9] w-full rounded-lg object-cover"
+        />
+      )}
+
+      <div class="mt-8">
+        <Toc headings={headings} title={t.tocTitle} variant="inline" />
+      </div>
+
+      <div class="prose mt-8">
+        <Content />
+      </div>
+
+      <PrevNext
+        prev={toNav(older)}
+        next={toNav(newer)}
+        prevLabel={t.prevPost}
+        nextLabel={t.nextPost}
+      />
+    </article>
+
+    <aside class="toc-slot">
+      <Toc headings={headings} title={t.tocTitle} variant="rail" />
+    </aside>
+  </div>
+
+  {related.length > 0 && (
+    <section class="mt-20" aria-labelledby="related" data-pagefind-ignore>
+      <h2 id="related" class="text-xl">
+        {t.relatedPosts}
+      </h2>
+      <ul class="card-grid mt-6 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
+        {related.map((p) => (
+          <li>
+            <PostCard post={p} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</BaseLayout>
