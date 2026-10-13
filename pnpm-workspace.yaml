@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Build scripts allowed to run (pnpm blocks them by default). `esbuild` and
+# `workerd` need their native postinstall; everything else stays blocked.
+# Added by pnpm during install to allow these pre-release packages past the
+# minimum-release-age gate.
+minimumReleaseAgeExclude:
+  - miniflare@5.20261006.2-beta
+  - wrangler@4.150.0
+
+allowBuilds:
+  esbuild: true
+  workerd: true

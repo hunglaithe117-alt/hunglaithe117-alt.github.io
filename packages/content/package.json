@@ -1,0 +1,13 @@
+{
+  "name": "@blog/content",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MDX posts (bilingual vi/en) + zod schema — filled in T3.2",
+  "scripts": {
+    "build": "echo \"@blog/content: content collections arrive in T3.2\"",
+    "lint": "echo \"@blog/content: lint pending (T3.2)\"",
+    "typecheck": "echo \"@blog/content: typecheck pending (T3.2)\"",
+    "test": "echo \"@blog/content: no tests yet\""
+  }
+}

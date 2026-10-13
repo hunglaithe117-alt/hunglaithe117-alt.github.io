@@ -1,0 +1,40 @@
+{
+  "name": "blog-personal",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Digital garden & portfolio blog engine — pnpm workspaces + Turborepo monorepo",
+  "license": "UNLICENSED",
+  "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "turbo": "turbo",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "turbo run lint typecheck test",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@blog/config": "workspace:*",
+    "eslint": "^9.0.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.4.0",
+    "turbo": "2.11.7"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,mdx,css,astro,yaml,yml}": [
+      "prettier --write"
+    ]
+  }
+}

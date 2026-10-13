@@ -1,0 +1,18 @@
+{
+  "name": "@blog/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Astro SSG frontend (Vue islands) — real app arrives in T3.1",
+  "scripts": {
+    "build": "mkdir -p dist && printf '<!doctype html><html lang=\"vi\"><head><meta charset=\"utf-8\"><title>blog</title></head><body>placeholder</body></html>' > dist/index.html && echo \"@blog/web: placeholder dist (Astro build arrives in T3.1)\"",
+    "dev": "echo \"@blog/web: astro dev arrives in T3.1\"",
+    "lint": "echo \"@blog/web: lint pending (T3.1)\"",
+    "typecheck": "echo \"@blog/web: typecheck pending (T3.1)\"",
+    "test": "echo \"@blog/web: no tests yet\""
+  },
+  "devDependencies": {
+    "@blog/config": "workspace:*",
+    "@blog/types": "workspace:*"
+  }
+}

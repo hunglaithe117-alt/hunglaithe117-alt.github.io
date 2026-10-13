@@ -1,0 +1,21 @@
+{
+  "name": "@blog/edge",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare integration Worker: static assets + /api/* routing + bindings",
+  "scripts": {
+    "build": "cf build",
+    "dev": "cf dev",
+    "deploy:edge": "cf deploy --prebuilt --mode production",
+    "lint": "echo \"@blog/edge: lint pending (T5.1)\"",
+    "typecheck": "echo \"@blog/edge: typecheck pending (T5.1)\"",
+    "test": "echo \"@blog/edge: no tests yet\""
+  },
+  "devDependencies": {
+    "@blog/config": "workspace:*",
+    "@blog/types": "workspace:*",
+    "cf": "1.0.0-beta.14",
+    "wrangler": "4.150.0"
+  }
+}

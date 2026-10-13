@@ -1,0 +1,13 @@
+{
+  "name": "@blog/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared Astro + Vue components — filled in T3.1",
+  "scripts": {
+    "build": "echo \"@blog/ui: components arrive in T3.1\"",
+    "lint": "echo \"@blog/ui: lint pending (T3.1)\"",
+    "typecheck": "echo \"@blog/ui: typecheck pending (T3.1)\"",
+    "test": "echo \"@blog/ui: no tests yet\""
+  }
+}
