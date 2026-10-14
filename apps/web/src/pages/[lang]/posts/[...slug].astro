@@ -11,6 +11,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
 import PrevNext from "@/components/PrevNext.astro";
 import Toc from "@/components/Toc.astro";
+import ViewCounter from "@blog/ui/ViewCounter.vue";
 import { SITE_AUTHOR } from "@/consts";
 import { coverImage } from "@/lib/images";
 import { absoluteUrl, HTML_LANG, postPath, tagPath, UI, type Lang } from "@/lib/i18n";
@@ -110,6 +111,8 @@ const jsonLd = {
           <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>
           <span aria-hidden="true">·</span>
           <span>{t.readingTime(readingMinutes)}</span>
+          {/* View count: hydrated client-side only (`client:visible`), never during SSG. */}
+          <ViewCounter client:visible slug={slug} label={t.viewsLabel} />
         </p>
         {post.data.tags.length > 0 && (
           <ul class="mt-4 flex list-none flex-wrap gap-2 p-0" data-pagefind-ignore>

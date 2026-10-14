@@ -74,6 +74,7 @@ export const UI = {
     nextPost: "Bài tiếp theo",
     backToPosts: "Tất cả bài viết",
     relatedPosts: "Bài cùng chủ đề",
+    viewsLabel: "lượt xem",
     // Search
     searchTitle: "Tìm kiếm",
     searchLead: "Tìm trong toàn bộ khu vườn. Kết quả hiện ngay khi bạn gõ.",
@@ -167,6 +168,7 @@ export const UI = {
     nextPost: "Next",
     backToPosts: "All posts",
     relatedPosts: "Related posts",
+    viewsLabel: "views",
     // Search
     searchTitle: "Search",
     searchLead: "Search across the whole garden. Results appear as you type.",
