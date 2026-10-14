@@ -19,15 +19,24 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // Node globals for tooling config files (astro.config.mjs, eslint.config.mjs, ...).
-    files: ["**/*.config.{js,mjs,cjs,ts}", "**/*.config.*"],
+    // Node globals for tooling scripts + config files (astro.config.mjs, e2e/*.mjs, scripts, ...).
+    files: [
+      "**/*.{mjs,cjs}",
+      "**/*.config.{js,mjs,cjs,ts}",
+      "**/scripts/**/*.{js,mjs,ts}",
+      "**/e2e/**/*.{js,mjs,ts}",
+    ],
     languageOptions: {
       globals: {
         process: "readonly",
         console: "readonly",
         __dirname: "readonly",
+        __filename: "readonly",
         module: "readonly",
         require: "readonly",
+        URL: "readonly",
+        fetch: "readonly",
+        Buffer: "readonly",
       },
     },
   },

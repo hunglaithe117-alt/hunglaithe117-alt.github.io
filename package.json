@@ -16,6 +16,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:e2e": "playwright test",
     "check": "turbo run lint typecheck test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@blog/config": "workspace:*",
+    "@playwright/test": "^1.64.0",
     "eslint": "^9.0.0",
     "husky": "^9.1.0",
     "lint-staged": "^16.0.0",
