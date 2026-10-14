@@ -7,11 +7,10 @@ import (
 )
 
 // contactResponse is the wire shape for POST /api/contact
-// (packages/types ContactResponse); `emailed` reports the store-only fallback.
+// (packages/types ContactResponse).
 type contactResponse struct {
-	ID      string `json:"id"`
-	OK      bool   `json:"ok"`
-	Emailed bool   `json:"emailed"`
+	ID string `json:"id"`
+	OK bool   `json:"ok"`
 }
 
 // ContactHandler serves the contact form.
@@ -32,8 +31,9 @@ type contactRequest struct {
 	Body  string `json:"body"`
 }
 
-// Post handles POST /api/contact: validate → rate-limit → D1 audit row → email
-// (T5.4). A failed email send still returns 200 with emailed=false.
+// Post handles POST /api/contact: validate → rate-limit → D1 audit row. The
+// container is store-only; the edge Worker sends the notification after this 2xx
+// response (D-040).
 func (h *ContactHandler) Post(c *fiber.Ctx) error {
 	var req contactRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -49,5 +49,5 @@ func (h *ContactHandler) Post(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(contactResponse{ID: result.ID, OK: true, Emailed: result.Emailed})
+	return c.Status(fiber.StatusOK).JSON(contactResponse{ID: result.ID, OK: true})
 }

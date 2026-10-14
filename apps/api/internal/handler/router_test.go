@@ -36,13 +36,9 @@ func (s *stubContacts) CountContactsSince(context.Context, string, time.Time) (i
 	return s.recent, s.err
 }
 
-type stubSender struct{}
-
-func (stubSender) Send(context.Context, string, string, string, string, string) error { return nil }
-
 func newApp(views *stubViews, contacts *stubContacts, cfg config.Config) *fiber.App {
 	viewsSvc := service.NewViews(views)
-	contactSvc := service.NewContact(contacts, stubSender{}, cfg)
+	contactSvc := service.NewContact(contacts, cfg)
 	return handler.NewRouter(
 		handler.NewViewsHandler(viewsSvc),
 		handler.NewContactHandler(contactSvc, "salt"),

@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/example/blog-personal/apps/api/internal/config"
-	"github.com/example/blog-personal/apps/api/internal/email"
 	"github.com/example/blog-personal/apps/api/internal/handler"
 	"github.com/example/blog-personal/apps/api/internal/repository"
 	"github.com/example/blog-personal/apps/api/internal/service"
@@ -33,15 +32,11 @@ func main() {
 	if !cfg.D1Configured() {
 		logger.Warn("D1 credentials absent; storage-backed routes will return 503")
 	}
-	if !cfg.EmailConfigured() {
-		logger.Warn("email transport unconfigured; contact submissions will be store-only")
-	}
 
 	repo := repository.NewD1(cfg)
-	sender := email.NewCloudflare(cfg)
 
 	views := service.NewViews(repo)
-	contact := service.NewContact(repo, sender, cfg)
+	contact := service.NewContact(repo, cfg)
 
 	router := handler.NewRouter(
 		handler.NewViewsHandler(views),

@@ -16,11 +16,11 @@ import { Container } from "@cloudflare/containers";
 export interface ApiContainerEnv {
   // Placeholders sourced from the Worker env / secrets at deploy time
   // (SOLUTION.md §E). The container cannot use Worker bindings, so it reaches
-  // D1 + Email through the Cloudflare REST API using these values.
+  // D1 through the Cloudflare REST API using these values. Contact email is sent
+  // by the Worker's `send_email` binding, not the container (D-040).
   CLOUDFLARE_ACCOUNT_ID: string;
   D1_DATABASE_ID: string;
   D1_API_TOKEN: string;
-  EMAIL_API_TOKEN: string;
 }
 
 /**
@@ -36,13 +36,12 @@ export class Api extends Container<ApiContainerEnv> {
 
   /**
    * Runtime env pass-through: these Worker vars/secrets are injected into the
-   * container when it is started. Only the D1 + Email REST credentials the
-   * Go API needs are forwarded — everything else stays in the Worker.
+   * container when it is started. Only the D1 REST credentials the Go API needs
+   * are forwarded — everything else stays in the Worker.
    */
   envVars = {
     CLOUDFLARE_ACCOUNT_ID: this.env.CLOUDFLARE_ACCOUNT_ID ?? "",
     D1_DATABASE_ID: this.env.D1_DATABASE_ID ?? "",
     D1_API_TOKEN: this.env.D1_API_TOKEN ?? "",
-    EMAIL_API_TOKEN: this.env.EMAIL_API_TOKEN ?? "",
   };
 }

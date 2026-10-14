@@ -47,9 +47,6 @@ func TestD1Configured(t *testing.T) {
 	if !cfg.D1Configured() {
 		t.Fatal("expected D1 to be configured")
 	}
-	if cfg.EmailAPIToken != "tok" {
-		t.Fatalf("email token should fall back to D1 token, got %q", cfg.EmailAPIToken)
-	}
 }
 
 func TestLoadRejectsNonPositiveBodyLimit(t *testing.T) {

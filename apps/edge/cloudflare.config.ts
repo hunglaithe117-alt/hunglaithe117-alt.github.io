@@ -66,8 +66,10 @@ export default defineConfig(({ mode, isPreview }) => {
           name: isProd ? "blog-prod" : "blog-staging",
           id: "<D1_DATABASE_ID>",
         }),
-        // Cloudflare Email Service binding used by the contact endpoint.
-        EMAIL: bindings.sendEmail({}),
+        // Cloudflare Email Service binding used by the contact endpoint. The
+        // Worker owns the send (the container is store-only, D-040); the
+        // placeholder recipient mirrors `CONTACT_TO` in src/index.ts.
+        EMAIL: bindings.sendEmail({ destinationAddress: "owner@example.com" }),
         // Public API base exposed to the client islands.
         PUBLIC_API_BASE_URL: bindings.text(
           isProd ? "https://example.com" : "https://blog-edge-staging.workers.dev",
@@ -76,14 +78,14 @@ export default defineConfig(({ mode, isPreview }) => {
         SESSION_SECRET: bindings.secret(),
 
         // Container env pass-through (see src/api-container.ts `envVars`). The
-        // Go API reaches D1 + Email over the Cloudflare REST API, so it needs
-        // the account id, the D1 id and scoped tokens. Ids are placeholders
-        // resolved at deploy time; the tokens arrive via --secrets-file and are
-        // never committed.
+        // Go API reaches D1 over the Cloudflare REST API, so it needs the account
+        // id, the D1 id and a scoped token. Ids are placeholders resolved at
+        // deploy time; the token arrives via --secrets-file and is never
+        // committed. Contact email is sent by the Worker, not the container
+        // (D-040), so no email token is forwarded.
         CLOUDFLARE_ACCOUNT_ID: bindings.text("<ACCOUNT_ID>"),
         D1_DATABASE_ID: bindings.text("<D1_DATABASE_ID>"),
         D1_API_TOKEN: bindings.secret(),
-        EMAIL_API_TOKEN: bindings.secret(),
 
         // Durable Object namespace exposing the container instance to the
         // Worker's fetch handler (so it can forward /api/* requests).

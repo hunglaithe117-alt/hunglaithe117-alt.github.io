@@ -1,6 +1,6 @@
 // Package config loads and validates the API's runtime configuration from the
-// environment. No values are hard-coded as secrets here: Cloudflare account id,
-// D1 ids and email recipients are placeholders sourced from env at deploy time
+// environment. No values are hard-coded as secrets here: the Cloudflare account
+// id and D1 ids are placeholders sourced from env at deploy time
 // (SOLUTION.md §E, DECISIONS.md D-008/D-014).
 package config
 
@@ -18,8 +18,6 @@ const (
 	defaultMaxBodyBytes   = 16 * 1024 // 16 KiB request cap (T5.4 abuse guard)
 	defaultD1APIBase      = "https://api.cloudflare.com/client/v4"
 	defaultRatePerMinute  = 1
-	defaultContactTo      = "owner@example.com"
-	defaultContactFrom    = "no-reply@example.com"
 	defaultAllowedOrigins = "http://localhost:4321,http://localhost:8787"
 )
 
@@ -34,7 +32,7 @@ type Config struct {
 	// AllowedOrigins is the CORS allowlist. Never "*" (T5.5, README §7).
 	AllowedOrigins []string
 
-	// CloudflareAccountID identifies the account hosting D1 + Email Sending.
+	// CloudflareAccountID identifies the account hosting D1.
 	CloudflareAccountID string
 	// D1DatabaseID is the D1 database UUID (D1 commands take the id, not name).
 	D1DatabaseID string
@@ -43,14 +41,6 @@ type Config struct {
 	D1APIToken string
 	// D1APIBaseURL overrides the Cloudflare API base (useful for tests).
 	D1APIBaseURL string
-
-	// EmailAPIToken is the token used by the Email Sending REST fallback.
-	// Defaults to D1APIToken when unset.
-	EmailAPIToken string
-	// ContactTo is the mailbox that receives contact notifications.
-	ContactTo string
-	// ContactFrom is the sender address used for notifications.
-	ContactFrom string
 
 	// IPHashSalt peppers stored IP hashes (never store raw IPs — T5.4).
 	IPHashSalt string
@@ -61,6 +51,10 @@ type Config struct {
 // Load reads configuration from the process environment. It never fails on
 // missing optional values so that `/healthz` works in minimal environments; the
 // repository surfaces a typed error when D1 settings are actually required.
+//
+// Contact email is intentionally absent: the container only validates and stores
+// the D1 row, while the apps/edge Worker sends the notification via its
+// `send_email` binding (D-040).
 func Load() (Config, error) {
 	cfg := Config{
 		Environment:         envOr("ENVIRONMENT", "development"),
@@ -71,14 +65,8 @@ func Load() (Config, error) {
 		D1DatabaseID:        strings.TrimSpace(os.Getenv("D1_DATABASE_ID")),
 		D1APIToken:          strings.TrimSpace(os.Getenv("D1_API_TOKEN")),
 		D1APIBaseURL:        envOr("D1_API_BASE_URL", defaultD1APIBase),
-		EmailAPIToken:       strings.TrimSpace(os.Getenv("EMAIL_API_TOKEN")),
-		ContactTo:           envOr("CONTACT_TO", defaultContactTo),
-		ContactFrom:         envOr("CONTACT_FROM", defaultContactFrom),
 		IPHashSalt:          envOr("IP_HASH_SALT", envOr("SESSION_SECRET", "dev-only-salt")),
 		RateLimitPerMinute:  envIntOr("RATE_LIMIT_PER_MINUTE", defaultRatePerMinute),
-	}
-	if cfg.EmailAPIToken == "" {
-		cfg.EmailAPIToken = cfg.D1APIToken
 	}
 
 	if cfg.MaxBodyBytes <= 0 {
@@ -98,11 +86,6 @@ func Load() (Config, error) {
 // D1Configured reports whether the D1 REST credentials are present.
 func (c Config) D1Configured() bool {
 	return c.CloudflareAccountID != "" && c.D1DatabaseID != "" && c.D1APIToken != ""
-}
-
-// EmailConfigured reports whether the Email Sending REST credentials are present.
-func (c Config) EmailConfigured() bool {
-	return c.EmailAPIToken != "" && c.ContactFrom != "" && c.ContactTo != ""
 }
 
 func envOr(key, fallback string) string {

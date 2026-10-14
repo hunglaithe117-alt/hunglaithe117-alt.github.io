@@ -27,12 +27,6 @@ type ContactStore interface {
 	CountContactsSince(ctx context.Context, ipHash string, since time.Time) (int, error)
 }
 
-// EmailSender is any outbound notification transport. The Cloudflare Email
-// Sending REST adapter and test fakes both satisfy it.
-type EmailSender interface {
-	Send(ctx context.Context, from, to, replyTo, subject, body string) error
-}
-
 // ContactRequest is the validated-shape input for POST /api/contact.
 type ContactRequest struct {
 	Name  string
@@ -40,29 +34,32 @@ type ContactRequest struct {
 	Body  string
 }
 
-// ContactResult reports what happened so the handler can return an honest status
-// (a stored row with a failed send still succeeds, per T5.4 store-only fallback).
+// ContactResult reports the persisted audit row so the handler can return an
+// honest success payload.
 type ContactResult struct {
-	ID      string
-	Emailed bool
+	ID string
 }
 
-// Contact implements the contact form workflow.
+// Contact implements the store-only contact form workflow.
+//
+// The container no longer sends email: it validates, rate-limits and stores the
+// D1 audit row, then returns. The apps/edge Worker owns the Cloudflare
+// `send_email` binding and sends the notification after this endpoint returns
+// 2xx (D-040).
 type Contact struct {
-	store  ContactStore
-	sender EmailSender
-	cfg    config.Config
-	now    func() time.Time
+	store ContactStore
+	cfg   config.Config
+	now   func() time.Time
 }
 
 // NewContact wires the contact service.
-func NewContact(store ContactStore, sender EmailSender, cfg config.Config) *Contact {
-	return &Contact{store: store, sender: sender, cfg: cfg, now: time.Now}
+func NewContact(store ContactStore, cfg config.Config) *Contact {
+	return &Contact{store: store, cfg: cfg, now: time.Now}
 }
 
-// Submit validates, rate-limits, stores an audit row, then attempts to send the
-// notification. Send failures are non-fatal (row already persisted) and logged
-// without PII by the caller.
+// Submit validates, rate-limits and stores an audit row. It never talks to an
+// email transport; notification delivery is the edge Worker's responsibility
+// (store-only behavior, D-040).
 func (s *Contact) Submit(ctx context.Context, req ContactRequest, ipHash string) (ContactResult, error) {
 	clean, err := validateContact(req)
 	if err != nil {
@@ -88,14 +85,7 @@ func (s *Contact) Submit(ctx context.Context, req ContactRequest, ipHash string)
 		return ContactResult{}, mapStoreError(err)
 	}
 
-	result := ContactResult{ID: id, Emailed: false}
-	subject := fmt.Sprintf("New contact message from %s", clean.Name)
-	if err := s.sender.Send(ctx, s.cfg.ContactFrom, s.cfg.ContactTo, clean.Email, subject, clean.Body); err != nil {
-		// T5.4 / D-003: keep the DB row and return a graceful status.
-		return result, nil
-	}
-	result.Emailed = true
-	return result, nil
+	return ContactResult{ID: id}, nil
 }
 
 // validateContact trims and bounds input, rejecting header-injection attempts.

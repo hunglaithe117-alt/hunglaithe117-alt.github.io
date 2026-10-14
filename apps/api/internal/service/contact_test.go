@@ -30,34 +30,23 @@ func (f *fakeContactStore) CountContactsSince(_ context.Context, _ string, _ tim
 	return f.recent, nil
 }
 
-type fakeSender struct {
-	sent bool
-	err  error
-}
-
-func (f *fakeSender) Send(_ context.Context, _, _, _, _, _ string) error {
-	f.sent = true
-	return f.err
-}
-
-func newContactTest(t *testing.T) (*Contact, *fakeContactStore, *fakeSender) {
+func newContactTest(t *testing.T) (*Contact, *fakeContactStore) {
 	t.Helper()
 	store := &fakeContactStore{}
-	sender := &fakeSender{}
-	cfg := config.Config{RateLimitPerMinute: 1, ContactFrom: "no-reply@example.com", ContactTo: "owner@example.com"}
-	svc := NewContact(store, sender, cfg)
+	cfg := config.Config{RateLimitPerMinute: 1}
+	svc := NewContact(store, cfg)
 	svc.now = func() time.Time { return time.Date(2026, 10, 14, 12, 0, 0, 0, time.UTC) }
-	return svc, store, sender
+	return svc, store
 }
 
 func TestContactSubmitHappyPath(t *testing.T) {
-	svc, store, sender := newContactTest(t)
+	svc, store := newContactTest(t)
 	res, err := svc.Submit(context.Background(), ContactRequest{Name: "Ada", Email: "ada@example.com", Body: "Hello"}, "hash")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if res.ID == "" || !res.Emailed || !sender.sent {
-		t.Fatalf("expected sent result, got %+v (sent=%v)", res, sender.sent)
+	if res.ID == "" {
+		t.Fatalf("expected a stored audit row id, got %+v", res)
 	}
 	if store.inserted != 1 {
 		t.Fatalf("expected 1 audit row, got %d", store.inserted)
@@ -72,7 +61,7 @@ func TestContactSubmitValidation(t *testing.T) {
 		"name newline":  {Name: "A\r\nX", Email: "a@example.com", Body: "hi"},
 		"empty body":    {Name: "A", Email: "a@example.com", Body: "   "},
 	}
-	svc, store, _ := newContactTest(t)
+	svc, store := newContactTest(t)
 	for name, req := range cases {
 		if _, err := svc.Submit(context.Background(), req, "hash"); !errors.Is(err, ErrInvalidInput) {
 			t.Errorf("%s: expected ErrInvalidInput, got %v", name, err)
@@ -84,7 +73,7 @@ func TestContactSubmitValidation(t *testing.T) {
 }
 
 func TestContactSubmitRateLimit(t *testing.T) {
-	svc, store, _ := newContactTest(t)
+	svc, store := newContactTest(t)
 	store.recent = 1
 	_, err := svc.Submit(context.Background(), ContactRequest{Name: "A", Email: "a@example.com", Body: "hi"}, "hash")
 	if !errors.Is(err, ErrRateLimited) {
@@ -92,18 +81,11 @@ func TestContactSubmitRateLimit(t *testing.T) {
 	}
 }
 
-func TestContactSubmitStoreOnlyFallbackOnSendFailure(t *testing.T) {
-	svc, store, sender := newContactTest(t)
-	sender.err = errors.New("email unavailable")
-	res, err := svc.Submit(context.Background(), ContactRequest{Name: "A", Email: "a@example.com", Body: "hi"}, "hash")
-	if err != nil {
-		t.Fatalf("send failure must not fail the request: %v", err)
-	}
-	if res.Emailed {
-		t.Fatal("expected emailed=false on send failure")
-	}
-	if store.inserted != 1 {
-		t.Fatalf("audit row must be kept, got %d", store.inserted)
+func TestContactSubmitStoreError(t *testing.T) {
+	svc, store := newContactTest(t)
+	store.err = errors.New("d1 unavailable")
+	if _, err := svc.Submit(context.Background(), ContactRequest{Name: "A", Email: "a@example.com", Body: "hi"}, "hash"); err == nil {
+		t.Fatal("expected store error to surface")
 	}
 }
 
