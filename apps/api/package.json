@@ -2,12 +2,12 @@
   "name": "@blog/api",
   "version": "0.0.0",
   "private": true,
-  "description": "Go (Fiber) JSON API → Cloudflare Container — real app arrives in T5.1",
+  "description": "Go (Fiber) JSON API → Cloudflare Container (apps/edge routes /api/*)",
   "scripts": {
-    "build": "echo \"@blog/api: go build arrives in T5.1\"",
-    "dev": "echo \"@blog/api: go run arrives in T5.1\"",
-    "lint": "echo \"@blog/api: golangci-lint pending (T5.1)\"",
-    "typecheck": "echo \"@blog/api: not applicable (Go)\"",
-    "test": "echo \"@blog/api: go test arrives in T5.1\""
+    "build": "go build -o bin/api ./cmd/server",
+    "dev": "go run ./cmd/server",
+    "test": "go test ./...",
+    "lint": "golangci-lint run",
+    "typecheck": "echo \"@blog/api: not applicable (Go uses go vet)\" && go vet ./..."
   }
 }

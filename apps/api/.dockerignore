@@ -1,0 +1,6 @@
+# Keep the container build context minimal (T5.1).
+bin/
+*.md
+.git/
+.github/
+migrations/

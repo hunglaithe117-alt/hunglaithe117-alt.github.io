@@ -1,4 +1,9 @@
-import type { D1Database, Fetcher, SendEmail } from "@cloudflare/workers-types";
+import type {
+  D1Database,
+  DurableObjectNamespace,
+  Fetcher,
+  SendEmail,
+} from "@cloudflare/workers-types";
 
 /**
  * Single source of truth for the API contract shared by apps/web, apps/edge
@@ -44,6 +49,11 @@ export interface EdgeBindings {
   PUBLIC_API_BASE_URL: string;
   /** Secret used to sign session/contact tokens. */
   SESSION_SECRET: string;
+  /**
+   * Durable Object namespace exposing the container-backed `Api` class, used by
+   * the Worker to forward `/api/*` requests to the Go Fiber container.
+   */
+  API: DurableObjectNamespace;
 }
 
 /** The `/api/*` route surface, keyed by `METHOD path`. */
