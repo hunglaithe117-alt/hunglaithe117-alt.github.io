@@ -102,12 +102,11 @@ async function onSubmit(): Promise<void> {
     return;
   }
 
+  // Wire shape is `POST /api/contact` (packages/types ContactRequest): name, email, body.
   const payload = {
     name: form.name.trim(),
     email: form.email.trim(),
-    subject: form.subject.trim(),
-    message: form.message.trim(),
-    lang: props.lang,
+    body: form.message.trim(),
   };
 
   if (props.endpoint) {

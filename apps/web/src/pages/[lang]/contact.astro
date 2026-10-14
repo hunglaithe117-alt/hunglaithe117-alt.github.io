@@ -1,8 +1,8 @@
 ---
 /**
- * Contact (T3.3): static intro + the `<ContactForm />` Vue island. The sending
- * backend lands in Phase 5, so the island validates client-side and runs in no-op
- * mode until then (its `endpoint` prop stays unset here).
+ * Contact (T3.3): static intro + the `<ContactForm />` Vue island. The island
+ * POSTs to `/api/contact` (Phase 5); if the API is not reachable yet it falls
+ * back to its honest "not connected" status rather than throwing.
  */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ContactForm from "@blog/ui/ContactForm.vue";
@@ -96,7 +96,7 @@ const jsonLd = {
       class="rounded-xl border border-border bg-surface p-6 shadow-sm tablet:p-8"
       data-pagefind-ignore
     >
-      <ContactForm client:visible lang={lang} labels={labels} />
+      <ContactForm client:visible lang={lang} labels={labels} endpoint="/api/contact" />
     </div>
   </div>
 </BaseLayout>
