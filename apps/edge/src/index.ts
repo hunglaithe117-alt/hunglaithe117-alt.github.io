@@ -10,12 +10,12 @@ import type { EdgeBindings } from "@blog/types";
  * container-backed Durable Object namespace (`env.API`). A single stable
  * instance name ("primary") keeps all API traffic on one warm container.
  *
- * NOTE: the `Api` Durable Object class itself (a `Container` subclass from
- * `@cloudflare/containers`) is not yet present because that package is not
- * installed in this workspace. It must be added when dependencies are
- * installed; see the Phase 5 report. Until then the namespace is declared in
- * config but has no implementation, so forwarding fails closed with 503.
+ * The `Api` Durable Object class (a `Container` subclass from
+ * `@cloudflare/containers`) lives in `./api-container.ts` and is re-exported
+ * below; the named export must match the `exports.Api` key and the `API`
+ * binding's `exportName` in `cloudflare.config.ts`.
  */
+export { Api } from "./api-container.ts";
 export default {
   async fetch(request: Request, env: EdgeBindings, _ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(request.url);

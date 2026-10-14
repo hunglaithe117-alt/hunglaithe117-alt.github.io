@@ -17,5 +17,8 @@
     "@blog/types": "workspace:*",
     "cf": "1.0.0-beta.14",
     "wrangler": "4.150.0"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
   }
 }

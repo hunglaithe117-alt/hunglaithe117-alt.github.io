@@ -74,6 +74,17 @@ export default defineConfig(({ mode, isPreview }) => {
         ),
         // Signing secret for contact tokens; supplied via --secrets-file.
         SESSION_SECRET: bindings.secret(),
+
+        // Container env pass-through (see src/api-container.ts `envVars`). The
+        // Go API reaches D1 + Email over the Cloudflare REST API, so it needs
+        // the account id, the D1 id and scoped tokens. Ids are placeholders
+        // resolved at deploy time; the tokens arrive via --secrets-file and are
+        // never committed.
+        CLOUDFLARE_ACCOUNT_ID: bindings.text("<ACCOUNT_ID>"),
+        D1_DATABASE_ID: bindings.text("<D1_DATABASE_ID>"),
+        D1_API_TOKEN: bindings.secret(),
+        EMAIL_API_TOKEN: bindings.secret(),
+
         // Durable Object namespace exposing the container instance to the
         // Worker's fetch handler (so it can forward /api/* requests).
         API: bindings.durableObject({ worker: workerName, exportName: "Api" }),
