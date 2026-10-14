@@ -23,11 +23,20 @@ secrets.json
 .cloudflare/
 .turbo/
 .astro/
+.wrangler/
 dist/
 build/
 bin/
 coverage/
 *.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Linter / tool caches (vale, lychee) and scratch space.
+# ---------------------------------------------------------------------------
+.vale/
+.lycheecache
+tmp/
+temp/
 
 # ---------------------------------------------------------------------------
 # Dependencies

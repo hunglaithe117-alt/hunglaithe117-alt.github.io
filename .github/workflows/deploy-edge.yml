@@ -1,0 +1,168 @@
+# Deploy — the single `cf` edge deployment (assets + /api/* container + D1 + send_email).
+#
+# Fork-safe contract (TOOLCHAIN-VERIFIED.md §5):
+#   * pull_request  -> credential-free `cf deploy --prebuilt --mode production --dry-run`.
+#   * push to main  -> `deploy` job, gated by the `production-edge` GitHub Environment
+#                      (required reviewers); only this job receives Cloudflare credentials.
+#
+# Resource commands take API IDs, not names; D1 migrations run before the Worker/
+# container that expects the new schema. The asset directory comes from the sibling
+# apps/edge/wrangler.config.ts (D-036), not cloudflare.config.ts.
+name: deploy-edge
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  # Never cancel an in-flight production deploy; serialize per ref.
+  group: deploy-edge-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # PR gate: validate the Build Output with NO credentials and NO API calls.
+  validate:
+    name: validate (dry-run, no credentials)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      # Deliberately no TURBO_TOKEN/TURBO_TEAM here: the PR path is credential-free.
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (version from packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node 24.21.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `./apps/edge...` = the edge package plus its dependencies, so `@blog/web`
+      # is built first and `cf build` can package apps/web/dist as assets.
+      - name: Build edge + upstream deps
+        run: pnpm turbo run build --filter=./apps/edge...
+
+      # Credential-free: `--prebuilt --dry-run` validates the Build Output before
+      # upload and makes no API calls. Run from apps/edge (cf config search walks up).
+      - name: cf deploy dry-run
+        working-directory: apps/edge
+        run: pnpm exec cf deploy --prebuilt --mode production --dry-run
+
+  # Decide whether the edge deployment (or any of its inputs) actually changed.
+  changes:
+    name: detect edge changes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      edge: ${{ steps.diff.outputs.edge }}
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes affecting apps/edge
+        id: diff
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          # First push / force-push: `before` is all zeroes -> deploy.
+          if [ -z "${BEFORE:-}" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "edge=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$BEFORE" "${{ github.sha }}" \
+            | grep -qE '^(apps/(edge|web)/|packages/|pnpm-lock\.yaml|turbo\.json|go\.work)'; then
+            echo "edge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "edge=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Production deploy — only reachable on push to main, only after the environment
+  # gate (required reviewers) is approved, and only when the edge graph changed.
+  deploy:
+    name: deploy (production-edge)
+    needs: changes
+    if: needs.changes.outputs.edge == 'true'
+    environment: production-edge # required reviewers; secrets exist only here
+    runs-on: ubuntu-latest
+    env:
+      # Remote cache (optional); this job is the only one that receives credentials.
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (version from packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node 24.21.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build edge + upstream deps
+        run: pnpm turbo run build --filter=./apps/edge...
+
+      # Secrets attach per uploaded version, so every deploy must ship the full set
+      # (TOOLCHAIN-VERIFIED.md §7). Write with umask 077; never echo the values.
+      - name: Write secrets.env (umask 077)
+        working-directory: apps/edge
+        shell: bash
+        env:
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          SEND_EMAIL_FROM: ${{ vars.SEND_EMAIL_FROM }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : > secrets.env
+          printf 'SESSION_SECRET=%s\n' "$SESSION_SECRET" >> secrets.env
+          printf 'SEND_EMAIL_FROM=%s\n' "$SEND_EMAIL_FROM" >> secrets.env
+
+      # Migrations run before the Worker/container that expects the new schema.
+      # Resource commands take the D1 database ID (not the name).
+      - name: Apply D1 migrations
+        working-directory: apps/edge
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          DATABASE_ID: ${{ vars.CLOUDFLARE_D1_DATABASE_ID }}
+        run: pnpm exec cf d1 migrations apply "$DATABASE_ID" --dir migrations --table d1_migrations
+
+      # Destructive cf commands can abort with exit code 0 in CI — review the output.
+      - name: Deploy (cf, gradual container rollout)
+        working-directory: apps/edge
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: >-
+          pnpm exec cf deploy --prebuilt --mode production
+          --secrets-file secrets.env --containers-rollout gradual
+
+      - name: Remove secrets.env (always)
+        if: always()
+        working-directory: apps/edge
+        run: rm -f secrets.env

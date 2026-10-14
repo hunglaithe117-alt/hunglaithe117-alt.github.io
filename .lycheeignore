@@ -1,0 +1,14 @@
+# Lychee ignore list — content-quality gate (D-027).
+#
+# CI runs `lychee --offline --root-dir apps/web/dist 'apps/web/dist/**/*.html'`,
+# so remote URLs are already skipped. These patterns protect the offline pass from
+# dev-only/placeholder values that appear in built HTML (config defaults, examples).
+http://localhost:*
+https://localhost:*
+http://127.0.0.1:*
+http://0.0.0.0:*
+https://example.com/*
+https://www.example.com/*
+https://api.example.com/*
+https://staging-api.example.com/*
+mailto:*

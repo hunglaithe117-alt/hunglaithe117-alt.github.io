@@ -18,6 +18,11 @@
     "test": "turbo run test",
     "check": "turbo run lint typecheck test",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:md": "pnpm dlx markdownlint-cli2@0.18.1",
+    "check:content": "pnpm format:check && pnpm lint:md && pnpm --filter @blog/web check",
+    "security:audit": "pnpm audit --audit-level=high",
+    "security:govulncheck": "cd apps/api && go run golang.org/x/vuln/cmd/govulncheck@latest ./...",
     "prepare": "husky"
   },
   "devDependencies": {

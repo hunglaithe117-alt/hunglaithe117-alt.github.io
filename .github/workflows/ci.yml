@@ -1,0 +1,169 @@
+# CI — affected-only lint/test/build + the D-027 content-quality gate.
+#
+# Fork-safe by construction: pull requests from forks never receive repository
+# secrets, so the remote-cache env below resolves to empty and Turborepo silently
+# falls back to the local cache. Nothing in this workflow requires a credential.
+#
+# Remote cache = Vercel Remote Cache (D-024): TURBO_TOKEN (secret) + TURBO_TEAM
+# (repository variable). Both are optional — an empty token disables upload and
+# the run still succeeds.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  # A new push/commit supersedes the previous run for the same ref.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Empty on fork PRs -> local cache only (no failure, no upload).
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TELEMETRY_DISABLED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  ci:
+    name: lint / test / build (affected)
+    runs-on: ubuntu-latest
+    steps:
+      # Full history is required for `--filter=...[<ref>]` git filtering and for
+      # Turborepo's hashing of changes since the base commit.
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (version from packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node 24.21.0 (floor >= 22.18 for cf config loading)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+
+      # `apps/api` has no Go dependencies until Phase 5, so `go.sum` does not
+      # exist yet. setup-go's cache needs the file to key on; create an empty one
+      # so the cache path resolves. It is replaced once real deps land.
+      - name: Ensure apps/api/go.sum exists (Go cache key)
+        run: test -f apps/api/go.sum || touch apps/api/go.sum
+
+      - name: Setup Go 1.27.2 (cache keyed on apps/api/go.sum)
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.2"
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # --- D-027 content-quality gate (credential-free; must pass on fork PRs) ---
+      - name: Prettier (format check)
+        run: pnpm format:check
+
+      - name: markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            **/*.md
+            **/*.mdx
+
+      - name: Vale (prose, error level)
+        uses: errata-ai/vale-action@v2
+        with:
+          files: .
+          vale_flags: "--minAlertLevel=error"
+          # `local` reporter keeps this fork-safe: no PR-comment write needed.
+          reporter: local
+          fail_on_error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Astro check
+        run: pnpm --filter @blog/web check
+
+      # --- affected-only build / lint / test (T2.1) ---
+      - name: Determine affected base ref
+        id: base
+        shell: bash
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          ref="${PR_BASE:-${PUSH_BEFORE:-}}"
+          # First push / force-push: `before` is all zeroes -> fall back below.
+          if [ -z "$ref" ] || [ "$ref" = "0000000000000000000000000000000000000000" ]; then
+            ref=""
+          fi
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+
+      - name: Turbo — lint, test, build (affected only)
+        shell: bash
+        env:
+          FROM_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ -n "${FROM_REF:-}" ] && git rev-parse --verify --quiet "${FROM_REF}^{commit}" >/dev/null; then
+            # Only packages changed since the base commit.
+            args=("--filter=...[${FROM_REF}]")
+          elif git rev-parse --verify --quiet 'HEAD^1^{commit}' >/dev/null; then
+            # Push fallback: everything changed since the previous commit (T2.1).
+            args=("--filter=...[HEAD^1]")
+          fi
+          echo "turbo filter: ${args[*]:-<none — full run>}"
+          pnpm turbo run lint test build "${args[@]}"
+
+      # --- link check over the built site (D-027) ---
+      - name: Build web (guarantee dist/ exists for the link check)
+        run: pnpm turbo run build --filter=@blog/web
+
+      - name: Lychee (offline link check)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --root-dir apps/web/dist "apps/web/dist/**/*.html"
+          fail: true
+
+  security:
+    name: secret & dependency scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for the secret scan)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (version from packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node 24.21.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+
+      - name: Setup Go 1.27.2
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.2"
+          cache: false
+
+      - name: gitleaks — full-history secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+      - name: pnpm audit (high/critical gate)
+        run: pnpm security:audit
+
+      - name: govulncheck (Go)
+        run: pnpm security:govulncheck

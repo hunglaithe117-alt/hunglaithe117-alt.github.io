@@ -1,0 +1,29 @@
+# markdownlint-cli2 config — content-quality gate (D-027).
+# Read by both the local `pnpm lint:md` script and the CI action.
+config:
+  default: true
+  # Prose line-length is owned by Prettier/Vale, not markdownlint.
+  MD013: false
+  # Inline HTML is allowed in MDX/Astro-authored docs.
+  MD033: false
+  # Trailing punctuation in headings is intentional in prose/bilingual docs.
+  MD026: false
+  # Files may begin with front-matter rather than a top-level H1.
+  MD041: false
+  # Repeated headings are fine across sections.
+  MD024:
+    siblings_only: true
+globs:
+  - "**/*.md"
+  - "**/*.mdx"
+ignores:
+  # Recursive — workspace packages carry their own hoisted node_modules.
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/bin/**"
+  - "**/coverage/**"
+  - "**/.cloudflare/**"
+  - "**/.turbo/**"
+  - "**/.astro/**"
+  - ".git/**"
