@@ -112,7 +112,7 @@ const jsonLd = {
           <span aria-hidden="true">·</span>
           <span>{t.readingTime(readingMinutes)}</span>
           {/* View count: hydrated client-side only (`client:visible`), never during SSG. */}
-          <ViewCounter client:visible slug={slug} label={t.viewsLabel} />
+          <ViewCounter client:idle slug={slug} label={t.viewsLabel} />
         </p>
         {post.data.tags.length > 0 && (
           <ul class="mt-4 flex list-none flex-wrap gap-2 p-0" data-pagefind-ignore>
