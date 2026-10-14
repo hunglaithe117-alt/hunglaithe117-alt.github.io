@@ -75,6 +75,16 @@ func TestHealthz(t *testing.T) {
 	}
 }
 
+func TestHealthzPublicAlias(t *testing.T) {
+	// Reachable through the edge Worker, which only forwards /api + /api/*
+	// (T6.3 uptime checks target this path).
+	app := newApp(&stubViews{}, &stubContacts{}, baseConfig())
+	resp := do(t, app, "GET", "/api/healthz", "", nil)
+	if resp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %d", resp.StatusCode)
+	}
+}
+
 func TestViewsInvalidSlug(t *testing.T) {
 	app := newApp(&stubViews{}, &stubContacts{}, baseConfig())
 	resp := do(t, app, "GET", "/api/views/Bad_Slug", "", nil)
@@ -120,6 +130,9 @@ func TestSecurityHeaders(t *testing.T) {
 	}
 	if resp.Header.Get("X-Frame-Options") != "DENY" {
 		t.Fatal("missing X-Frame-Options header")
+	}
+	if resp.Header.Get("Strict-Transport-Security") == "" {
+		t.Fatal("missing Strict-Transport-Security header")
 	}
 }
 

@@ -23,6 +23,9 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	// Route package-level slog calls (e.g. the handler error logger) through the
+	// same JSON handler so all API logs are structured and queryable (T6.3).
+	slog.SetDefault(logger)
 
 	cfg, err := config.Load()
 	if err != nil {

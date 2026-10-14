@@ -21,6 +21,10 @@ export interface ApiContainerEnv {
   CLOUDFLARE_ACCOUNT_ID: string;
   D1_DATABASE_ID: string;
   D1_API_TOKEN: string;
+  // CORS allowlist for the Fiber API (T5.5/T6.2); forwarding it keeps the
+  // container's allowlist in sync with the deployed origin instead of falling
+  // back to its localhost default.
+  ALLOWED_ORIGINS: string;
 }
 
 /**
@@ -43,5 +47,6 @@ export class Api extends Container<ApiContainerEnv> {
     CLOUDFLARE_ACCOUNT_ID: this.env.CLOUDFLARE_ACCOUNT_ID ?? "",
     D1_DATABASE_ID: this.env.D1_DATABASE_ID ?? "",
     D1_API_TOKEN: this.env.D1_API_TOKEN ?? "",
+    ALLOWED_ORIGINS: this.env.ALLOWED_ORIGINS ?? "",
   };
 }

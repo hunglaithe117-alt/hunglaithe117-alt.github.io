@@ -2,12 +2,18 @@ package handler
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/example/blog-personal/apps/api/internal/service"
 )
+
+// requestIDKey is the locals key that requestid.New() populates by default.
+// The request id is echoed to the client as the X-Request-ID response header
+// and carried into every structured log line (T6.3).
+const requestIDKey = "requestid"
 
 // errorResponse is the uniform error payload for every /api/* route
 // (packages/types ApiError).
@@ -38,7 +44,27 @@ func errorHandler(c *fiber.Ctx, err error) error {
 		status, message = statusForError(err)
 	}
 
+	logRequestError(c, status, err)
+
 	return c.Status(status).JSON(errorResponse{Error: message})
+}
+
+// logRequestError writes one structured line per failed request: status, route,
+// method and request id only. The body, headers, query string and client IP are
+// deliberately omitted so logs stay PII-free (T6.3). 5xx are logged at error
+// level (alertable); 4xx at debug (noise-free).
+func logRequestError(c *fiber.Ctx, status int, err error) {
+	attrs := []any{
+		"status", status,
+		"method", c.Method(),
+		"path", c.Path(),
+		"request_id", c.Locals(requestIDKey),
+	}
+	if status >= http.StatusInternalServerError {
+		slog.Error("request failed", append(attrs, "error", err)...)
+		return
+	}
+	slog.Debug("request rejected", append(attrs, "error", err)...)
 }
 
 // statusForError maps service sentinels to HTTP status codes.

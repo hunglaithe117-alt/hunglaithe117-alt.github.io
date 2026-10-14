@@ -4,7 +4,10 @@
 # starts on Cloudflare Containers) and the attack surface minimal.
 
 # --- build stage ---
-FROM golang:1.27 AS build
+# Pinned to the current 1.27 patch: govulncheck flags 8 stdlib advisories
+# (net/http, net/textproto, crypto/tls) fixed in go1.27.2 (T6.2). Bump with the
+# Go toolchain; CI already pins go-version 1.27.2.
+FROM golang:1.27.2 AS build
 
 WORKDIR /src
 

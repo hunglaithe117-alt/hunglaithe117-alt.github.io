@@ -74,6 +74,13 @@ export default defineConfig(({ mode, isPreview }) => {
         PUBLIC_API_BASE_URL: bindings.text(
           isProd ? "https://example.com" : "https://blog-edge-staging.workers.dev",
         ),
+        // CORS allowlist forwarded to the container (T5.5/T6.2). Without this
+        // the API falls back to its localhost default, silently breaking
+        // cross-origin calls from previews/staging. Never "*"; the API rejects a
+        // wildcard at startup (apps/api/internal/config/config.go).
+        ALLOWED_ORIGINS: bindings.text(
+          isProd ? "https://example.com" : `https://${workerName}.workers.dev`,
+        ),
         // Signing secret for contact tokens; supplied via --secrets-file.
         SESSION_SECRET: bindings.secret(),
 
@@ -98,7 +105,18 @@ export default defineConfig(({ mode, isPreview }) => {
       },
 
       triggers: [triggers.fetch({ pattern: "example.com/api/*" })],
-      observability: { enabled: true, headSamplingRate: 1 },
+
+      // Observability (T6.3): Workers Logs + invocation logs at 100% head
+      // sampling (a low-traffic personal blog — full fidelity is cheap). Query
+      // strings are redacted so tracking params / emails forwarded in a URL are
+      // never persisted. Analytics and uptime live at the account level (see
+      // docs/runbook.md); no client-side tracker is injected.
+      observability: {
+        enabled: true,
+        headSamplingRate: 1,
+        redactQueryString: true,
+        logs: { enabled: true, invocationLogs: true, headSamplingRate: 1 },
+      },
     },
   };
 });

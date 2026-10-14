@@ -39,13 +39,18 @@ func (r *Router) Build() *fiber.App {
 	app.Use(recover.New())
 	app.Use(requestid.New())
 	app.Use(logger.New(logger.Config{
-		// No PII: the default logger records method/path/status/latency only.
-		Format: "${time} ${status} ${latency} ${method} ${path}\n",
+		// No PII: method/path/status/latency plus the request id set by
+		// requestid.New(). The body, headers, query string and client IP are
+		// never logged (T6.3).
+		Format: "${time} ${status} ${latency} ${method} ${path} rid=${locals:requestid}\n",
 	}))
 	app.Use(securityHeaders())
 	app.Use(r.cors())
 
 	app.Get("/healthz", Health)
+	// Public alias: the edge Worker only forwards `/api` + `/api/*` to the
+	// container, so an external uptime check must target `/api/healthz` (T6.3).
+	app.Get("/api/healthz", Health)
 	app.Get("/api/views/:slug", r.views.Get)
 	app.Post("/api/contact", r.contact.Post)
 
@@ -64,13 +69,16 @@ func (r *Router) cors() fiber.Handler {
 	})
 }
 
-// securityHeaders adds conservative browser hardening headers (T5.5).
+// securityHeaders adds conservative browser hardening headers (T5.5/T6.2).
 func securityHeaders() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		c.Set("X-Content-Type-Options", "nosniff")
 		c.Set("X-Frame-Options", "DENY")
 		c.Set("Referrer-Policy", "no-referrer")
 		c.Set("Cross-Origin-Resource-Policy", "same-site")
+		// /api is same-origin with the site, so an HSTS header here also pins the
+		// whole host to HTTPS in browsers (T6.2).
+		c.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		return c.Next()
 	}
 }

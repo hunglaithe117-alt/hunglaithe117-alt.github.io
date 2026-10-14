@@ -27,16 +27,49 @@ export { Api } from "./api-container.ts";
 const CONTACT_TO = "owner@example.com";
 const CONTACT_FROM = "no-reply@example.com";
 
+/**
+ * Security headers applied to every response (T6.2). Additive only — a header
+ * already set by the API container or by the Astro `_headers` file (T6.4) wins,
+ * so a stricter CSP added later is not clobbered. HSTS is unconditional: the
+ * Worker only ever runs behind Cloudflare TLS.
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+};
+
+/** HTTP statuses that must not carry a response body. */
+function isNullBodyStatus(status: number): boolean {
+  return status === 204 || status === 205 || status === 304;
+}
+
+/** Returns a copy of `response` with the conservative security headers added. */
+function withSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    if (!headers.has(name)) headers.set(name, value);
+  }
+  return new Response(isNullBodyStatus(response.status) ? null : response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: EdgeBindings, _ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(request.url);
 
-    if (pathname === "/api" || pathname.startsWith("/api/")) {
-      return forwardToContainer(request, env);
-    }
+    const response =
+      pathname === "/api" || pathname.startsWith("/api/")
+        ? await forwardToContainer(request, env)
+        : // Static assets (Astro `apps/web/dist`) for every other path.
+          await env.ASSETS.fetch(request);
 
-    // Static assets (Astro `apps/web/dist`) for every other path.
-    return env.ASSETS.fetch(request);
+    return withSecurityHeaders(response);
   },
 };
 
@@ -105,6 +138,19 @@ async function sendContactNotification(env: EdgeBindings, contact: ContactFields
       text: `${contact.body}\n\n— ${contact.name} <${contact.email}>`,
     });
   } catch (error) {
-    console.error("contact notification failed; row remains stored", error);
+    // Structured and PII-free (T6.3): the contact fields (name/email/body) and
+    // recipient are never logged, and any email-looking text in the provider
+    // error is masked. The stored D1 row remains the source of truth.
+    console.error(
+      JSON.stringify({
+        event: "contact_notification_failed",
+        error: redactEmails(error instanceof Error ? error.message : String(error)),
+      }),
+    );
   }
+}
+
+/** Masks anything that looks like an email address so logs stay PII-free. */
+function redactEmails(value: string): string {
+  return value.replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, "[redacted-email]");
 }
