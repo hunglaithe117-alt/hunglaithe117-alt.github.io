@@ -1,5 +1,5 @@
 /**
- * Static journeys (T6.1) — REAL pages, no API involved.
+ * Static journeys (T6.1) — REAL pages, served from the built output.
  *
  * Covers the critical reading journey end to end against the built static site:
  *   home -> search (Pagefind) -> open a post -> language switch.
@@ -13,14 +13,14 @@ test.describe("static journeys (real static build)", () => {
     await page.goto("/");
     // Astro emits a meta-refresh redirect page for `/` -> `/vi/` (default locale).
     await expect(page).toHaveURL(/\/vi\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ghi chú của tôi");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Chuquanpho29");
   });
 
   test("test_home_to_search_pagefind_query_opens_post", async ({ page }) => {
     // 1. Home (real).
     await page.goto("/en/");
     await expect(page).toHaveURL(/\/en\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Field notes");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Chuquanpho29");
 
     // 2. Home -> search page (real, JS-disabled-safe <a>).
     await page.locator('main a[href="/en/search/"]').click();
@@ -45,7 +45,7 @@ test.describe("static journeys (real static build)", () => {
     await page.goto("/en/");
     await page.locator("header a.lang-switch:visible").first().click();
     await expect(page).toHaveURL(/\/vi\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ghi chú của tôi");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Chuquanpho29");
   });
 
   test("test_language_switch_post_uses_paired_translation", async ({ page }) => {

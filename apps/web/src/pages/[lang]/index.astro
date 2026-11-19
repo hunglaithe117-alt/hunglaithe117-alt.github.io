@@ -1,19 +1,18 @@
 ---
-/** Locale home / garden index (T3.3): hero, recent posts, tag cloud. */
+/** Locale home: the site name, one line of introduction, then every published post. */
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import PostCard from "@/components/PostCard.astro";
+import PostRow from "@/components/PostRow.astro";
 import {
   absoluteUrl,
   homePath,
   HTML_LANG,
   LOCALES,
+  postsPath,
   searchPath,
-  tagPath,
-  tagsPath,
   UI,
   type Lang,
 } from "@/lib/i18n";
-import { collectTags, getPostsByLang } from "@/lib/posts";
+import { getPostsByLang } from "@/lib/posts";
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -25,11 +24,6 @@ const t = UI[lang];
 const posts = await getPostsByLang(lang);
 const canonical = homePath(lang);
 const alternates = LOCALES.map((l) => ({ lang: l, path: homePath(l) }));
-
-const tagCounts = collectTags(posts).map((tag) => ({
-  tag,
-  count: posts.filter((post) => post.data.tags.includes(tag)).length,
-}));
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -51,73 +45,24 @@ const jsonLd = {
   isHome={true}
 >
   <div data-pagefind-body>
-    <!-- Hero -->
-    <header class="measure" data-reveal style="--reveal-index:0">
-      <h1 class="text-balance">{t.siteTitle}</h1>
-      <p class="mt-4 text-lg text-text-muted">{t.siteDescription}</p>
-      <div class="mt-6 flex flex-wrap gap-3">
-        <a class="btn btn-primary" href={`/${lang}/posts/`}>
-          {t.viewAllPosts}
-        </a>
-        <a class="btn btn-secondary" href={searchPath(lang)}>
-          {t.search}
-        </a>
-      </div>
+    <header class="measure">
+      <h1>{t.siteTitle}</h1>
+      <p class="mt-3 text-lg text-text-muted">{t.siteDescription}</p>
     </header>
 
-    <!-- Recent posts -->
-    <section class="mt-16" aria-labelledby="latest-posts">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="latest-posts" class="text-xl">
-          {t.latestPosts}
-        </h2>
-        <a class="link-tap text-sm" href={`/${lang}/posts/`}>
-          {t.allPosts}
-        </a>
-      </div>
-      {posts.length === 0 ? (
-        <p class="mt-4 text-text-muted">{t.noPosts}</p>
-      ) : (
-        <ul class="card-grid mt-6 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
-          {posts.slice(0, 7).map((post, i) => (
-            <li
-              class={i === 0 ? "desktop:col-span-2" : ""}
-              data-reveal
-              style={`--reveal-index:${Math.min(i + 1, 6)}`}
-            >
-              <PostCard post={post} eager={i === 0} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-
-    <!-- Tag cloud -->
-    {tagCounts.length > 0 && (
-      <section class="mt-16" aria-labelledby="browse-tags">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="browse-tags" class="text-xl">
-            {t.browseByTag}
-          </h2>
-          <a class="link-tap text-sm" href={tagsPath(lang)}>
-            {t.tags}
-          </a>
-        </div>
-        <ul class="mt-6 flex list-none flex-wrap gap-3 p-0">
-          {tagCounts.map(({ tag, count }) => (
-            <li>
-              <a class="tag-chip" href={tagPath(lang, tag)}>
-                <span>{tag}</span>
-                <span class="text-text-muted" aria-hidden="true">
-                  ·
-                </span>
-                <span>{count}</span>
-                <span class="sr-only">{t.tagCount(count)}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
+    {posts.length === 0 ? (
+      <p class="mt-12 text-text-muted">{t.noPosts}</p>
+    ) : (
+      <ul class="post-list measure mt-10">
+        {posts.map((post) => (
+          <PostRow post={post} />
+        ))}
+      </ul>
     )}
+
+    <p class="mt-8 flex flex-wrap gap-x-4 text-sm">
+      <a href={postsPath(lang)}>{t.allPosts}</a>
+      <a href={searchPath(lang)}>{t.search}</a>
+    </p>
   </div>
 </BaseLayout>

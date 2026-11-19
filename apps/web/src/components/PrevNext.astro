@@ -1,8 +1,7 @@
 ---
 /**
- * Previous / next post navigation (T3.3). Directional labels use an arrow glyph plus
- * a text label so meaning never rests on the arrow alone (§5). One column on phone,
- * two columns from tablet up.
+ * Previous / next post navigation: two plain links, label above title. Direction is
+ * carried by the label text, never by an arrow alone.
  */
 interface NavItem {
   href: string;
@@ -21,32 +20,14 @@ const hasAny = Boolean(prev || next);
 
 {hasAny && (
   <nav
-    class="mt-16 grid gap-4 border-t border-border pt-8 tablet:grid-cols-2"
+    class="mt-14 flex flex-col gap-2 border-t border-border pt-4 text-sm tablet:flex-row tablet:justify-between tablet:gap-8"
     aria-label={`${prevLabel} / ${nextLabel}`}
     data-pagefind-ignore
   >
     {prev ? (
-      <a
-        href={prev.href}
-        class="group flex min-h-15 flex-col justify-center gap-1 rounded-lg border border-border bg-surface p-4 no-underline shadow-xs transition-transform duration-fast ease-standard hover:-translate-y-px"
-      >
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-text-muted">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          {prevLabel}
-        </span>
-        <span class="text-base font-semibold text-text transition-colors duration-fast group-hover:text-link">
+      <a class="group flex min-h-11 flex-col justify-center no-underline" href={prev.href}>
+        <span class="text-text-muted">{prevLabel}</span>
+        <span class="text-text group-hover:text-link group-hover:underline group-hover:underline-offset-4">
           {prev.title}
         </span>
       </a>
@@ -56,26 +37,11 @@ const hasAny = Boolean(prev || next);
 
     {next ? (
       <a
+        class="group flex min-h-11 flex-col justify-center no-underline tablet:items-end"
         href={next.href}
-        class="group flex min-h-15 flex-col justify-center gap-1 rounded-lg border border-border bg-surface p-4 text-end no-underline shadow-xs transition-transform duration-fast ease-standard hover:-translate-y-px tablet:items-end"
       >
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-text-muted">
-          {nextLabel}
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </span>
-        <span class="text-base font-semibold text-text transition-colors duration-fast group-hover:text-link">
+        <span class="text-text-muted">{nextLabel}</span>
+        <span class="text-text group-hover:text-link group-hover:underline group-hover:underline-offset-4">
           {next.title}
         </span>
       </a>

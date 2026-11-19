@@ -1,0 +1,25 @@
+---
+/**
+ * One row in a dated post list (home, archive, tag pages, related posts): date,
+ * then title, nothing else — no cover, no description, no card. It renders the
+ * <li> itself so the call sites stay a plain <ul class="post-list">.
+ *
+ */
+import { postPath } from "@/lib/i18n";
+import { slugOf, type Post } from "@/lib/posts";
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const href = postPath(post.data.lang, slugOf(post));
+const dateFormatter = new Intl.DateTimeFormat(post.data.lang, { dateStyle: "medium" });
+const dateIso = post.data.date.toISOString();
+---
+
+<li>
+  <a href={href}>
+    <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>{" "}
+    <span class="post-title">{post.data.title}</span>
+  </a>
+</li>

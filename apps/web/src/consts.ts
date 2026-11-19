@@ -1,8 +1,10 @@
 /**
  * Site-wide constants shared by pages, feeds and metadata.
- * Values are placeholders until real identity/content lands (CONTENT-INVENTORY.md).
+ * The identity lives in `lib/site.ts`; this file only re-exports it for older callers.
  */
-export const SITE_AUTHOR = "Nguyễn Văn A";
+import { SITE } from "./lib/site";
+
+export const SITE_AUTHOR = SITE.name;
 
 /** Public site origin; mirrors `site` in astro.config.mjs. */
 export const FALLBACK_SITE_URL = "https://example.com";

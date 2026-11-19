@@ -18,15 +18,13 @@ const other = UI.en;
   description={t.notFoundBody}
   canonical="/404"
 >
-  <div class="mx-auto max-w-[var(--container-narrow)] py-8">
-    <p class="font-mono text-sm text-text-muted">404</p>
+  <div class="measure py-4">
+    <p class="text-sm text-text-muted">404</p>
     <h1 class="mt-2">{t.notFoundTitle}</h1>
-    <p class="mt-4 text-lg text-text-muted">{t.notFoundBody}</p>
+    <p class="mt-4 text-text-muted">{t.notFoundBody}</p>
     <p class="mt-1 text-sm text-text-muted">{other.notFoundBody}</p>
     <p class="mt-8">
-      <a class="btn btn-primary" href={homePath(lang)}>
-        {t.notFoundCta}
-      </a>
+      <a href={homePath(lang)}>{t.notFoundCta}</a>
     </p>
   </div>
 </BaseLayout>

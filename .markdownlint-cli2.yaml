@@ -27,3 +27,7 @@ ignores:
   - "**/.turbo/**"
   - "**/.astro/**"
   - ".git/**"
+  # Vendored template library — its stubs use emphasis-as-heading by design.
+  - "templates/**"
+  # Local Deepwork session state.
+  - ".slim/**"

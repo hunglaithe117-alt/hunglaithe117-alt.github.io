@@ -1,7 +1,7 @@
 ---
-/** Per-tag listing (T3.3) — posts carrying a tag, plus the per-tag feed link (D-038). */
+/** Per-tag listing — posts carrying a tag, plus the per-tag feed link. */
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import PostCard from "@/components/PostCard.astro";
+import PostRow from "@/components/PostRow.astro";
 import { LOCALES, tagFeedPath, tagPath, tagsPath, UI, type Lang } from "@/lib/i18n";
 import { collectTags, getPostsByLang } from "@/lib/posts";
 
@@ -36,38 +36,39 @@ const otherTags = collectTags(all).filter((other) => other !== tag);
 >
   <div data-pagefind-body>
     <nav aria-label={t.tagsTitle} class="text-sm" data-pagefind-ignore>
-      <a class="link-tap" href={tagsPath(lang)}>
+      <a class="inline-flex min-h-11 items-center" href={tagsPath(lang)}>
         {t.tagsTitle}
       </a>
     </nav>
 
-    <header class="measure mt-3" data-reveal style="--reveal-index:0">
+    <header class="measure">
       <h1>{title}</h1>
-      <p class="mt-4 flex flex-wrap items-center gap-3 text-sm text-text-muted">
-        <span>{t.tagCount(posts.length)}</span>
-        <a class="link-tap" href={tagFeedPath(lang, tag)} aria-label={`${t.tagFeedLabel}: ${tag}`}>
+      <p class="mt-3 flex flex-wrap items-center gap-x-4 text-sm text-text-muted">
+        <span>{t.tagCount(posts.length)}</span>{" "}
+        <a href={tagFeedPath(lang, tag)} aria-label={`${t.tagFeedLabel}: ${tag}`}>
           {t.tagFeedLabel} (RSS)
         </a>
       </p>
     </header>
 
-    <ul class="card-grid mt-10 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
-      {posts.map((post, i) => (
-        <li data-reveal style={`--reveal-index:${Math.min(i, 6)}`}>
-          <PostCard post={post} eager={i === 0} />
-        </li>
+    <ul class="post-list measure mt-8">
+      {posts.map((post) => (
+        <PostRow post={post} />
       ))}
     </ul>
 
     {otherTags.length > 0 && (
-      <section class="mt-16" aria-labelledby="other-tags" data-pagefind-ignore>
-        <h2 id="other-tags" class="text-xl">
+      <section class="measure mt-14" aria-labelledby="other-tags" data-pagefind-ignore>
+        <h2 id="other-tags" class="text-sm font-semibold text-text-muted">
           {t.tagFilters}
         </h2>
-        <ul class="mt-4 flex list-none flex-wrap gap-3 p-0">
+        <ul class="mt-1 flex list-none flex-wrap gap-x-4 p-0 text-sm">
           {otherTags.map((other) => (
             <li>
-              <a class="tag-chip" href={tagPath(lang, other)}>
+              <a
+                class="inline-flex min-h-11 items-center text-text no-underline hover:text-link hover:underline hover:underline-offset-4"
+                href={tagPath(lang, other)}
+              >
                 {other}
               </a>
             </li>

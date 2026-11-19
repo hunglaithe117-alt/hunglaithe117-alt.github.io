@@ -1,23 +1,25 @@
 /* ---------------------------------------------------------------------------
- * @blog/web entry stylesheet — Tailwind v4 + design tokens (T3.1).
- * Source of truth: phases/DESIGN-SYSTEM.md. Imports MUST precede @theme.
+ * @blog/web entry stylesheet — Tailwind v4 and one small palette.
+ *
+ * The site is deliberately quiet: near-monochrome, a serif reading surface, no
+ * shadows and no decoration. Imports MUST precede @theme.
  * ------------------------------------------------------------------------- */
 @import "tailwindcss";
 
-/* Self-hosted webfonts (DESIGN-SYSTEM §1.2). `font-display: swap` is fontsource's default. */
+/* Self-hosted webfonts (fontsource defaults to `font-display: swap`). */
 @import "@fontsource-variable/atkinson-hyperlegible-next"; /* latin + latin-ext, wght 200–800 */
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css";
-@import "@fontsource-variable/noto-sans/wght.css"; /* VI gap-fill subset (§1.3) */
-@import "@fontsource-variable/jetbrains-mono"; /* VI-capable mono (§1.6) */
+@import "@fontsource-variable/noto-sans/wght.css"; /* Vietnamese gap-fill subset */
+@import "@fontsource-variable/jetbrains-mono"; /* Vietnamese-capable mono */
 
 /* Tailwind scans the app root automatically; add the linked workspace UI package explicitly
  * (node_modules is ignored by default, and @blog/ui is a symlink into it). */
 @source "../../../../packages/ui/src";
 
-/* dark: keyed to the manual [data-theme] attribute rather than the media query (§2.3). */
+/* dark: keyed to the manual [data-theme] attribute rather than the media query. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* Semantic device-class variants on top of the default steps (§6.1). */
+/* Semantic device-class variants on top of the default steps. */
 @custom-variant phone (@media (width < 40rem));
 @custom-variant tablet (@media (40rem <= width < 64rem));
 @custom-variant desktop (@media (width >= 64rem));
@@ -25,94 +27,54 @@
 @custom-variant no-hover (@media (hover: none));
 
 @theme {
-  /* ---- Typography families (§1.1) — Atkinson first, Noto Sans only fills VI gaps (§1.3) ---- */
+  /* ===========================================================================
+     EDIT ME — the palette. These eight pairs are every colour on the page.
+
+     Each token is a single `light-dark()`: the light value first, the dark value
+     second. Change a pair to re-theme everything; nothing else here needs
+     editing. System preference is the default and the header toggle writes
+     `[data-theme]`, so both halves stay live either way.
+
+     The search component is the one exception: it ships its own CSS, so its
+     palette is a separate block at the end of this file.
+     ========================================================================= */
+  --color-bg: light-dark(oklch(99% 0.003 90), oklch(19% 0.006 80));
+  --color-surface: light-dark(oklch(97% 0.004 90), oklch(23% 0.007 80));
+  --color-text: light-dark(oklch(23% 0.01 70), oklch(92% 0.008 85));
+  --color-text-muted: light-dark(oklch(44% 0.008 70), oklch(70% 0.01 85));
+  --color-border: light-dark(oklch(88% 0.006 80), oklch(32% 0.008 80));
+  --color-link: light-dark(oklch(45% 0.09 235), oklch(78% 0.08 235));
+  --color-link-hover: light-dark(oklch(35% 0.09 235), oklch(86% 0.07 235));
+  --color-focus-ring: light-dark(oklch(50% 0.12 250), oklch(80% 0.12 250));
+
+  /* ---- Type families: Atkinson for the interface, the system serif for prose ---- */
   --font-sans:
     "Atkinson Hyperlegible Next Variable", "Noto Sans Variable", system-ui, "Segoe UI", Roboto,
     sans-serif;
+  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
   --font-mono:
     "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
 
-  /* ---- Fluid type scale (§1.4) — line-height baked into each step ---- */
-  --text-xs: clamp(0.8125rem, 0.78rem + 0.1vw, 0.875rem);
-  --text-xs--line-height: 1.45;
-  --text-sm: clamp(0.875rem, 0.84rem + 0.14vw, 0.9375rem);
-  --text-sm--line-height: 1.45;
-  --text-base: clamp(1.0625rem, 1rem + 0.28vw, 1.25rem);
+  /* ---- Type scale — a short ladder, line-height baked into each step ---- */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.55;
+  --text-base: clamp(1.0625rem, 0.98rem + 0.35vw, 1.1875rem);
   --text-base--line-height: 1.65;
-  --text-lg: clamp(1.25rem, 1.15rem + 0.44vw, 1.5rem);
+  --text-lg: clamp(1.1875rem, 1.1rem + 0.35vw, 1.375rem);
   --text-lg--line-height: 1.5;
-  --text-xl: clamp(1.5rem, 1.35rem + 0.67vw, 1.875rem);
+  --text-xl: clamp(1.375rem, 1.25rem + 0.5vw, 1.625rem);
   --text-xl--line-height: 1.35;
-  --text-2xl: clamp(1.875rem, 1.6rem + 1.1vw, 2.5rem);
+  --text-2xl: clamp(1.625rem, 1.4rem + 0.9vw, 2.125rem);
   --text-2xl--line-height: 1.25;
-  --text-3xl: clamp(2.25rem, 1.8rem + 1.9vw, 3.25rem);
+  --text-3xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
   --text-3xl--line-height: 1.15;
-  --text-4xl: clamp(2.75rem, 2rem + 3vw, 4.5rem);
-  --text-4xl--line-height: 1.08;
 
-  /* ---- Colour: OKLCH, light-dark() swaps by the active color-scheme (§2.2) ---- */
-  --color-bg: light-dark(oklch(98% 0.006 85), oklch(21.5% 0.008 80));
-  --color-surface: light-dark(oklch(99.2% 0.004 85), oklch(25.5% 0.009 80));
-  --color-surface-raised: light-dark(oklch(99.6% 0.003 85), oklch(29.5% 0.01 80));
-  --color-text: light-dark(oklch(24.5% 0.012 70), oklch(93% 0.01 85));
-  --color-text-muted: light-dark(oklch(44% 0.011 70), oklch(72.5% 0.012 85));
-  --color-border: light-dark(oklch(88% 0.008 80), oklch(34.5% 0.011 80));
-  --color-border-strong: light-dark(oklch(64% 0.012 70), oklch(54.5% 0.012 80));
-  --color-primary: light-dark(oklch(52% 0.09 195), oklch(76% 0.095 195));
-  --color-accent: light-dark(oklch(54.5% 0.12 65), oklch(78% 0.11 70));
-  --color-link: light-dark(oklch(47% 0.11 220), oklch(78% 0.1 200));
-  --color-link-hover: light-dark(oklch(38% 0.11 220), oklch(86% 0.09 200));
-  --color-focus-ring: light-dark(oklch(52% 0.15 250), oklch(80% 0.13 250));
-  --color-success: light-dark(oklch(50% 0.11 150), oklch(76% 0.12 150));
-  --color-warn: light-dark(oklch(54.5% 0.115 70), oklch(80% 0.12 80));
-  --color-danger: light-dark(oklch(50% 0.18 27), oklch(72% 0.15 27));
-  --color-on-primary: light-dark(#ffffff, oklch(22% 0.03 195));
-
-  /* ---- Spacing: 8pt grid base (§3) ---- */
+  /* ---- Spacing: 8pt grid base ---- */
   --spacing: 0.25rem;
 
-  /* ---- Radius: one soft family (§3) ---- */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-
-  /* ---- Named spacing scale (§3, 8pt grid) — layout constants, not utilities ---- */
-  --space-2xs: 0.5rem; /*   8 */
-  --space-xs: 0.75rem; /*  12 */
-  --space-sm: 1rem; /*     16 */
-  --space-md: 1.5rem; /*   24 */
-  --space-lg: 2rem; /*     32 */
-  --space-xl: 3rem; /*     48 */
-  --space-2xl: 4rem; /*    64 */
-  --space-3xl: 5rem; /*    80 */
-  --space-4xl: 6rem; /*    96 */
-
-  /* ---- Content widths (§3) ---- */
-  --measure: 66ch;
-  --container-narrow: 46rem;
-  --container-content: 72rem;
-  --container-wide: 85rem;
-
-  /* ---- Elevation: warm-ink shadows, never pure black (§3) ---- */
-  --shadow-xs: 0 1px 2px oklch(25% 0.02 70 / 0.06);
-  --shadow-sm: 0 1px 3px oklch(25% 0.02 70 / 0.08), 0 1px 2px oklch(25% 0.02 70 / 0.05);
-  --shadow-md: 0 4px 12px oklch(25% 0.02 70 / 0.1);
-  --shadow-lg: 0 12px 32px oklch(25% 0.02 70 / 0.14);
-  --shadow-overlay: 0 24px 64px oklch(20% 0.02 70 / 0.2);
-
-  /* ---- Motion (§4) ---- */
-  --duration-instant: 80ms;
-  --duration-fast: 140ms;
-  --duration-base: 200ms;
-  --duration-slow: 320ms;
-  --duration-slower: 480ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
-  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
-
-  /* ---- Breakpoints: Tailwind v4 defaults, declared for the §6 contract ---- */
+  /* ---- Breakpoints: Tailwind v4 defaults, declared for the layout contract ---- */
   --breakpoint-sm: 40rem; /* 640  → tablet starts  */
   --breakpoint-md: 48rem; /* 768                   */
   --breakpoint-lg: 64rem; /* 1024 → desktop starts */
@@ -121,15 +83,37 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Base layer — element defaults, light/dark scheme control, a11y.
+ * Base layer — layout constants, element defaults, light/dark scheme control, a11y.
  * ------------------------------------------------------------------------- */
 @layer base {
   :root {
-    /* Sticky-header offset used by the article TOC rail (§6.2). */
-    --header-h: 3.75rem;
-    --gutter: max(1rem, env(safe-area-inset-left));
+    /* Layout constants live here, not in @theme: Tailwind only emits theme
+     * variables that a utility consumes, and these are read from plain CSS. */
 
-    /* Default = system preference; the manual [data-theme] attribute wins (§2.3). */
+    /* Content widths: one column, capped at a comfortable measure. 40rem is
+     * ≈68 characters at the 19px reading size, and stays put if the serif
+     * fallback changes (`ch` is not font-stable across families). */
+    --measure: 40rem;
+    --container-narrow: 40rem;
+    --container-content: 56rem;
+
+    /* Named spacing scale (8pt grid) — layout constants, not utilities. */
+    --space-2xs: 0.5rem; /*   8 */
+    --space-xs: 0.75rem; /*  12 */
+    --space-sm: 1rem; /*     16 */
+    --space-md: 1.5rem; /*   24 */
+    --space-lg: 2rem; /*     32 */
+    --space-xl: 3rem; /*     48 */
+    --space-2xl: 4rem; /*    64 */
+
+    /* Motion: one short fade for colour changes, nothing else. */
+    --duration-fast: 120ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+    /* Sticky-header offset used by the article TOC rail and heading anchors. */
+    --header-h: 3.75rem;
+
+    /* Default = system preference; the manual [data-theme] attribute wins. */
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -159,55 +143,54 @@
     line-height: var(--text-base--line-height);
     color: var(--color-text);
     background-color: var(--color-bg);
-    /* No faux bold/italic — real italic files ship separately (§1.1). */
+    /* No faux bold/italic — real italic files ship separately. */
     font-synthesis: none;
     font-kerning: normal;
-    font-variant-numeric: proportional-nums;
     font-variant-ligatures: common-ligatures;
     text-rendering: optimizeLegibility;
     overflow-wrap: break-word;
   }
 
-  /* Headings use the type scale; line-height shrinks as size grows (§1.4). */
+  /* Headings stay in the interface face: the serif is reserved for reading. */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
   h1 {
-    font-size: var(--text-3xl);
-    line-height: var(--text-3xl--line-height);
-    letter-spacing: -0.02em;
-  }
-  h2 {
     font-size: var(--text-2xl);
     line-height: var(--text-2xl--line-height);
     letter-spacing: -0.02em;
   }
-  h3 {
+  h2 {
     font-size: var(--text-xl);
     line-height: var(--text-xl--line-height);
   }
-  h4 {
+  h3 {
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
+  }
+  h4 {
+    font-size: var(--text-base);
+    line-height: 1.4;
   }
 
   p {
     text-wrap: pretty;
   }
 
-  /* Links are always underlined — never colour alone (§5). */
+  /* Links are underlined wherever they sit in a sentence — never colour alone. */
   a {
     color: var(--color-link);
     text-decoration: underline;
-    text-underline-offset: 0.15em;
-    text-decoration-thickness: from-font;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 1px;
     transition: color var(--duration-fast) var(--ease-standard);
   }
   a:hover {
@@ -217,8 +200,7 @@
   code,
   pre,
   kbd,
-  samp,
-  .data-table {
+  samp {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums lining-nums;
   }
@@ -231,23 +213,18 @@
     overflow-x: auto;
   }
 
-  /* Visible, token-driven focus ring; never removed (§5). */
+  /* Visible, token-driven focus ring; never removed. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: 2px;
     border-radius: inherit;
   }
-  /* On filled/dark surfaces add a bg-coloured separation ring so the ring reads. */
-  .on-fill:focus-visible,
-  .bg-primary:focus-visible {
-    box-shadow: 0 0 0 2px var(--color-bg);
-  }
 
   ::selection {
-    background-color: color-mix(in oklch, var(--color-accent) 30%, transparent);
+    background-color: color-mix(in oklch, var(--color-link) 22%, transparent);
   }
 
-  /* Tap feedback + no 300ms delay (§6.4). */
+  /* Tap feedback without the 300ms delay. */
   a,
   button,
   [role="button"],
@@ -255,25 +232,17 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  @media (pointer: coarse) {
-    a:active,
-    button:active,
-    [role="button"]:active {
-      transform: scale(0.98);
-      transition-duration: var(--duration-instant);
-    }
-  }
 }
 
 /* ---------------------------------------------------------------------------
- * Small shared utilities (page shell + reading surface).
+ * Shared shell + reading surface.
  * ------------------------------------------------------------------------- */
 @layer components {
   .container-content {
     inline-size: 100%;
     max-inline-size: var(--container-content);
     margin-inline: auto;
-    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-inline: max(1.25rem, env(safe-area-inset-left));
   }
   @media (width >= 40rem) {
     .container-content {
@@ -290,29 +259,22 @@
     max-inline-size: var(--measure);
   }
 
-  /* Post prose — measure cap + body rules live in the Prose block below; the
-   * Pagefind index target is marked in markup (data-pagefind-body). */
-  .prose {
-    max-inline-size: var(--measure);
-  }
-
   .skip-link {
     position: absolute;
     inset-inline-start: 1rem;
     inset-block-start: -4rem;
     z-index: 100;
     padding: 0.75rem 1rem;
-    background-color: var(--color-surface-raised);
+    background-color: var(--color-bg);
     color: var(--color-text);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
     transition: inset-block-start var(--duration-fast) var(--ease-standard);
   }
   .skip-link:focus {
     inset-block-start: 1rem;
   }
 
-  /* Icon buttons: keep visual box small, guarantee a ≥44px hit area (§6.4). */
+  /* Icon buttons: keep the visual box small, guarantee a ≥44px hit area. */
   .icon-btn {
     position: relative;
   }
@@ -326,77 +288,74 @@
     block-size: max(100%, 44px);
   }
 
-  /* ---- Buttons (3 weights, §skill/buttons) ---- */
-  .btn {
-    display: inline-flex;
-    min-block-size: 3rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding-inline: 1.25rem;
-    border-radius: var(--radius-md);
-    font-size: var(--text-base);
+  /* ---- Header ---- */
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 40;
+    border-block-end: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+  .site-name {
+    font-size: var(--text-lg);
     font-weight: 600;
-    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-text);
     text-decoration: none;
-    transition:
-      transform var(--duration-instant) var(--ease-standard),
-      background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
   }
-  .btn:active {
-    transform: scale(0.98);
-  }
-  .btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-  }
-  .btn-primary:hover {
-    color: var(--color-on-primary);
-    opacity: 0.94;
-  }
-  .btn-secondary {
-    background-color: var(--color-surface-raised);
+  .site-name:hover {
     color: var(--color-text);
-    border: 1px solid var(--color-border-strong);
-  }
-  .btn-secondary:hover {
-    color: var(--color-text);
-    background-color: var(--color-surface);
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
   }
 
-  /* Standalone text links (not inline-in-sentence) get a ≥44px hit area without
-   * changing their visual size (§5 / §6.4). */
-  .link-tap {
-    display: inline-flex;
-    align-items: center;
+  /* Quiet text link used for nav items, contact links and RSS. */
+  .quiet-link {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .quiet-link:hover {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+
+  /* ---- Dated post list: date column + title, nothing else ---- */
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .post-list > li > a {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 0 1rem;
+    align-items: baseline;
     min-block-size: 2.75rem;
-    min-inline-size: 2.75rem;
-  }
-
-  /* ---- Tag chip ---- */
-  .tag-chip {
-    display: inline-flex;
-    min-block-size: 2.25rem;
-    align-items: center;
-    gap: 0.375rem;
-    padding-inline: 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full, 9999px);
-    background-color: var(--color-surface);
-    color: var(--color-text-muted);
-    font-size: var(--text-xs);
-    text-decoration: none;
-    transition:
-      border-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
-  }
-  a.tag-chip:hover {
-    border-color: var(--color-border-strong);
+    padding-block: 0.45rem;
     color: var(--color-text);
+    text-decoration: none;
+  }
+  .post-list time {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .post-list > li > a:hover .post-title,
+  .post-list > li > a:focus-visible .post-title {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+  @media (width < 40rem) {
+    .post-list > li > a {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.1rem;
+    }
   }
 
-  /* ---- Article layout: single column; sticky TOC rail at desktop (§6.2) ---- */
+  /* ---- Article layout: one column; sticky TOC rail from desktop up ---- */
   .article-layout {
     display: block;
   }
@@ -406,21 +365,18 @@
   .toc {
     display: none;
   }
-  .toc-phone {
-    /* inline <details>, phone + tablet only */
-  }
   @media (width >= 64rem) {
     .article-layout {
       display: grid;
-      grid-template-columns: minmax(0, var(--measure)) 16rem;
-      gap: var(--space-2xl);
+      grid-template-columns: minmax(0, 1fr) 10rem;
+      gap: var(--space-lg);
       align-items: start;
     }
     .toc {
       display: block;
       position: sticky;
       align-self: start;
-      top: calc(var(--header-h) + var(--space-lg) + env(safe-area-inset-top));
+      inset-block-start: calc(var(--header-h) + var(--space-md));
       max-block-size: calc(100dvh - var(--header-h) - var(--space-2xl));
       overflow-y: auto;
     }
@@ -429,36 +385,40 @@
     }
   }
 
-  /* ---- Pagefind Component UI theming (§2 tokens; the host applies `all: initial`,
-        so only these custom properties cross the boundary) ---- */
+  /* ---- Pagefind Component UI theming: the host applies `all: initial`, so only
+        these custom properties cross the boundary. ---- */
   .search-inline pagefind-input,
   .search-inline pagefind-results {
     --pf-input-height: 48px;
   }
 
-  /* ---- Prose (rendered MDX) ---- */
+  /* ---- Prose (rendered MDX) — the reading surface, in the system serif ---- */
   .prose {
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
+    max-inline-size: var(--measure);
+    font-family: var(--font-serif);
+    font-size: clamp(1.0625rem, 0.99rem + 0.3vw, 1.1875rem);
+    line-height: 1.75;
   }
   .prose > * + * {
-    margin-block-start: 1.5em;
+    margin-block-start: 1.35em;
   }
   .prose :is(h2, h3, h4) {
-    margin-block-start: 2em;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    margin-block-start: 2.2em;
     scroll-margin-block-start: calc(var(--header-h) + var(--space-md));
   }
   .prose h2 + *,
   .prose h3 + *,
   .prose h4 + * {
-    margin-block-start: 0.75em;
+    margin-block-start: 0.6em;
   }
   .prose ul,
   .prose ol {
-    padding-inline-start: 1.5em;
+    padding-inline-start: 1.35em;
   }
   .prose li + li {
-    margin-block-start: 0.5em;
+    margin-block-start: 0.4em;
   }
   .prose ul {
     list-style: disc;
@@ -472,34 +432,28 @@
   .prose blockquote {
     margin-inline: 0;
     padding-inline-start: var(--space-md);
-    border-inline-start: 3px solid var(--color-accent);
+    border-inline-start: 2px solid var(--color-border);
     color: var(--color-text-muted);
     font-style: italic;
   }
   .prose :not(pre) > code {
-    padding: 0.125em 0.35em;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-surface-raised);
-    font-size: 0.9em;
+    padding: 0.1em 0.3em;
+    background-color: var(--color-surface);
+    font-size: 0.88em;
   }
   .prose pre {
-    padding: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
     background-color: var(--color-surface);
-    overflow-x: auto;
   }
   .prose pre code {
     padding: 0;
-    border: 0;
     background: none;
   }
   .prose img,
   .prose video {
     block-size: auto;
     max-inline-size: 100%;
-    border-radius: var(--radius-lg);
   }
   .prose figure {
     margin: 0;
@@ -507,11 +461,13 @@
   .prose figcaption {
     margin-block-start: var(--space-2xs);
     color: var(--color-text-muted);
+    font-family: var(--font-sans);
     font-size: var(--text-sm);
   }
   .prose table {
     inline-size: 100%;
     border-collapse: collapse;
+    font-family: var(--font-sans);
     font-size: var(--text-sm);
   }
   .prose :is(th, td) {
@@ -520,7 +476,6 @@
     text-align: start;
   }
   .prose th {
-    background-color: var(--color-surface);
     font-weight: 600;
   }
   .prose hr {
@@ -531,119 +486,100 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Pagefind Component UI colour mapping (§2). Concrete values (not light-dark())
- * because the Pagefind host resets `color-scheme`, so light-dark() would resolve
- * to light inside the component even in dark mode. Mirrors the §2.1 palette.
+ * Pagefind Component UI palette — a second, small palette because the search
+ * component ships its own CSS and defines `:root` itself. `:root:root` outranks
+ * that `:root` regardless of load order, so the site's colours win in both modes.
+ *
+ * Values are concrete (not `light-dark()`) because the Pagefind host resets
+ * `color-scheme`, so `light-dark()` would resolve to light inside the component
+ * even in dark mode.
  * ------------------------------------------------------------------------- */
-:root {
+:root:root {
   --pf-font: var(--font-sans);
-  --pf-text: #24201a;
-  --pf-text-secondary: #57524c;
-  --pf-text-muted: #57524c;
-  --pf-background: #fffefb;
-  --pf-border: #dad7d2;
-  --pf-border-focus: #006bbb;
-  --pf-skeleton: #efece6;
-  --pf-skeleton-shine: #f6f3ee;
-  --pf-hover: #f4f1eb;
-  --pf-mark: #9f5f07;
-  --pf-scroll-shadow: rgb(37 32 26 / 0.08);
-  --pf-shadow-sm: 0 1px 3px oklch(25% 0.02 70 / 0.08);
-  --pf-shadow-md: 0 4px 12px oklch(25% 0.02 70 / 0.1);
-  --pf-shadow-lg: 0 24px 64px oklch(20% 0.02 70 / 0.2);
+  --pf-text: #2a2622;
+  --pf-text-secondary: #5d574f;
+  --pf-text-muted: #5d574f;
+  --pf-background: #fdfcf9;
+  --pf-border: #ddd9d3;
+  --pf-border-focus: #1f6bb0;
+  --pf-skeleton: #f1eee8;
+  --pf-skeleton-shine: #f7f5f1;
+  --pf-hover: #f4f2ed;
+  --pf-mark: #9a5b00;
+  --pf-scroll-shadow: rgb(42 38 34 / 0.08);
+  --pf-shadow-sm: 0 1px 2px oklch(25% 0.02 70 / 0.06);
+  --pf-shadow-md: 0 2px 8px oklch(25% 0.02 70 / 0.08);
+  --pf-shadow-lg: 0 12px 32px oklch(20% 0.02 70 / 0.14);
   --pf-error-bg: #fdf2f2;
   --pf-error-border: #f0c4c4;
   --pf-error-text: #b32322;
   --pf-error-text-secondary: #8f1c1b;
-  --pf-outline-focus: #006bbb;
+  --pf-outline-focus: #1f6bb0;
   --pf-outline-width: 2px;
   --pf-outline-offset: 2px;
   --pf-input-font-size: 1.0625rem;
   --pf-summary-font-size: 0.875rem;
   --pf-result-title-font-size: 1.0625rem;
   --pf-result-excerpt-font-size: 0.9375rem;
-  --pf-border-radius: 6px;
+  --pf-border-radius: 2px;
   --pf-modal-backdrop: oklch(20% 0.02 70 / 0.55);
   --pf-modal-max-width: 40rem;
   --pf-modal-top: 8dvh;
   --pf-searchbox-max-width: 30rem;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --pf-text: #ebe7e0;
-    --pf-text-secondary: #aaa69e;
-    --pf-text-muted: #aaa69e;
-    --pf-background: #2f2c27;
-    --pf-border: #3c3933;
-    --pf-border-focus: #7ac3ff;
-    --pf-skeleton: #2b2823;
-    --pf-skeleton-shine: #34312b;
-    --pf-hover: #35322c;
+  :root:root:not([data-theme="light"]) {
+    --pf-text: #eae7e2;
+    --pf-text-secondary: #aaa49c;
+    --pf-text-muted: #aaa49c;
+    --pf-background: #232120;
+    --pf-border: #3a3733;
+    --pf-border-focus: #8fc4f0;
+    --pf-skeleton: #201e1c;
+    --pf-skeleton-shine: #292624;
+    --pf-hover: #2a2725;
     --pf-mark: #e5ab66;
-    --pf-scroll-shadow: rgb(235 231 224 / 0.1);
-    --pf-shadow-sm: 0 1px 3px oklch(10% 0 0 / 0.5);
-    --pf-shadow-md: 0 4px 12px oklch(10% 0 0 / 0.55);
-    --pf-shadow-lg: 0 24px 64px oklch(5% 0 0 / 0.65);
+    --pf-scroll-shadow: rgb(234 231 226 / 0.1);
+    --pf-shadow-sm: 0 1px 2px oklch(10% 0 0 / 0.5);
+    --pf-shadow-md: 0 2px 8px oklch(10% 0 0 / 0.55);
+    --pf-shadow-lg: 0 12px 32px oklch(5% 0 0 / 0.65);
     --pf-error-bg: #2a1a1a;
     --pf-error-border: #5c2828;
     --pf-error-text: #f47c70;
     --pf-error-text-secondary: #f47c70;
-    --pf-outline-focus: #7ac3ff;
+    --pf-outline-focus: #8fc4f0;
     --pf-modal-backdrop: oklch(8% 0 0 / 0.7);
   }
 }
-:root[data-theme="dark"] {
-  --pf-text: #ebe7e0;
-  --pf-text-secondary: #aaa69e;
-  --pf-text-muted: #aaa69e;
-  --pf-background: #2f2c27;
-  --pf-border: #3c3933;
-  --pf-border-focus: #7ac3ff;
-  --pf-skeleton: #2b2823;
-  --pf-skeleton-shine: #34312b;
-  --pf-hover: #35322c;
+:root:root[data-theme="dark"] {
+  --pf-text: #eae7e2;
+  --pf-text-secondary: #aaa49c;
+  --pf-text-muted: #aaa49c;
+  --pf-background: #232120;
+  --pf-border: #3a3733;
+  --pf-border-focus: #8fc4f0;
+  --pf-skeleton: #201e1c;
+  --pf-skeleton-shine: #292624;
+  --pf-hover: #2a2725;
   --pf-mark: #e5ab66;
-  --pf-scroll-shadow: rgb(235 231 224 / 0.1);
-  --pf-shadow-sm: 0 1px 3px oklch(10% 0 0 / 0.5);
-  --pf-shadow-md: 0 4px 12px oklch(10% 0 0 / 0.55);
-  --pf-shadow-lg: 0 24px 64px oklch(5% 0 0 / 0.65);
+  --pf-scroll-shadow: rgb(234 231 226 / 0.1);
+  --pf-shadow-sm: 0 1px 2px oklch(10% 0 0 / 0.5);
+  --pf-shadow-md: 0 2px 8px oklch(10% 0 0 / 0.55);
+  --pf-shadow-lg: 0 12px 32px oklch(5% 0 0 / 0.65);
   --pf-error-bg: #2a1a1a;
   --pf-error-border: #5c2828;
   --pf-error-text: #f47c70;
   --pf-error-text-secondary: #f47c70;
-  --pf-outline-focus: #7ac3ff;
+  --pf-outline-focus: #8fc4f0;
   --pf-modal-backdrop: oklch(8% 0 0 / 0.7);
 }
 
 /* ---------------------------------------------------------------------------
- * Reveal-on-load / on-scroll (DESIGN-SYSTEM §4): opt-in, GPU-only, ≤480ms,
- * 40ms stagger. Disabled entirely under prefers-reduced-motion (block below).
- * ------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: no-preference) {
-  [data-reveal] {
-    opacity: 0;
-    transform: translateY(8px);
-    animation: reveal var(--duration-slower) var(--ease-decelerate) forwards;
-    animation-delay: calc(var(--reveal-index, 0) * 40ms);
-  }
-  @keyframes reveal {
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-}
-
-/* ---------------------------------------------------------------------------
- * Reduced motion: collapse everything to static (§4).
+ * Reduced motion: collapse everything to static.
  * ------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --duration-instant: 0ms;
-    --duration-fast: 1ms;
-    --duration-base: 1ms;
-    --duration-slow: 1ms;
-    --duration-slower: 1ms;
+    --duration-fast: 0ms;
   }
   *,
   *::before,
@@ -652,10 +588,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-  [data-reveal],
-  [data-lift] {
-    transform: none !important;
-    opacity: 1 !important;
   }
 }

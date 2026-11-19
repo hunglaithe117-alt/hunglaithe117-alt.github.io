@@ -1,0 +1,172 @@
+# OpenAPI 3.1 contract skeleton.
+#
+# Rename the Resource and ResourceInput schemas, the /resources path segment, and
+# the getResource and replaceResource operation ids to the real domain names
+# before use. Error codes are defined once, in error-codes.md; reference the
+# catalogue instead of restating a code here.
+#
+# Fill in: info, each server url, each tag, one path object per endpoint, and one
+# schema per resource. Keep the shared Problem response for every failure.
+
+openapi: 3.1.0
+
+info:
+  title: "<ServiceName> API"
+  version: "0.1.0"
+  summary: "<one line describing the surface>"
+  description: |
+    Replace this with the surface description. The machine-readable contract is
+    the source of truth; the reference UI renders from this file.
+
+servers:
+  - url: "https://api.{host}/v1"
+    description: "<environment, for example production>"
+    variables:
+      host:
+        default: "example.com" # TODO: replace with the real API host
+
+tags:
+  - name: Resource
+    description: "<the resource group this tag groups>"
+
+security:
+  - bearerAuth: []
+
+paths:
+  "/resources/{id}":
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+    get:
+      operationId: getResource
+      summary: "Fetch one <resource>"
+      tags:
+        - Resource
+      parameters:
+        - $ref: "#/components/parameters/Expand"
+      responses:
+        "200":
+          description: "<resource found>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "500":
+          $ref: "#/components/responses/Problem"
+    put:
+      operationId: replaceResource
+      summary: "Replace one <resource>"
+      tags:
+        - Resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceInput"
+      responses:
+        "200":
+          description: "<resource replaced>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "409":
+          $ref: "#/components/responses/Problem"
+        "422":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "500":
+          $ref: "#/components/responses/Problem"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: "<stable identifier of the resource>"
+      schema:
+        type: string
+        format: uuid
+    Expand:
+      name: expand
+      in: query
+      required: false
+      description: "<comma-separated relations to inline in the response>"
+      schema:
+        type: string
+  responses:
+    Problem:
+      description: "Error response, RFC 9457 application/problem+json"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    Resource:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    ResourceInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Problem:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - code
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: "URI reference identifying the problem type"
+        title:
+          type: string
+          description: "short human-readable summary of the problem"
+        status:
+          type: integer
+          description: "HTTP status code"
+        detail:
+          type: string
+          description: "human-readable explanation for this occurrence"
+        instance:
+          type: string
+          format: uri-reference
+          description: "URI reference identifying this occurrence"
+        code:
+          type: string
+          description: "stable error code from error-codes.md"

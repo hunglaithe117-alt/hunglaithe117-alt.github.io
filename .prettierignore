@@ -1,8 +1,14 @@
+# Vendored documentation template library: its own CONVENTIONS.md governs it,
+# and its stubs intentionally contain guidance prose and placeholder markup.
+templates
+.slim
+
 node_modules
 dist
 build
 bin
 coverage
+e2e/.artifacts
 .turbo
 .cloudflare
 .astro

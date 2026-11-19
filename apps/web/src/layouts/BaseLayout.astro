@@ -1,8 +1,7 @@
 ---
 /**
- * Base layout (T3.1): document head/SEO, feed autodiscovery, skip-link, responsive
- * nav (drawer on phone/tablet, inline on desktop per DESIGN-SYSTEM §6), footer.
- * Every page composes this layout.
+ * Base layout: document head/SEO, feed autodiscovery, skip-link, the plain header
+ * (site name left, links and controls right), and the footer. Every page composes it.
  */
 import "@/styles/global.css";
 import atkLatin from "@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url";
@@ -18,10 +17,12 @@ import {
   HTML_LANG,
   LOCALES,
   LOCALE_LABEL,
+  postsPath,
   tagsPath,
   UI,
   type Lang,
 } from "@/lib/i18n";
+import { contactLinks } from "@/lib/site";
 
 interface Alternate {
   lang: Lang;
@@ -67,12 +68,11 @@ const switchHref = otherAlt?.path ?? homePath(otherLang);
 const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0]!;
 
 const navLinks = [
-  { href: homePath(lang), label: t.home },
-  { href: `/${lang}/posts/`, label: t.posts },
+  { href: postsPath(lang), label: t.posts },
   { href: tagsPath(lang), label: t.tags },
   { href: `/${lang}/about/`, label: t.about },
-  { href: `/${lang}/contact/`, label: t.contact },
 ];
+const contacts = contactLinks();
 ---
 
 <!doctype html>
@@ -109,8 +109,8 @@ const navLinks = [
     <!-- Preload ONLY the latin normal weight (§1.2); VI companion loads via unicode-range -->
     <link rel="preload" href={atkLatin} as="font" type="font/woff2" crossorigin />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1b1915" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fcfcf9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#151411" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content={isHome ? "website" : "article"} />
     <meta property="og:title" content={title} />
@@ -151,21 +151,29 @@ const navLinks = [
       {t.skipToContent}
     </a>
 
-    <header class="site-header sticky top-0 z-40 border-b border-border bg-bg" data-pagefind-ignore>
-      <div class="container-content flex min-h-15 flex-wrap items-center justify-between gap-3 py-2">
-        <a
-          href={homePath(lang)}
-          class="flex items-center text-base font-bold text-text no-underline"
-        >
+    <header class="site-header" data-pagefind-ignore>
+      <div class="container-content flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2">
+        <a class="site-name" href={homePath(lang)}>
           {t.siteTitle}
         </a>
-        <div class="flex items-center gap-1.5">
-          <Nav
-            lang={lang}
-            links={navLinks}
-            switchHref={switchHref}
-            switchLabel={LOCALE_LABEL[otherLang]}
-          />
+
+        <div class="flex items-center gap-1 desktop:gap-3">
+          {contacts.length > 0 && (
+            <ul class="hidden list-none items-center gap-3 p-0 desktop:flex">
+              {contacts.map((link) => (
+                <li>
+                  <a
+                    class="quiet-link inline-flex min-h-11 items-center text-sm"
+                    href={link.href}
+                    rel="me noopener"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
           <SearchBox
             client:load
             mode="trigger"
@@ -176,26 +184,34 @@ const navLinks = [
             unavailableLabel={t.searchUnavailable}
             defaultMessage={t.searchDefaultMessage}
           />
-          <LanguageSwitcher
-            lang={lang}
-            target={otherLang}
-            href={switchHref}
-            variant="compact"
-            class="hidden desktop:inline-flex"
-          />
+
+          <LanguageSwitcher lang={lang} target={otherLang} href={switchHref} variant="compact" />
+
           <a
             href={rssHref}
-            class="hidden h-11 items-center rounded-md border border-border-strong px-3 text-sm text-text no-underline transition-colors duration-fast ease-standard hover:bg-surface desktop:inline-flex"
+            class="quiet-link hidden min-h-11 items-center text-sm desktop:inline-flex"
             aria-label={t.rssFeed}
           >
             RSS
           </a>
+
           <ThemeToggle lang={lang} />
+
+          {/* Menu last on phone, first on desktop (where the links are inline). */}
+          <div class="order-last desktop:order-first">
+            <Nav
+              lang={lang}
+              links={navLinks}
+              contacts={contacts}
+              switchHref={switchHref}
+              switchLabel={LOCALE_LABEL[otherLang]}
+            />
+          </div>
         </div>
       </div>
     </header>
 
-    <main id="main" class="container-content py-8 desktop:py-12">
+    <main id="main" class="container-content py-10 desktop:py-14">
       <slot />
     </main>
 

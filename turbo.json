@@ -1,8 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  // Hash root files that affect every task's output (go.work binds the Go module;
-  // pnpm-lock.yaml pins the dependency graph).
-  "globalDependencies": ["go.work", "pnpm-lock.yaml"],
+  // Hash root files that affect every task's output (pnpm-lock.yaml pins the
+  // dependency graph).
+  "globalDependencies": ["pnpm-lock.yaml"],
   // NODE_VERSION and CLOUDFLARE_ACCOUNT_ID are identity inputs — they must be hashed.
   "globalEnv": ["NODE_VERSION", "CLOUDFLARE_ACCOUNT_ID"],
   // GITHUB_TOKEN is needed by tooling but must NOT enter the cache key.
@@ -13,31 +13,29 @@
     "build": {
       "dependsOn": ["^build"],
       // `.cloudflare/**` is `cf build` output (git-ignored, drops out of $TURBO_DEFAULT$).
-      // Build outputs (`dist/`, `bin/`) and turbo logs are excluded so they never
-      // become inputs (the root-absolute `outputs` globs don't map back to package paths).
+      // Build outputs (`dist/`) and turbo logs are excluded so they never become
+      // inputs (the root-absolute `outputs` globs don't map back to package paths).
       // `secrets.env` / `.dev.vars*` must never be hashed.
       "inputs": [
         "$TURBO_DEFAULT$",
         "!.cloudflare/**",
         "!dist/**",
-        "!bin/**",
         "!.turbo/**",
         "!.astro/**",
         "!secrets.env",
         "!.dev.vars*"
       ],
-      // `bin/**` is the Go build output (api); the two absolute globs are the Astro
-      // `dist/` (web, built by turbo) and the `cf build` output (edge).
-      "outputs": [
-        "bin/**",
-        "$TURBO_ROOT$/apps/web/dist/**",
-        "$TURBO_ROOT$/apps/edge/.cloudflare/output/**"
-      ],
-      "env": ["PUBLIC_*", "PUBLIC_SITE_URL", "PUBLIC_API_BASE_URL"]
+      // The two absolute globs are the Astro `dist/` (web, built by turbo) and the
+      // `cf build` output (edge).
+      "outputs": ["$TURBO_ROOT$/apps/web/dist/**", "$TURBO_ROOT$/apps/edge/.cloudflare/output/**"],
+      "env": ["PUBLIC_*"]
     },
     // apps/edge build consumes apps/web/dist, so it must wait for web#build (D-036).
+    // SITE_DOMAIN decides the production custom domain, so it is an identity input
+    // for the edge artefact (strict envMode would otherwise hide it).
     "@blog/edge#build": {
-      "dependsOn": ["^build", "@blog/web#build"]
+      "dependsOn": ["^build", "@blog/web#build"],
+      "env": ["SITE_DOMAIN"]
     },
     "lint": {},
     "typecheck": {},
@@ -52,10 +50,6 @@
       // Credentials pass through unhashed; zone/region are hashed identity inputs.
       "passThroughEnv": ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"],
       "env": ["CLOUDFLARE_ZONE_ID", "CLOUDFLARE_COMPLIANCE_REGION"]
-    },
-    "db:migrate": {
-      "cache": false,
-      "env": ["CLOUDFLARE_ACCOUNT_ID"]
     }
   }
 }

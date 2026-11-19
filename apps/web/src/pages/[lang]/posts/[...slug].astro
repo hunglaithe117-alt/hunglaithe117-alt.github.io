@@ -1,19 +1,15 @@
 ---
 /**
- * Post page (T3.3): rendered MDX prose marked with `data-pagefind-body`, a TOC
- * (inline `<details>` on phone/tablet, sticky rail on desktop), an optimised cover
- * via `astro:assets`, prev/next, and tag links. The language switcher lives in the
- * base layout and resolves to the paired post through `translationKey`.
+ * Post page: title, date, reading time, tags as plain links, the rendered MDX prose
+ * marked with `data-pagefind-body`, a quiet TOC (a `<details>` on phone, a sticky rail
+ * on desktop), prev/next, and related notes as a dated list.
  */
 import { render } from "astro:content";
-import { Image } from "astro:assets";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import PostCard from "@/components/PostCard.astro";
+import PostRow from "@/components/PostRow.astro";
 import PrevNext from "@/components/PrevNext.astro";
 import Toc from "@/components/Toc.astro";
-import ViewCounter from "@blog/ui/ViewCounter.vue";
 import { SITE_AUTHOR } from "@/consts";
-import { coverImage } from "@/lib/images";
 import { absoluteUrl, HTML_LANG, postPath, tagPath, UI, type Lang } from "@/lib/i18n";
 import {
   getPostsByLang,
@@ -52,7 +48,6 @@ const alternates = translations.map((p) => ({
 const dateFormatter = new Intl.DateTimeFormat(lang, { dateStyle: "long" });
 const dateIso = post.data.date.toISOString();
 const readingMinutes = readingTimeOf(post);
-const cover = coverImage(post.data.cover);
 const coverUrl = post.data.cover ? absoluteUrl(site, post.data.cover) : undefined;
 
 // Prev/next within the same locale: newest first, so "previous" is the older note.
@@ -101,24 +96,21 @@ const jsonLd = {
 >
   <div class="article-layout">
     <article class="article-main" data-pagefind-body>
-      <header class="measure" data-reveal style="--reveal-index:0">
+      <header class="measure">
         <h1>{post.data.title}</h1>
-        <p class="mt-4 text-lg text-text-muted">{post.data.description}</p>
-        <p
-          class="mt-4 flex flex-wrap items-center gap-2 text-sm text-text-muted"
-          data-pagefind-ignore
-        >
+        <p class="mt-3 text-sm text-text-muted" data-pagefind-ignore>
           <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true"> · </span>
           <span>{t.readingTime(readingMinutes)}</span>
-          {/* View count: hydrated client-side only (`client:visible`), never during SSG. */}
-          <ViewCounter client:idle slug={slug} label={t.viewsLabel} />
         </p>
         {post.data.tags.length > 0 && (
-          <ul class="mt-4 flex list-none flex-wrap gap-2 p-0" data-pagefind-ignore>
+          <ul class="mt-1 flex list-none flex-wrap gap-x-3 p-0 text-sm" data-pagefind-ignore>
             {post.data.tags.map((tag) => (
               <li>
-                <a class="tag-chip" href={tagPath(lang, tag)}>
+                <a
+                  class="inline-flex min-h-9 items-center text-text-muted no-underline hover:text-link hover:underline hover:underline-offset-4"
+                  href={tagPath(lang, tag)}
+                >
                   {tag}
                 </a>
               </li>
@@ -127,19 +119,7 @@ const jsonLd = {
         )}
       </header>
 
-      {cover && (
-        <Image
-          src={cover}
-          alt=""
-          widths={[480, 800, 1200, 1600]}
-          sizes="(min-width: 64rem) 66ch, (min-width: 40rem) 90vw, 100vw"
-          loading="eager"
-          fetchpriority="high"
-          class="mt-8 aspect-[16/9] w-full rounded-lg object-cover"
-        />
-      )}
-
-      <div class="mt-8">
+      <div class="mt-6">
         <Toc headings={headings} title={t.tocTitle} variant="inline" />
       </div>
 
@@ -155,21 +135,19 @@ const jsonLd = {
       />
     </article>
 
-    <aside class="toc-slot">
+    <aside>
       <Toc headings={headings} title={t.tocTitle} variant="rail" />
     </aside>
   </div>
 
   {related.length > 0 && (
-    <section class="mt-20" aria-labelledby="related" data-pagefind-ignore>
-      <h2 id="related" class="text-xl">
+    <section class="measure mt-16" aria-labelledby="related" data-pagefind-ignore>
+      <h2 id="related" class="text-sm font-semibold text-text-muted">
         {t.relatedPosts}
       </h2>
-      <ul class="card-grid mt-6 grid list-none grid-cols-1 gap-6 p-0 tablet:grid-cols-2 desktop:grid-cols-3">
+      <ul class="post-list mt-2">
         {related.map((p) => (
-          <li>
-            <PostCard post={p} />
-          </li>
+          <PostRow post={p} />
         ))}
       </ul>
     </section>

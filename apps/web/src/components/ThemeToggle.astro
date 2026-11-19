@@ -1,8 +1,8 @@
 ---
 /**
- * Manual light/dark toggle (DESIGN-SYSTEM §2.3). The default is system preference;
- * this persists an explicit `data-theme` choice on <html>. The no-flash init script
- * lives in BaseLayout so the attribute is set before first paint.
+ * Manual light/dark toggle. The default is system preference; this persists an
+ * explicit `data-theme` choice on <html>. The no-flash init script lives in
+ * BaseLayout so the attribute is set before first paint.
  */
 import { UI, type Lang } from "@/lib/i18n";
 
@@ -16,7 +16,7 @@ const t = UI[lang];
 <button
   type="button"
   data-theme-toggle
-  class="icon-btn inline-flex h-11 w-11 items-center justify-center rounded-md border border-border-strong text-text transition-colors duration-fast ease-standard hover:bg-surface"
+  class="icon-btn inline-flex h-11 w-11 items-center justify-center text-text-muted hover:text-text"
   aria-label={t.themeToggle}
   title={t.themeToggle}
   aria-pressed="false"

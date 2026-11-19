@@ -50,18 +50,6 @@ jobs:
           node-version: 24.21.0
           cache: pnpm
 
-      # `apps/api` has no Go dependencies until Phase 5, so `go.sum` does not
-      # exist yet. setup-go's cache needs the file to key on; create an empty one
-      # so the cache path resolves. It is replaced once real deps land.
-      - name: Ensure apps/api/go.sum exists (Go cache key)
-        run: test -f apps/api/go.sum || touch apps/api/go.sum
-
-      - name: Setup Go 1.27.2 (cache keyed on apps/api/go.sum)
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.27.2"
-          cache-dependency-path: apps/api/go.sum
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -150,12 +138,6 @@ jobs:
         with:
           node-version: 24.21.0
 
-      - name: Setup Go 1.27.2
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.27.2"
-          cache: false
-
       - name: gitleaks — full-history secret scan
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -164,6 +146,3 @@ jobs:
 
       - name: pnpm audit (high/critical gate)
         run: pnpm security:audit
-
-      - name: govulncheck (Go)
-        run: pnpm security:govulncheck

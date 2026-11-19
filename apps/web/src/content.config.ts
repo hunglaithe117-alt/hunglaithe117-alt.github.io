@@ -25,7 +25,7 @@ const posts = defineCollection({
     date: z.coerce.date(),
     /** Free-form tags; also rendered as feed categories and per-tag feeds. */
     tags: z.array(z.string()).default([]),
-    /** Optional cover image path under public/ (RSS enclosure + card thumb). */
+    /** Optional cover image path under public/ (per-post Open Graph image). */
     cover: z.string().optional(),
     /** Drafts are excluded from the built site (CONTENT-INVENTORY). */
     draft: z.boolean().default(false),

@@ -36,7 +36,7 @@ Required checks map to the workflows in this directory:
 | Non-provider patterns | on                                              |
 
 CI additionally runs `gitleaks detect` (full history, `--redact`) in the `security`
-job and `pnpm security:audit` / `pnpm security:govulncheck` for dependency CVEs.
+job and `pnpm security:audit` for dependency CVEs.
 
 ## Deploy environment
 
@@ -45,20 +45,22 @@ GitHub Environment:
 
 - **Required reviewers**: ≥ 1 (deploy waits for manual approval).
 - **Deployment branches**: `main` only.
-- **Environment secrets**: `CLOUDFLARE_API_TOKEN`, `SESSION_SECRET`.
-- **Environment variables**: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`,
-  `SEND_EMAIL_FROM`, `TURBO_TEAM`.
+- **Environment secrets**: `CLOUDFLARE_API_TOKEN`.
+- **Environment variables**: `CLOUDFLARE_ACCOUNT_ID`, `SITE_DOMAIN`, `PUBLIC_SITE_URL`, `TURBO_TEAM`.
 - **Repository secret**: `TURBO_TOKEN` (remote cache; optional, fork-safe).
 
+`PUBLIC_SITE_URL` must be `https://` plus `SITE_DOMAIN`; the first two are consumed by `cf build`,
+which records the account id in the Build Output the deploy then uploads.
+
 Pull requests run only `cf deploy --prebuilt --mode production --dry-run` with **no
-credentials** and make no API calls.
+credentials** and make no network calls.
 
 ## Cloudflare token scope
 
 Use a **scoped API token**, never a Global API Key:
 
-- Permissions: Workers Scripts (edit), D1 (edit), Email Routing / Email Sending
-  (edit) — nothing else.
+- Permissions: Workers Scripts (edit), Workers Routes (edit) for the custom domain — nothing
+  else.
 - Resources: the single account only.
 - Rotate on any suspected exposure.
 
@@ -80,5 +82,4 @@ Use a **scoped API token**, never a Global API Key:
 `.env.example` and `.dev.vars.example` contain placeholders only (`REPLACE_ME`
 style) and stay tracked. Real `.env*` / `.dev.vars*` files, `secrets.env`,
 `secrets.json`, `*.pem`, `*.key`, and `.cloudflare/` are git-ignored (`.gitignore`).
-The deploy workflow writes `secrets.env` with `umask 077` and deletes it in an
-`if: always()` step.
+The deploy workflow writes no secrets file: the Worker reads no runtime secret.

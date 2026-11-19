@@ -1,9 +1,11 @@
 ---
 /**
- * Responsive primary navigation (DESIGN-SYSTEM §6.2):
- *  - desktop: full inline <nav>
- *  - phone/tablet: a single Vue drawer island (`NavDrawer`, client:visible)
- *  - no-JS: a <details> fallback under <noscript>
+ * Primary navigation: plain inline links from desktop up, and a single small menu
+ * control below that. The menu is the existing `NavDrawer` island (native <dialog>,
+ * so focus handling and Esc come from the platform); a `<details>` fallback covers
+ * the no-JS case.
+ *
+ * The language switch lives in BaseLayout so it stays visible at every width.
  */
 import NavDrawer from "@blog/ui/NavDrawer.vue";
 import { UI, type Lang } from "@/lib/i18n";
@@ -15,30 +17,30 @@ interface NavLink {
 interface Props {
   lang: Lang;
   links: NavLink[];
+  /** Owner-supplied contact links; empty when nothing is configured. */
+  contacts: NavLink[];
   switchHref: string;
   switchLabel: string;
 }
-const { lang, links, switchHref, switchLabel } = Astro.props;
+const { lang, links, contacts, switchHref, switchLabel } = Astro.props;
 const t = UI[lang];
 
-const itemClass =
-  "inline-flex min-h-11 items-center rounded-md px-3 text-sm text-text no-underline transition-colors duration-fast ease-standard hover:bg-surface";
+const itemClass = "quiet-link inline-flex min-h-11 items-center text-sm";
 ---
 
-<nav class="hidden items-center gap-1 desktop:flex" aria-label="Primary">
+<nav class="hidden items-center gap-5 desktop:flex" aria-label="Primary">
   {links.map((link) => (
     <a href={link.href} class={itemClass}>
       {link.label}
     </a>
   ))}
-  {/* The language switch lives in BaseLayout (`<LanguageSwitcher />`) so it sits in
-      the same control cluster at every breakpoint — no duplicate control here. */}
 </nav>
 
 <div class="desktop:hidden">
   <NavDrawer
     client:visible
     links={links}
+    contacts={contacts}
     labels={{
       menu: t.menu,
       open: t.openMenu,
@@ -52,14 +54,19 @@ const itemClass =
 
 <noscript>
   <details class="desktop:hidden">
-    <summary class={itemClass} style="border: 1px solid var(--color-border-strong)">
-      {t.menu}
-    </summary>
+    <summary class={`${itemClass} cursor-pointer`}>{t.menu}</summary>
     <nav aria-label="Primary" class="mt-2">
-      <ul class="flex flex-col gap-1">
+      <ul class="flex flex-col">
         {links.map((link) => (
           <li>
             <a href={link.href} class={itemClass}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+        {contacts.map((link) => (
+          <li>
+            <a href={link.href} class={itemClass} rel="me noopener">
               {link.label}
             </a>
           </li>

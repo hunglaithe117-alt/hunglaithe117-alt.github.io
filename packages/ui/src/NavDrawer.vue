@@ -14,6 +14,8 @@ interface NavLink {
 
 defineProps<{
   links: NavLink[];
+  /** Owner-supplied contact links; empty when nothing is configured. */
+  contacts: NavLink[];
   labels: { menu: string; open: string; close: string; language: string };
   switchHref: string;
   switchLabel: string;
@@ -58,7 +60,7 @@ onBeforeUnmount(() => {
   <button
     ref="trigger"
     type="button"
-    class="icon-btn inline-flex h-11 w-11 items-center justify-center rounded-md border border-border-strong text-text transition-colors duration-fast ease-standard hover:bg-surface desktop:hidden"
+    class="icon-btn inline-flex h-11 min-w-11 items-center justify-center text-sm text-text-muted hover:text-text desktop:hidden"
     :aria-label="labels.open"
     aria-haspopup="dialog"
     @click="show"
@@ -92,7 +94,7 @@ onBeforeUnmount(() => {
         <span class="text-sm font-medium text-text-muted">{{ labels.menu }}</span>
         <button
           type="button"
-          class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border-strong text-text"
+          class="inline-flex h-11 w-11 items-center justify-center text-text-muted hover:text-text"
           :aria-label="labels.close"
           @click="hide"
         >
@@ -117,7 +119,7 @@ onBeforeUnmount(() => {
           <li v-for="link in links" :key="link.href">
             <a
               :href="link.href"
-              class="flex min-h-12 items-center rounded-sm px-3 text-lg transition-colors duration-fast ease-standard hover:bg-surface-raised"
+              class="flex min-h-12 items-center px-3 text-lg hover:text-link"
               @click="hide"
               >{{ link.label }}</a
             >
@@ -127,11 +129,19 @@ onBeforeUnmount(() => {
 
       <hr class="my-2 border-border" />
 
-      <a
-        :href="switchHref"
-        class="flex min-h-12 items-center gap-2 rounded-sm px-3 transition-colors duration-fast ease-standard hover:bg-surface-raised"
-        @click="hide"
-      >
+      <ul v-if="contacts.length > 0" class="flex flex-col">
+        <li v-for="link in contacts" :key="link.href">
+          <a
+            :href="link.href"
+            rel="me noopener"
+            class="flex min-h-12 items-center px-3 text-sm text-text-muted hover:text-link"
+            @click="hide"
+            >{{ link.label }}</a
+          >
+        </li>
+      </ul>
+
+      <a :href="switchHref" class="flex min-h-12 items-center gap-2 px-3" @click="hide">
         <span class="text-sm text-text-muted">{{ labels.language }}:</span>
         <span>{{ switchLabel }}</span>
       </a>
@@ -142,15 +152,15 @@ onBeforeUnmount(() => {
 <style>
 /* Unscoped: styles the native <dialog> + ::backdrop, which scoped selectors can't reach. */
 .blog-nav-drawer {
-  margin: 0 0 0 auto; /* right drawer (§6.2) */
+  margin: 0 0 0 auto; /* right drawer */
   block-size: 100dvh;
   max-block-size: 100dvh;
   inline-size: min(20rem, 85vw);
   padding: 0;
   border: none;
+  border-inline-start: 1px solid var(--color-border);
   background-color: var(--color-surface);
   color: var(--color-text);
-  box-shadow: var(--shadow-overlay);
   padding-inline-end: max(1rem, env(safe-area-inset-right));
 }
 .blog-nav-drawer::backdrop {

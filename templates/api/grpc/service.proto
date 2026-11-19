@@ -1,0 +1,58 @@
+// Contract-first skeleton for an internal gRPC service.
+//
+// Replace the placeholder identifiers (the package name, Resource and
+// ResourceService) with the real domain names before use. The field numbers and
+// enum values are part of the binary wire contract and are governed by the
+// backward-compatibility rules listed at the end of this file.
+
+syntax = "proto3";
+
+// Rename to the real package, for example com.example.<service>.v1.
+package example.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// Service for <ServiceName>. Rename ResourceService to the real domain service.
+service ResourceService {
+  // Unary call: fetch one resource by its identifier.
+  rpc GetResource(GetResourceRequest) returns (Resource);
+
+  // Server-streaming call: push resource updates to the caller.
+  rpc WatchResources(WatchResourcesRequest) returns (stream Resource);
+}
+
+// Lifecycle state of a Resource. Rename the values to the real domain states.
+enum ResourceStatus {
+  // Zero value is required and is the default when a producer omits the field.
+  RESOURCE_STATUS_UNSPECIFIED = 0;
+  RESOURCE_STATUS_ACTIVE = 1;
+  RESOURCE_STATUS_ARCHIVED = 2;
+}
+
+// The resource this service exposes. Add fields; never renumber an existing one.
+message Resource {
+  string id = 1;
+  string name = 2;
+  ResourceStatus status = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message GetResourceRequest {
+  string id = 1;
+}
+
+message WatchResourcesRequest {
+  // Optional server-side filter expression; empty means "all resources".
+  string filter = 1;
+}
+
+// Backward-compatibility rules (proto3):
+// - Never renumber or reuse a field number: consumers decode by number, not by
+//   name, so a reused number silently returns the wrong value.
+// - Remove a field by reserving its number and name, for example
+//   `reserved 5; reserved "legacy_name";`.
+// - Only add new fields; never change a field's type or its wire type.
+// - Keep the zero enum value as the unspecified default and never renumber an
+//   enum value.
+// - Renaming a field is wire-compatible but breaks JSON mapping and generated
+//   code; treat a rename as a breaking change and announce it.

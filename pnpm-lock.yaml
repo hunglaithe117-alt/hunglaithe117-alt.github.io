@@ -191,20 +191,11 @@ importers:
         specifier: 2.11.7
         version: 2.11.7
 
-  apps/api: {}
-
   apps/edge:
-    dependencies:
-      '@cloudflare/containers':
-        specifier: 0.3.7
-        version: 0.3.7
     devDependencies:
       '@blog/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@blog/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cf:
         specifier: 1.0.0-beta.14
         version: 1.0.0-beta.14(@types/node@24.19.2)
@@ -257,9 +248,6 @@ importers:
       '@blog/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@blog/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       pagefind:
         specifier: 1.5.2
         version: 1.5.2
@@ -283,15 +271,6 @@ importers:
         version: 8.71.1(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
 
   packages/content: {}
-
-  packages/types:
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.0.0
-        version: 4.20260702.1
-      typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
 
   packages/ui:
     dependencies:
@@ -717,9 +696,6 @@ packages:
   '@cloudflare/config@0.24.1':
     resolution: {integrity: sha512-tja1/oHB5sCgigiRrZrESYFUzNEgex1zW0GDWXNbpUVpB8zX7ZQKMYnZYX2zD2sy8dk9paDZDnPC1VSu7y8aZw==}
 
-  '@cloudflare/containers@0.3.7':
-    resolution: {integrity: sha512-DM9dm3FnIBSyiSJ1FLavKwl/lk3oAmTaynCzZQ9pZR0ncRPquSxkxd8Nu2MFILxmDDsPkxKsSNEh9mHHMty4Fw==}
-
   '@cloudflare/kv-asset-handler@0.5.0':
     resolution: {integrity: sha512-jxQYkj8dSIzc0cD6cMMNdOc1UVjqSqu8BZdor5s8cGjW2I8BjODt/kWPVdY+u9zj3ms75Q5qaZgnxUad83+eAg==}
     engines: {node: '>=22.0.0'}
@@ -765,9 +741,6 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
-
-  '@cloudflare/workers-types@4.20260702.1':
-    resolution: {integrity: sha512-mOhf5TUEB1m2vPrxtqoIGfz0fUC9xyxRDx5gWHy5s+OCo6dcV+g7wI1R7gYCMFohhqF/2y2xeKVwMwCJjfn/WA==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4025,8 +3998,6 @@ snapshots:
     dependencies:
       zod: 4.6.5
 
-  '@cloudflare/containers@0.3.7': {}
-
   '@cloudflare/kv-asset-handler@0.5.0': {}
 
   '@cloudflare/runtime-types@0.1.9(@types/node@24.19.2)':
@@ -4058,8 +4029,6 @@ snapshots:
 
   '@cloudflare/workerd-windows-64@1.20261006.1':
     optional: true
-
-  '@cloudflare/workers-types@4.20260702.1': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:

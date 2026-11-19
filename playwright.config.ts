@@ -5,9 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
  *
  * The suite targets the **pre-built static site** (`apps/web/dist`), served by a
  * tiny dependency-free node server (`e2e/serve-dist.mjs`) that Playwright starts
- * via `webServer`. It runs fully offline: the deployed Worker + Go API are NOT
- * required because every `/api/*` call is stubbed with `page.route` (see
- * `e2e/fixtures.ts`).
+ * via `webServer`. It runs fully offline against the static build; the site has
+ * no API, database, or runtime call to stub.
  *
  * Pre-requisite: build the site once before running the suite:
  *   pnpm --filter @blog/web build

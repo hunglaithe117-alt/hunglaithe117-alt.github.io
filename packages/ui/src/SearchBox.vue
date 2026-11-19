@@ -118,7 +118,7 @@ onBeforeUnmount(() => {
   <template v-if="mode === 'trigger'">
     <button
       type="button"
-      class="icon-btn inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border border-border-strong px-2.5 text-sm font-medium text-text transition-colors duration-fast ease-standard hover:bg-surface"
+      class="icon-btn inline-flex h-11 min-w-11 items-center justify-center gap-1.5 text-sm text-text-muted hover:text-text"
       :aria-label="triggerLabel"
       aria-haspopup="dialog"
       @click="onTrigger"
@@ -137,7 +137,6 @@ onBeforeUnmount(() => {
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.6-3.6" />
       </svg>
-      <span class="hidden xl:inline">{{ triggerLabel }}</span>
     </button>
     <pagefind-modal v-if="status === 'ready'" ref="modalRef" />
   </template>
@@ -149,7 +148,7 @@ onBeforeUnmount(() => {
     </p>
     <p
       v-else-if="status === 'error'"
-      class="rounded-md border border-border bg-surface p-4 text-sm text-text-muted"
+      class="border border-border bg-surface p-4 text-sm text-text-muted"
       role="status"
     >
       {{ unavailableLabel }}

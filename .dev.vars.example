@@ -1,6 +1,3 @@
 # Copy to `.dev.vars` (git-ignored). Placeholders only — NEVER put a real secret here.
 # Consumed by `cf dev` when run from apps/edge (TOOLCHAIN-VERIFIED.md §7).
-
-SEND_EMAIL_FROM=no-reply@example.com
-PUBLIC_API_BASE_URL=http://localhost:8787
-SESSION_SECRET=replace-me
+# The Worker reads no runtime variables — `ASSETS` is a binding, not a var.

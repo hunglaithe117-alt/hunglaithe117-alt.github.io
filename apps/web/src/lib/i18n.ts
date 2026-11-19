@@ -28,13 +28,12 @@ export const LOCALE_SHORT: Record<Lang, string> = { vi: "VI", en: "EN" };
 /** Type-enforced UI dictionary — one entry per locale, no missing keys. */
 export const UI = {
   vi: {
-    siteTitle: "Ghi chú của tôi",
-    siteDescription: "Vườn chữ cá nhân: ghi chú về web, công cụ và đời sống thường ngày.",
+    siteTitle: "Chuquanpho29",
+    siteDescription: "Ghi chú về web, công cụ và đời sống thường ngày.",
     skipToContent: "Chuyển đến nội dung",
     home: "Trang chủ",
     posts: "Bài viết",
     about: "Giới thiệu",
-    contact: "Liên hệ",
     tags: "Thẻ",
     search: "Tìm kiếm",
     menu: "Menu",
@@ -45,6 +44,10 @@ export const UI = {
     themeToggle: "Đổi chế độ sáng/tối",
     rssFeed: "RSS",
     jsonFeed: "JSON Feed",
+    contact: "Liên hệ",
+    email: "Email",
+    github: "GitHub",
+    linkedin: "LinkedIn",
     readingTime: (minutes: number) => `${minutes} phút đọc`,
     publishedOn: "Đăng ngày",
     updatedOn: "Cập nhật",
@@ -74,7 +77,6 @@ export const UI = {
     nextPost: "Bài tiếp theo",
     backToPosts: "Tất cả bài viết",
     relatedPosts: "Bài cùng chủ đề",
-    viewsLabel: "lượt xem",
     // Search
     searchTitle: "Tìm kiếm",
     searchLead: "Tìm trong toàn bộ khu vườn. Kết quả hiện ngay khi bạn gõ.",
@@ -95,40 +97,14 @@ export const UI = {
     timelineTitle: "Dấu mốc",
     projectsTitle: "Dự án",
     present: "hiện tại",
-    // Contact
-    contactTitle: "Liên hệ",
-    contactLead: "Có điều gì muốn trao đổi? Gửi cho tôi một tin nhắn.",
-    contactExpectTitle: "Bạn có thể mong đợi",
-    emailLabel: "Thư điện tử",
-    // Contact form
-    formName: "Tên",
-    formEmail: "Thư điện tử",
-    formSubject: "Tiêu đề",
-    formMessage: "Nội dung",
-    formRequired: "bắt buộc",
-    formOptional: "không bắt buộc",
-    formSend: "Gửi tin nhắn",
-    formSending: "Đang gửi…",
-    formNameRequired: "Vui lòng cho biết tên của bạn.",
-    formEmailRequired: "Vui lòng nhập thư điện tử.",
-    formEmailInvalid: "Thư điện tử này chưa hợp lệ.",
-    formMessageRequired: "Vui lòng nhập nội dung.",
-    formMessageShort: "Nội dung hơi ngắn — thêm vài chữ nhé.",
-    formHoneypot: "Đừng điền vào ô này",
-    formPrivacy: "Thư điện tử chỉ dùng để trả lời bạn, không dùng cho việc khác.",
-    formReceived: "Đã nhận nội dung. Cảm ơn bạn đã viết!",
-    formNoBackend:
-      "Biểu mẫu chưa nối với dịch vụ gửi thư — phần này sẽ có ở giai đoạn sau. Nội dung của bạn chỉ được giữ tạm trên trình duyệt.",
-    formDevNote: "Bản dựng hiện tại chưa gửi thư đi.",
   },
   en: {
-    siteTitle: "Field notes",
-    siteDescription: "A personal garden of notes on the web, tools and everyday life.",
+    siteTitle: "Chuquanpho29",
+    siteDescription: "Notes on the web, tools and everyday life.",
     skipToContent: "Skip to content",
     home: "Home",
     posts: "Posts",
     about: "About",
-    contact: "Contact",
     tags: "Tags",
     search: "Search",
     menu: "Menu",
@@ -139,6 +115,10 @@ export const UI = {
     themeToggle: "Toggle light/dark theme",
     rssFeed: "RSS",
     jsonFeed: "JSON Feed",
+    contact: "Contact",
+    email: "Email",
+    github: "GitHub",
+    linkedin: "LinkedIn",
     readingTime: (minutes: number) => `${minutes} min read`,
     publishedOn: "Published",
     updatedOn: "Updated",
@@ -168,7 +148,6 @@ export const UI = {
     nextPost: "Next",
     backToPosts: "All posts",
     relatedPosts: "Related posts",
-    viewsLabel: "views",
     // Search
     searchTitle: "Search",
     searchLead: "Search across the whole garden. Results appear as you type.",
@@ -189,31 +168,6 @@ export const UI = {
     timelineTitle: "Milestones",
     projectsTitle: "Projects",
     present: "now",
-    // Contact
-    contactTitle: "Contact",
-    contactLead: "Something to talk about? Send me a note.",
-    contactExpectTitle: "What to expect",
-    emailLabel: "Email",
-    // Contact form
-    formName: "Name",
-    formEmail: "Email",
-    formSubject: "Subject",
-    formMessage: "Message",
-    formRequired: "required",
-    formOptional: "optional",
-    formSend: "Send message",
-    formSending: "Sending…",
-    formNameRequired: "Please tell me your name.",
-    formEmailRequired: "Please enter your email.",
-    formEmailInvalid: "That email doesn't look right.",
-    formMessageRequired: "Please write a message.",
-    formMessageShort: "A little more detail, please.",
-    formHoneypot: "Leave this field empty",
-    formPrivacy: "Your email is used only to reply, nothing else.",
-    formReceived: "Got it — thanks for writing!",
-    formNoBackend:
-      "This form isn't connected to a sending service yet — that arrives in a later phase. Your message is only kept locally in your browser for now.",
-    formDevNote: "This build doesn't send email yet.",
   },
 } as const satisfies Record<Lang, Record<string, unknown>>;
 
@@ -275,10 +229,6 @@ export function tagFeedPath(lang: Lang, tag: string): string {
 
 export function aboutPath(lang: Lang): string {
   return `/${lang}/about/`;
-}
-
-export function contactPath(lang: Lang): string {
-  return `/${lang}/contact/`;
 }
 
 export function searchPath(lang: Lang): string {
