@@ -63,6 +63,7 @@ jobs:
         run: pnpm turbo run build --filter=@blog/web
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # `cf build` packages apps/web/dist as assets and records the mode in the
       # Build Output; the deploy below must pass the same mode.
@@ -150,6 +151,7 @@ jobs:
         run: pnpm turbo run build --filter=@blog/web
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # The account id is an identity input: `cf build` records it in the Build
       # Output, and `cf deploy --prebuilt` must resolve the same account (P0-3).

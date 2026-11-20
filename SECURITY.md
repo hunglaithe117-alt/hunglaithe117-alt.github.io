@@ -64,7 +64,9 @@ stops running — and silently drops them — fails the check instead of passing
 
 **Accepted (F-22):** no `Content-Security-Policy` yet. A wrong CSP breaks a static site silently, and the
 policy has to be tuned against the real Astro output; it belongs with `apps/web/public/_headers`, which
-does not exist. Tracked as P1-3 in `docs/status.md`.
+does not exist. Tracked as P1-3 in `docs/status.md`. When it lands, the analytics beacon needs
+`script-src https://static.cloudflareinsights.com/beacon.min.js` and
+`connect-src https://cloudflareinsights.com`.
 
 ### F-15 — dependencies
 

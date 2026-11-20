@@ -56,6 +56,12 @@ const {
 
 const site = Astro.site!;
 const t = UI[lang];
+/**
+ * Cloudflare Web Analytics is opt-in: a build with `PUBLIC_ANALYTICS_TOKEN` set emits
+ * the beacon, and a build without it emits nothing. Development builds never emit it,
+ * so local traffic cannot land in the dashboard.
+ */
+const analyticsToken = import.meta.env.PROD ? import.meta.env.PUBLIC_ANALYTICS_TOKEN : undefined;
 const canonicalUrl = absoluteUrl(site, canonical);
 const ogImage = image ?? absoluteUrl(site, "/og-default.png");
 const rssHref = absoluteUrl(site, `/${lang}/rss.xml`);
@@ -223,5 +229,14 @@ const contacts = contactLinks();
     </main>
 
     <Footer lang={lang} />
+
+    {analyticsToken && (
+      <script
+        is:inline
+        type="module"
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+      />
+    )}
   </body>
 </html>

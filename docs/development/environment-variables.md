@@ -34,9 +34,10 @@ no longer exists is a defect.
 
 ### 2.1 Web build
 
-| Variable          | Purpose                                                            | Required?                   | Default                                                                                                                                                                         | Where it is read                                                |
-| ----------------- | ------------------------------------------------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `PUBLIC_SITE_URL` | Canonical site URL behind canonical links, the sitemap, and feeds. | Yes for a production deploy | `https://example.com`, the fallback in `apps/web/astro.config.mjs`; `.env.example` carries `http://localhost:4321`, which reaches the config only when exported into the shell. | `site` in `apps/web/astro.config.mjs`; hashed as a Turbo input. |
+| Variable                 | Purpose                                                                                  | Required?                   | Default                                                                                                                                                                         | Where it is read                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `PUBLIC_ANALYTICS_TOKEN` | Cloudflare Web Analytics token. A production build emits the beacon only when it is set. | No                          | none — no tag is emitted                                                                                                                                                        | `apps/web/src/layouts/BaseLayout.astro`; hashed as a Turbo input. |
+| `PUBLIC_SITE_URL`        | Canonical site URL behind canonical links, the sitemap, and feeds.                       | Yes for a production deploy | `https://example.com`, the fallback in `apps/web/astro.config.mjs`; `.env.example` carries `http://localhost:4321`, which reaches the config only when exported into the shell. | `site` in `apps/web/astro.config.mjs`; hashed as a Turbo input.   |
 
 The deploy workflow supplies it from the `PUBLIC_SITE_URL` repository variable. An empty value silently
 falls back to `example.com`, so the build is verified by reading the built HTML, not by the workflow's exit
@@ -61,14 +62,15 @@ fetcher.
 
 ### 2.3 Continuous integration
 
-| Name                    | Kind                 | Purpose                                                                                |
-| ----------------------- | -------------------- | -------------------------------------------------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | Environment secret   | Authenticates `cf deploy`.                                                             |
-| `CLOUDFLARE_ACCOUNT_ID` | Environment variable | Account for `cf build` and `cf deploy`; `turbo.json` also hashes it as a global input. |
-| `SITE_DOMAIN`           | Environment variable | Custom domain claimed by the production config; hashed as an edge-build input.         |
-| `PUBLIC_SITE_URL`       | Build variable       | Canonical origin for the production build; must be `https://` plus `SITE_DOMAIN`.      |
-| `TURBO_TOKEN`           | Repository secret    | Optional Vercel Remote Cache token; empty disables uploads.                            |
-| `TURBO_TEAM`            | Repository variable  | Remote-cache team scope; empty disables the cache.                                     |
+| Name                     | Kind                 | Purpose                                                                                |
+| ------------------------ | -------------------- | -------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`   | Environment secret   | Authenticates `cf deploy`.                                                             |
+| `CLOUDFLARE_ACCOUNT_ID`  | Environment variable | Account for `cf build` and `cf deploy`; `turbo.json` also hashes it as a global input. |
+| `SITE_DOMAIN`            | Environment variable | Custom domain claimed by the production config; hashed as an edge-build input.         |
+| `PUBLIC_SITE_URL`        | Build variable       | Canonical origin for the production build; must be `https://` plus `SITE_DOMAIN`.      |
+| `PUBLIC_ANALYTICS_TOKEN` | Build variable       | Cloudflare Web Analytics token; unset means no beacon.                                 |
+| `TURBO_TOKEN`            | Repository secret    | Optional Vercel Remote Cache token; empty disables uploads.                            |
+| `TURBO_TEAM`             | Repository variable  | Remote-cache team scope; empty disables the cache.                                     |
 
 ## 3. Values the owner supplies before the first deploy
 

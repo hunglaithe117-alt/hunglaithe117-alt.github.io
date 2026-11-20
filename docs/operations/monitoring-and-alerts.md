@@ -10,16 +10,16 @@ there is no error envelope to interpret.
 
 ## 1. The observability contract
 
-| Property               | State                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------ |
-| Request telemetry      | Exists. One invocation record per Worker request — method, path, status, duration — at 100% sampling   |
-| Log retention          | Not configured. The platform default applies; no retention period is stated anywhere in the repository |
-| Metrics and dashboards | None of the repository's own. The Cloudflare dashboard is the only UI                                  |
-| Paging                 | None. No pager integration exists; the alert channel was left open (Q-4)                               |
-| Uptime checks          | Documented targets, not provisioned — the check is an account-level action                             |
-| SLOs and error budget  | Not defined                                                                                            |
-| Analytics              | Cloudflare Web Analytics is the chosen, cookie-free product (D-022); the beacon is not installed       |
-| Ownership              | No signal has a named owner yet; see §9                                                                |
+| Property               | State                                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Request telemetry      | Exists. One invocation record per Worker request — method, path, status, duration — at 100% sampling                                 |
+| Log retention          | Not configured. The platform default applies; no retention period is stated anywhere in the repository                               |
+| Metrics and dashboards | None of the repository's own. The Cloudflare dashboard is the only UI                                                                |
+| Paging                 | None. No pager integration exists; the alert channel was left open (Q-4)                                                             |
+| Uptime checks          | Documented targets, not provisioned — the check is an account-level action                                                           |
+| SLOs and error budget  | Not defined                                                                                                                          |
+| Analytics              | Cloudflare Web Analytics is the chosen, cookie-free product (D-022); the beacon is emitted only when `PUBLIC_ANALYTICS_TOKEN` is set |
+| Ownership              | No signal has a named owner yet; see §9                                                                                              |
 
 The rule this page holds itself to: a signal is listed only if it exists in the code or in the
 platform configuration committed to this repository. Everything else is marked as proposed, in §9.
@@ -34,7 +34,7 @@ platform configuration committed to this repository. Everything else is marked a
 | Site document availability                          | `https://<domain>/vi/` served from Worker static assets                 | `curl`, or the uptime check in §5                                                               | Proposed: two consecutive failures              |
 | Feed availability                                   | `https://<domain>/vi/rss.xml`                                           | `curl`, or the uptime check in §5                                                               | Proposed: two consecutive failures              |
 | Deployed version                                    | The Worker version timestamp in the Cloudflare dashboard                | Compare with the newest `deploy-edge` run for the merge commit                                  | No                                              |
-| Page views and Core Web Vitals                      | Cloudflare Web Analytics (account level)                                | Cloudflare dashboard → Analytics → Web Analytics                                                | No — beacon not installed                       |
+| Page views and Core Web Vitals                      | Cloudflare Web Analytics (account level)                                | Cloudflare dashboard → Analytics → Web Analytics                                                | No — beacon only when the build variable is set |
 
 Configuration behind the first row, quoted from `apps/edge/cloudflare.config.ts`:
 
@@ -86,11 +86,11 @@ record. A page that loads is not the check; the header and canonical assertions 
 
 ## 4. Dashboards
 
-| Dashboard                                              | Exists                 | Audience       | Answers                                       |
-| ------------------------------------------------------ | ---------------------- | -------------- | --------------------------------------------- |
-| Cloudflare Workers overview for `blog-edge-production` | Yes, platform-provided | Anyone on call | Requests, errors, and CPU time for the Worker |
-| Cloudflare Web Analytics                               | Not installed          | Site owner     | Page views and Core Web Vitals                |
-| Service overview, dependency, release, capacity        | **Not yet defined**    | —              | —                                             |
+| Dashboard                                              | Exists                  | Audience       | Answers                                       |
+| ------------------------------------------------------ | ----------------------- | -------------- | --------------------------------------------- |
+| Cloudflare Workers overview for `blog-edge-production` | Yes, platform-provided  | Anyone on call | Requests, errors, and CPU time for the Worker |
+| Cloudflare Web Analytics                               | Opt-in (build variable) | Site owner     | Page views and Core Web Vitals                |
+| Service overview, dependency, release, capacity        | **Not yet defined**     | —              | —                                             |
 
 No bespoke dashboard is defined, and no alert links to one. Until a dashboard exists, the
 alert-to-dashboard link the runbooks would carry points at the Worker overview page in the Cloudflare
@@ -162,17 +162,17 @@ tail is the only evidence there is.
 
 ## 9. Known limits and gaps
 
-| #   | Limit                                 | Consequence                                                                                                                           |
-| --- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | No alert channel and no pager (Q-4)   | Every alert in §5 is a proposal; nothing pages anyone                                                                                 |
-| 2   | No dashboards of the repository's own | Triage starts in the Cloudflare dashboard, with no shared view of what "normal" looks like                                            |
-| 3   | No SLO and no logs-based error budget | "Is this worse than usual?" is answered by reading logs, not by a number                                                              |
-| 4   | 100% sampling                         | Full fidelity now; the sampling rate must drop as traffic grows, which weakens every uptime and error-rate threshold in §5            |
-| 5   | No uptime check provisioned           | The two targets in §5 have never been polled from outside                                                                             |
-| 6   | Analytics beacon not installed        | No page-view or Core Web Vitals data exists yet. D-022 chose the product; the tag itself belongs in `apps/web` and has not been added |
-| 7   | Edge-only visibility                  | A reader-side failure — an old cached asset, a local DNS fault — leaves no record here                                                |
-| 8   | No retention or access policy         | Log history is whatever the platform keeps by default                                                                                 |
-| 9   | No uptime check, so no baseline       | The first deploy is verified by hand (`scripts/smoke-static.sh`); nothing polls it afterwards                                         |
+| #   | Limit                                 | Consequence                                                                                                                     |
+| --- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | No alert channel and no pager (Q-4)   | Every alert in §5 is a proposal; nothing pages anyone                                                                           |
+| 2   | No dashboards of the repository's own | Triage starts in the Cloudflare dashboard, with no shared view of what "normal" looks like                                      |
+| 3   | No SLO and no logs-based error budget | "Is this worse than usual?" is answered by reading logs, not by a number                                                        |
+| 4   | 100% sampling                         | Full fidelity now; the sampling rate must drop as traffic grows, which weakens every uptime and error-rate threshold in §5      |
+| 5   | No uptime check provisioned           | The two targets in §5 have never been polled from outside                                                                       |
+| 6   | Analytics token not set yet           | No page-view or Core Web Vitals data exists until `PUBLIC_ANALYTICS_TOKEN` is supplied to the build; the beacon itself is wired |
+| 7   | Edge-only visibility                  | A reader-side failure — an old cached asset, a local DNS fault — leaves no record here                                          |
+| 8   | No retention or access policy         | Log history is whatever the platform keeps by default                                                                           |
+| 9   | No uptime check, so no baseline       | The first deploy is verified by hand (`scripts/smoke-static.sh`); nothing polls it afterwards                                   |
 
 ## 10. References
 
