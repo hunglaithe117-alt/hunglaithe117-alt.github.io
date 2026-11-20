@@ -6,7 +6,7 @@
  * Titles are drawn as SVG text; the generic `sans-serif` family resolves to a
  * Vietnamese-capable face on macOS and Linux alike.
  */
-import { mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -69,6 +69,9 @@ function card({ title, date, lang, site }) {
 
 const site = "Chuquanpho29";
 let written = 0;
+
+// Start clean: a card for a deleted or renamed post must not survive the build.
+rmSync(outRoot, { recursive: true, force: true });
 
 for (const lang of ["vi", "en"]) {
   let files;
