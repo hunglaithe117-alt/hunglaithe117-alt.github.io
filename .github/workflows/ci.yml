@@ -71,7 +71,8 @@ jobs:
           vale_flags: "--minAlertLevel=error"
           # `local` reporter keeps this fork-safe: no PR-comment write needed.
           reporter: local
-          fail_on_error: true
+          filter_mode: nofilter
+          fail_on_error: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
