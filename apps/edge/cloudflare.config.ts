@@ -61,9 +61,8 @@ export default defineConfig(({ mode, isPreview }) => {
       // Observability (T6.3): Workers Logs + invocation logs at 100% head
       // sampling (a low-traffic personal blog — full fidelity is cheap). Query
       // strings are redacted so tracking params forwarded in a URL are never
-      // persisted. Analytics and uptime live at the account level (see
-      // docs/operations/monitoring-and-alerts.md); no client-side tracker is
-      // injected.
+      // persisted. Analytics and uptime live at the account level; the Worker
+      // injects no client-side tracker.
       observability: {
         enabled: true,
         headSamplingRate: 1,

@@ -313,6 +313,7 @@
   /* Icon buttons: keep the visual box small, guarantee a ≥44px hit area. */
   .icon-btn {
     position: relative;
+    cursor: pointer;
   }
   .icon-btn::after {
     content: "";

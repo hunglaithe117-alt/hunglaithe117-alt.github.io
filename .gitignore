@@ -57,3 +57,10 @@ Thumbs.db
 # Deepwork session state (local only).
 # ---------------------------------------------------------------------------
 .slim/deepwork/
+
+# ---------------------------------------------------------------------------
+# Local-only notes: documentation and doc templates stay on this machine and
+# are not published with the site.
+# ---------------------------------------------------------------------------
+/docs/
+/templates/

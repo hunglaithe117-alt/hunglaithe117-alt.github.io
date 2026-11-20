@@ -184,14 +184,14 @@ onBeforeUnmount(() => {
         ref="dropdownRef"
         role="region"
         :aria-label="triggerLabel"
-        class="search-dropdown fixed inset-x-4 top-[calc(var(--header-h)+0.5rem)] z-50 border border-border bg-bg p-3 shadow-lg desktop:absolute desktop:inset-x-auto desktop:end-0 desktop:top-[calc(100%+0.5rem)] desktop:w-[26rem]"
+        class="search-dropdown fixed inset-x-4 top-[calc(var(--header-h)+1rem)] z-50 mx-auto max-w-[36rem] rounded-xl border border-border bg-bg/95 p-4 shadow-2xl backdrop-blur-md"
       >
-        <p v-if="status === 'loading'" class="py-2 text-sm text-text-muted" role="status">
+        <p v-if="status === 'loading'" class="py-3 text-center text-sm text-text-muted" role="status">
           {{ loadingLabel }}
         </p>
         <p
           v-else-if="status === 'error'"
-          class="border border-border bg-surface p-3 text-sm text-text-muted"
+          class="rounded-lg border border-border bg-surface p-3 text-sm text-text-muted"
           role="status"
         >
           {{ unavailableLabel }}
@@ -201,9 +201,9 @@ onBeforeUnmount(() => {
           <pagefind-input :placeholder="placeholder" />
           <pagefind-summary
             :default-message="defaultMessage"
-            class="mt-2 block text-xs text-text-muted"
+            class="mt-2.5 block text-xs text-text-muted"
           />
-          <pagefind-results class="mt-3 block max-h-[60dvh] overflow-y-auto" />
+          <pagefind-results class="mt-3 block max-h-[58dvh] overflow-y-auto pr-1" />
         </template>
       </div>
     </Transition>
@@ -212,19 +212,20 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .search-dropdown {
-  --pf-input-height: 42px;
+  --pf-input-height: 44px;
+  --pf-border-radius: 8px;
 }
 
 .search-dropdown-enter-active,
 .search-dropdown-leave-active {
   transition:
-    opacity 160ms cubic-bezier(0.2, 0, 0, 1),
-    transform 160ms cubic-bezier(0.2, 0, 0, 1);
+    opacity 180ms cubic-bezier(0.2, 0, 0, 1),
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .search-dropdown-enter-from,
 .search-dropdown-leave-to {
   opacity: 0;
-  transform: translateY(-6px) scale(0.98);
+  transform: translateY(-8px) scale(0.98);
 }
 </style>
