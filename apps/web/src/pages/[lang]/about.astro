@@ -14,7 +14,6 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = UI[lang];
-const about = ABOUT[lang];
 const canonical = aboutPath(lang);
 const alternates = LOCALES.map((l) => ({ lang: l, path: aboutPath(l) }));
 const contacts = contactLinks();
@@ -67,43 +66,9 @@ const jsonLd = {
     )}
 
     <div class="prose mt-10">
-      {about.intro.map((paragraph) => (
+      {ABOUT.map((paragraph) => (
         <p>{paragraph}</p>
       ))}
-
-      <h2 id="focus">{t.focusTitle}</h2>
-      <ul class="list-none p-0">
-        {about.focus.map((item) => (
-          <li>
-            <h3>{item.title}</h3>
-            <p class="text-text-muted">{item.body}</p>
-          </li>
-        ))}
-      </ul>
-
-      <h2 id="timeline">{t.timelineTitle}</h2>
-      <ol class="list-none p-0">
-        {about.timeline.map((entry) => (
-          <li>
-            <p class="text-sm text-text-muted">{entry.period}</p>
-            <h3>{entry.title}</h3>
-            <p class="text-text-muted">{entry.body}</p>
-          </li>
-        ))}
-      </ol>
-
-      <h2 id="projects">{t.projectsTitle}</h2>
-      <ul class="list-none p-0">
-        {about.projects.map((project) => (
-          <li>
-            <h3>{project.href ? <a href={project.href}>{project.name}</a> : project.name}</h3>
-            <p class="text-text-muted">{project.summary}</p>
-            {project.tags.length > 0 && (
-              <p class="text-sm text-text-muted">{project.tags.join(" · ")}</p>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   </div>
 </BaseLayout>

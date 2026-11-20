@@ -24,7 +24,7 @@ export const LOCALE_SHORT: Record<Lang, string> = { vi: "VI", en: "EN" };
 export const UI = {
   vi: {
     siteTitle: "Chuquanpho29",
-    siteDescription: "Ghi chú về web, công cụ và đời sống thường ngày.",
+    siteDescription: "Notes on work and everyday life.",
     skipToContent: "Chuyển đến nội dung",
     posts: "Bài viết",
     about: "Giới thiệu",
@@ -66,7 +66,7 @@ export const UI = {
     relatedPosts: "Bài cùng chủ đề",
     // Search
     searchTitle: "Tìm kiếm",
-    searchLead: "Tìm trong toàn bộ khu vườn. Kết quả hiện ngay khi bạn gõ.",
+    searchLead: "Tìm trong toàn bộ trang.",
     searchPlaceholder: "Nhập từ khoá để tìm…",
     searchDefaultMessage: "Nhập để tìm bài viết.",
     searchLoading: "Đang tải tìm kiếm…",
@@ -76,10 +76,7 @@ export const UI = {
     // Feeds
     // About / portfolio
     aboutTitle: "Giới thiệu",
-    aboutLead: "Một khu vườn chữ nhỏ, giữ đơn giản để đọc lâu dài.",
-    focusTitle: "Tôi viết về",
-    timelineTitle: "Dấu mốc",
-    projectsTitle: "Dự án",
+    aboutLead: "",
   },
   en: {
     siteTitle: "Chuquanpho29",
@@ -125,7 +122,7 @@ export const UI = {
     relatedPosts: "Related posts",
     // Search
     searchTitle: "Search",
-    searchLead: "Search across the whole garden. Results appear as you type.",
+    searchLead: "Search across the whole page.",
     searchPlaceholder: "Type to search…",
     searchDefaultMessage: "Start typing to search.",
     searchLoading: "Loading search…",
@@ -135,10 +132,7 @@ export const UI = {
     // Feeds
     // About / portfolio
     aboutTitle: "About",
-    aboutLead: "A small garden of notes, kept simple so it reads well over time.",
-    focusTitle: "What I write about",
-    timelineTitle: "Milestones",
-    projectsTitle: "Projects",
+    aboutLead: "",
   },
 } as const satisfies Record<Lang, Record<string, unknown>>;
 
