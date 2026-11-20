@@ -75,4 +75,4 @@ exists in the codebase.
 - Related: `ADR-0007` (the D1 store), `ADR-0005` (the Worker that held the binding), `ADR-0010`
   (observability).
 - Feature removed: `docs/features/contact-form.md` (deleted with the code).
-- Plan: `phases/phase-1-remove-contact-feature/`.
+- Plan: the phase packet was removed after completion; the change is in the git history.

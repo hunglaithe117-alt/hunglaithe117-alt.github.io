@@ -94,10 +94,10 @@ templates       Documentation template library (untracked)
 
 ## Hygiene
 
-- `.env*` and `.dev.vars*` are ignored except the examples, which carry placeholders only.
+- `.env*` is ignored except `.env.example`, which carries placeholders only.
 - `.cloudflare/` (build output) is ignored.
 - A Husky pre-commit hook runs `lint-staged` (ESLint + Prettier on changed files).
-- Never commit real secrets. A leaked secret is rotated, not just deleted. See `SECURITY.md` and
+- Never commit real secrets. A leaked secret is rotated, not just deleted. See
   `.github/BRANCH_PROTECTION.md`.
 
 ## License

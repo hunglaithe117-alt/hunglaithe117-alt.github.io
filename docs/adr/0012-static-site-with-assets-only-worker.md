@@ -77,4 +77,4 @@ canonical metadata; Pagefind writes the search index; the remaining Vue islands 
   (`0006-go-fiber-api-on-cloudflare-containers.md`), `ADR-0007` (`0007-d1-as-system-of-record.md`).
 - Partially supersedes: `ADR-0010` (the Go `slog` half; Worker logs still apply).
 - Related: `ADR-0003` (static Astro + islands), `ADR-0011` (contact removal).
-- Plan: `phases/phase-2-retire-backend/`.
+- Plan: the phase packet was removed after completion; the change is in the git history.

@@ -2,7 +2,7 @@
 
 An Architecture Decision Record captures one decision and its rationale: the context that forced it, the option chosen, and the consequences accepted. This folder is the durable record — a decision not written here is not recoverable from the code alone, because the code shows the outcome and never the alternatives it beat. The format follows MADR.
 
-The records below were reconstructed on 2026-11-19. The code has cited decision IDs (`D-013`, `D-036`, `D-040`, …) since the first phase, but the documents that assigned them — `SOLUTION.md`, `TOOLCHAIN-VERIFIED.md` — are not in the repository; the later plan packet lives under `phases/`. Each ADR therefore states what the implementation shows and marks its rationale as inferred; none invents a meeting, a participant, or an option that the code does not exclude.
+The records below were reconstructed on 2026-11-19. The code has cited decision IDs (`D-013`, `D-036`, `D-040`, …) since the first phase, but the documents that assigned them — `SOLUTION.md`, `TOOLCHAIN-VERIFIED.md` — are not in the repository, and the completed phase packet was removed with them. The security review these records cite (`SECURITY.md`) was removed at the same time; its findings are historical. Each ADR therefore states what the implementation shows and marks its rationale as inferred; none invents a meeting, a participant, or an option that the code does not exclude.
 
 ## Index
 

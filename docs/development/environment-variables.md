@@ -100,8 +100,8 @@ that embed a password, and tokens.
 
 In this repository:
 
-- The ignored paths are `.env*` (except `.env.example`), `.dev.vars*` (except `.dev.vars.example`), `secrets.env`, `secrets.json`, and key material (`*.pem`, `*.key`).
-- The committed examples carry placeholder values only: `.env.example` and `.dev.vars.example`.
+- The ignored paths are `.env*` (except `.env.example`), `.dev.vars*`, `secrets.env`, `secrets.json`, and key material (`*.pem`, `*.key`).
+- The committed example carries placeholder values only: `.env.example`.
 - The only runtime secret the system needs is the deploy token; the site itself has no runtime
   credential to leak.
 - A leaked secret is rotated, not merely deleted — the history already holds it.
@@ -124,7 +124,7 @@ the custom domain is not selected.
 ## 6. References
 
 - Related docs: [`local-setup.md`](local-setup.md), [`testing-guide.md`](testing-guide.md)
-- Committed examples: [`.env.example`](../../.env.example), [`.dev.vars.example`](../../.dev.vars.example)
+- Committed example: [`.env.example`](../../.env.example)
 - Edge configuration: [`apps/edge/cloudflare.config.ts`](../../apps/edge/cloudflare.config.ts), [`apps/edge/wrangler.config.ts`](../../apps/edge/wrangler.config.ts)
 - Web build input: [`apps/web/astro.config.mjs`](../../apps/web/astro.config.mjs)
 - CI secrets and variables: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), [`.github/workflows/deploy-edge.yml`](../../.github/workflows/deploy-edge.yml)

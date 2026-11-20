@@ -11,8 +11,6 @@ headers. The site is served entirely from pre-built files; nothing is written at
 
 ## 2. Delivery status
 
-Rows are the delivery sequence, not the phase numbering in [`../phases/`](../phases/README.md).
-
 | Commit(s)                                  | Delivered                                                                     | State                                                               |
 | ------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `7c728a2`                                  | pnpm + Turborepo monorepo, workspace skeletons, shared packages               | Complete                                                            |

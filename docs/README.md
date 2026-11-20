@@ -44,4 +44,3 @@ The set follows [`../templates/CONVENTIONS.md`](../templates/CONVENTIONS.md) and
 
 - Repository entry point: [`../README.md`](../README.md).
 - Template library and conventions: [`../templates/README.md`](../templates/README.md).
-- Security review: [`../SECURITY.md`](../SECURITY.md).

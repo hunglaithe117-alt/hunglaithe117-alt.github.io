@@ -176,7 +176,6 @@ First launch, in order:
 
 ## 7. References
 
-- Launch plan: [`../../phases/phase-4-launch/README.md`](../../phases/phase-4-launch/README.md).
 - Monitoring: [`monitoring-and-alerts.md`](monitoring-and-alerts.md); recovery: [`disaster-recovery.md`](disaster-recovery.md).
 - Smoke script: [`../../scripts/smoke-static.sh`](../../scripts/smoke-static.sh).
 - Retirement context: [`../adr/0012-static-site-with-assets-only-worker.md`](../adr/0012-static-site-with-assets-only-worker.md).

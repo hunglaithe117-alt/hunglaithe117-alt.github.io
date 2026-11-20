@@ -20,8 +20,8 @@ check, not just what the code happens to do.
 
 The site is a public read-only surface whose defence is its shape: a static file server that accepts only a
 URL. The Worker adds five hardening headers to every response it handles. The remaining gaps are explicit:
-no CSP, no robots.txt, and no alert channel. `SECURITY.md` is the review of record. A feature that needs
-runtime state is a new ADR, not a configuration change.
+no CSP, no robots.txt, and no alert channel. A feature that needs runtime state is a new ADR, not a
+configuration change.
 
 ## 3. Configuration rules that are easy to get wrong
 
@@ -35,5 +35,5 @@ runtime state is a new ADR, not a configuration change.
 ## 4. References
 
 - Related chapters: [`02-container-view.md`](02-container-view.md), [`04-runtime-flows.md`](04-runtime-flows.md), [`05-deployment-view.md`](05-deployment-view.md), [`09-glossary.md`](09-glossary.md).
-- Authorities: [`../development/environment-variables.md`](../development/environment-variables.md), `SECURITY.md`.
+- Authorities: [`../development/environment-variables.md`](../development/environment-variables.md), [`../../.github/BRANCH_PROTECTION.md`](../../.github/BRANCH_PROTECTION.md).
 - Decisions: [`../adr/0012-static-site-with-assets-only-worker.md`](../adr/0012-static-site-with-assets-only-worker.md).

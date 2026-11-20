@@ -55,7 +55,7 @@ flowchart TD
 
 | ID              | Requirement                                                  | Why it is not yet achieved                                                                                 |
 | --------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| Headers         | A Content-Security-Policy is sent with every HTML response   | `SECURITY.md` F-22 accepts the gap; the policy belongs in `apps/web/public/_headers`, which does not exist |
+| Headers         | A Content-Security-Policy is sent with every HTML response   | Accepted gap; the policy belongs in `apps/web/public/_headers`, which does not exist                       |
 | Discoverability | `robots.txt` and per-post Open Graph images exist            | `robots.txt` is missing; a post with a `cover` gets its own image, the rest fall back to `/og-default.png` |
 | CI              | The browser suite runs on every pull request                 | Playwright is not invoked by any workflow                                                                  |
 | Performance     | Performance and SEO budgets fail the build when they regress | Only a manual Lighthouse baseline is recorded                                                              |
@@ -65,5 +65,5 @@ flowchart TD
 ## 4. References
 
 - Related chapters: [`04-runtime-flows.md`](04-runtime-flows.md), [`05-deployment-view.md`](05-deployment-view.md), [`08-crosscutting-concepts.md`](08-crosscutting-concepts.md).
-- Evidence: `SECURITY.md`, `.github/workflows/ci.yml`, `e2e/static-journeys.spec.ts`, [`../status.md`](../status.md).
+- Evidence: `.github/workflows/ci.yml`, `e2e/static-journeys.spec.ts`, [`../status.md`](../status.md).
 - Standards: arc42 §10, ISO/IEC 25010.

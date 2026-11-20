@@ -3,11 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Shared tsconfig / eslint / tailwind presets for the blog monorepo",
+  "description": "Shared tsconfig and eslint preset for the blog monorepo",
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
-    "./eslint": "./eslint.config.mjs",
-    "./tailwind": "./tailwind.preset.js"
+    "./eslint": "./eslint.config.mjs"
   },
   "dependencies": {
     "@eslint/js": "^9.0.0",
