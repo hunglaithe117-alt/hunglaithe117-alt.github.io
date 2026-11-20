@@ -1,25 +1,18 @@
 <script setup lang="ts">
 /**
- * SearchBox — Pagefind **Component UI** island (T3.3, Pagefind 1.5.2).
+ * SearchBox — Pagefind **Component UI** header dropdown island (Pagefind 1.5.2).
  *
- * Uses the 1.5.2 web components (`<pagefind-modal>`, `<pagefind-input>`, …), never the
- * legacy `PagefindUI`. The Pagefind assets are injected **client-side and lazily**:
- * nothing Pagefind-related runs at module scope, so the static build stays static and
- * the ~170 KB Component UI bundle only loads when search is actually engaged
- * (T3.2/T3.3 risk note: "must not run Pagefind at module top-level").
+ * Uses the 1.5.2 web components (`<pagefind-config>`, `<pagefind-input>`,
+ * `<pagefind-summary>`, `<pagefind-results>`). Pagefind assets are injected
+ * **client-side and lazily** on first open so the ~170 KB bundle only loads
+ * when search is actually engaged.
  *
- * Locale awareness is automatic: Pagefind reads the document language from
- * `html[lang]` (vi-VN / en-US) and selects the matching per-locale index + UI strings.
- *
- * Two modes:
- *  - `trigger` (header): a compact button that opens the modal on first activation.
- *  - `page` (the /search/ route): the inline input + summary + results.
+ * Locale awareness is automatic: Pagefind reads `html[lang]` (vi-VN / en-US).
  */
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 interface Props {
   lang: "vi" | "en";
-  mode?: "trigger" | "page";
   /** Directory holding the Pagefind bundle (default `/pagefind/`). */
   bundlePath?: string;
   placeholder: string;
@@ -27,18 +20,19 @@ interface Props {
   loadingLabel: string;
   unavailableLabel: string;
   defaultMessage: string;
-  autofocus?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: "trigger",
   bundlePath: "/pagefind/",
-  autofocus: false,
 });
 
 type Status = "idle" | "loading" | "ready" | "error";
 const status = ref<Status>("idle");
-const modalRef = ref<HTMLElement | null>(null);
+const isOpen = ref(false);
+const hasOpened = ref(false);
+const rootRef = ref<HTMLElement | null>(null);
+const triggerRef = ref<HTMLButtonElement | null>(null);
+const dropdownRef = ref<HTMLElement | null>(null);
 
 /** One shared loader so multiple islands never inject the bundle twice. */
 let uiPromise: Promise<void> | null = null;
@@ -69,9 +63,18 @@ function loadComponentUi(bundlePath: string): Promise<void> {
   return uiPromise;
 }
 
-async function ensure(openAfter = false): Promise<void> {
+async function focusInput(): Promise<void> {
+  await nextTick();
+  // Wait a microtask/frame for the custom element to upgrade its internal <input>
+  requestAnimationFrame(() => {
+    const input = dropdownRef.value?.querySelector<HTMLInputElement>("pagefind-input input");
+    input?.focus();
+  });
+}
+
+async function ensure(): Promise<void> {
   if (status.value === "ready") {
-    if (openAfter) await openModal();
+    await focusInput();
     return;
   }
   if (status.value === "loading") return;
@@ -79,49 +82,83 @@ async function ensure(openAfter = false): Promise<void> {
   try {
     await loadComponentUi(props.bundlePath);
     status.value = "ready";
-    if (openAfter) await openModal();
+    if (isOpen.value) await focusInput();
   } catch {
     status.value = "error";
   }
 }
 
-async function openModal(): Promise<void> {
-  await nextTick();
-  const modal = modalRef.value as (HTMLElement & { open?: () => void }) | null;
-  modal?.open?.();
+function openDropdown(): void {
+  hasOpened.value = true;
+  isOpen.value = true;
+  void ensure();
 }
 
-function onTrigger(): void {
-  void ensure(true);
+function closeDropdown(restoreFocus = false): void {
+  if (!isOpen.value) return;
+  isOpen.value = false;
+  if (restoreFocus) triggerRef.value?.focus();
 }
 
-function onKeydown(event: KeyboardEvent): void {
-  if (props.mode !== "trigger") return;
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-    event.preventDefault();
-    void ensure(true);
+function toggleDropdown(): void {
+  if (isOpen.value) {
+    closeDropdown(false);
+  } else {
+    openDropdown();
   }
 }
 
+function onKeydown(event: KeyboardEvent): void {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    if (isOpen.value) {
+      closeDropdown(true);
+    } else {
+      openDropdown();
+    }
+    return;
+  }
+  if (event.key === "Escape" && isOpen.value) {
+    event.preventDefault();
+    closeDropdown(true);
+  }
+}
+
+function onPointerDown(event: PointerEvent): void {
+  if (!isOpen.value) return;
+  const target = event.target as Node | null;
+  if (target && rootRef.value && !rootRef.value.contains(target)) {
+    closeDropdown(false);
+  }
+}
+
+watch(status, (next) => {
+  if (next === "ready" && isOpen.value) {
+    void focusInput();
+  }
+});
+
 onMounted(() => {
-  if (props.mode === "page") void ensure();
-  if (props.mode === "trigger") window.addEventListener("keydown", onKeydown);
+  window.addEventListener("keydown", onKeydown);
+  document.addEventListener("pointerdown", onPointerDown);
 });
 
 onBeforeUnmount(() => {
-  if (props.mode === "trigger") window.removeEventListener("keydown", onKeydown);
+  window.removeEventListener("keydown", onKeydown);
+  document.removeEventListener("pointerdown", onPointerDown);
 });
 </script>
 
 <template>
-  <!-- Trigger (header): our own button, Pagefind only loads on demand. -->
-  <template v-if="mode === 'trigger'">
+  <div ref="rootRef" class="relative">
     <button
+      ref="triggerRef"
       type="button"
       class="icon-btn inline-flex h-11 min-w-11 items-center justify-center gap-1.5 text-sm text-text-muted hover:text-text"
       :aria-label="triggerLabel"
-      aria-haspopup="dialog"
-      @click="onTrigger"
+      :aria-expanded="isOpen"
+      aria-controls="header-search-dropdown"
+      @click="toggleDropdown"
     >
       <svg
         width="18"
@@ -138,29 +175,56 @@ onBeforeUnmount(() => {
         <path d="m20 20-3.6-3.6" />
       </svg>
     </button>
-    <pagefind-modal v-if="status === 'ready'" ref="modalRef" />
-  </template>
 
-  <!-- Inline (search page): the building-block components. -->
-  <div v-else class="search-inline">
-    <p v-if="status === 'loading'" class="text-sm text-text-muted" role="status">
-      {{ loadingLabel }}
-    </p>
-    <p
-      v-else-if="status === 'error'"
-      class="border border-border bg-surface p-4 text-sm text-text-muted"
-      role="status"
-    >
-      {{ unavailableLabel }}
-    </p>
-    <template v-else-if="status === 'ready'">
-      <pagefind-config :bundle-path="bundlePath" />
-      <pagefind-input :placeholder="placeholder" v-bind="autofocus ? { autofocus: true } : {}" />
-      <pagefind-summary
-        :default-message="defaultMessage"
-        class="mt-3 block text-sm text-text-muted"
-      />
-      <pagefind-results class="mt-4 block" />
-    </template>
+    <Transition name="search-dropdown">
+      <div
+        v-if="hasOpened"
+        v-show="isOpen"
+        id="header-search-dropdown"
+        ref="dropdownRef"
+        role="region"
+        :aria-label="triggerLabel"
+        class="search-dropdown fixed inset-x-4 top-[calc(var(--header-h)+0.5rem)] z-50 border border-border bg-bg p-3 shadow-lg desktop:absolute desktop:inset-x-auto desktop:end-0 desktop:top-[calc(100%+0.5rem)] desktop:w-[26rem]"
+      >
+        <p v-if="status === 'loading'" class="py-2 text-sm text-text-muted" role="status">
+          {{ loadingLabel }}
+        </p>
+        <p
+          v-else-if="status === 'error'"
+          class="border border-border bg-surface p-3 text-sm text-text-muted"
+          role="status"
+        >
+          {{ unavailableLabel }}
+        </p>
+        <template v-else-if="status === 'ready'">
+          <pagefind-config :bundle-path="bundlePath" />
+          <pagefind-input :placeholder="placeholder" />
+          <pagefind-summary
+            :default-message="defaultMessage"
+            class="mt-2 block text-xs text-text-muted"
+          />
+          <pagefind-results class="mt-3 block max-h-[60dvh] overflow-y-auto" />
+        </template>
+      </div>
+    </Transition>
   </div>
 </template>
+
+<style scoped>
+.search-dropdown {
+  --pf-input-height: 42px;
+}
+
+.search-dropdown-enter-active,
+.search-dropdown-leave-active {
+  transition:
+    opacity 160ms cubic-bezier(0.2, 0, 0, 1),
+    transform 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.search-dropdown-enter-from,
+.search-dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+</style>

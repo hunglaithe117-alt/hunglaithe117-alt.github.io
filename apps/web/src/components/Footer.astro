@@ -4,7 +4,7 @@
  * contact links the owner has supplied. Excluded from the Pagefind index.
  */
 import { contactLinks } from "@/lib/site";
-import { homePath, searchPath, UI, type Lang } from "@/lib/i18n";
+import { homePath, UI, type Lang } from "@/lib/i18n";
 
 interface Props {
   lang: Lang;
@@ -27,9 +27,6 @@ const linkClass = "quiet-link inline-flex min-h-11 items-center text-sm";
     </p>
     <a class={linkClass} href={`/${lang}/rss.xml`}>
       {t.rssFeed}
-    </a>
-    <a class={linkClass} href={searchPath(lang)}>
-      {t.search}
     </a>
     {contacts.map((link) => (
       <a class={linkClass} href={link.href} rel="me noopener">

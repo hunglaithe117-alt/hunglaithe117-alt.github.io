@@ -17,7 +17,6 @@ import {
   HTML_LANG,
   LOCALES,
   LOCALE_LABEL,
-  postsPath,
   tagsPath,
   UI,
   type Lang,
@@ -75,7 +74,6 @@ const switchHref = otherAlt?.path ?? homePath(otherLang);
 const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0]!;
 
 const navLinks = [
-  { href: postsPath(lang), label: t.posts },
   { href: tagsPath(lang), label: t.tags },
   { href: `/${lang}/about/`, label: t.about },
 ];
@@ -170,9 +168,9 @@ const contacts = contactLinks();
           {t.siteTitle}
         </a>
 
-        <div class="flex items-center gap-1 desktop:gap-3">
+        <div class="flex items-center gap-1 desktop:gap-4">
           {contacts.length > 0 && (
-            <ul class="hidden list-none items-center gap-3 p-0 desktop:flex">
+            <ul class="hidden list-none items-center gap-4 p-0 desktop:flex">
               {contacts.map((link) => (
                 <li>
                   <a
@@ -187,29 +185,6 @@ const contacts = contactLinks();
             </ul>
           )}
 
-          <SearchBox
-            client:load
-            mode="trigger"
-            lang={lang}
-            triggerLabel={t.search}
-            placeholder={t.searchPlaceholder}
-            loadingLabel={t.searchLoading}
-            unavailableLabel={t.searchUnavailable}
-            defaultMessage={t.searchDefaultMessage}
-          />
-
-          <LanguageSwitcher lang={lang} target={otherLang} href={switchHref} variant="compact" />
-
-          <a
-            href={rssHref}
-            class="quiet-link hidden min-h-11 items-center text-sm desktop:inline-flex"
-            aria-label={t.rssFeed}
-          >
-            RSS
-          </a>
-
-          <ThemeToggle lang={lang} />
-
           {/* Menu last on phone, first on desktop (where the links are inline). */}
           <div class="order-last desktop:order-first">
             <Nav
@@ -219,6 +194,30 @@ const contacts = contactLinks();
               switchHref={switchHref}
               switchLabel={LOCALE_LABEL[otherLang]}
             />
+          </div>
+
+          <div class="flex items-center gap-1">
+            <SearchBox
+              client:load
+              lang={lang}
+              triggerLabel={t.search}
+              placeholder={t.searchPlaceholder}
+              loadingLabel={t.searchLoading}
+              unavailableLabel={t.searchUnavailable}
+              defaultMessage={t.searchDefaultMessage}
+            />
+
+            <LanguageSwitcher lang={lang} target={otherLang} href={switchHref} variant="compact" />
+
+            <a
+              href={rssHref}
+              class="quiet-link hidden min-h-11 items-center px-2 text-sm desktop:inline-flex"
+              aria-label={t.rssFeed}
+            >
+              RSS
+            </a>
+
+            <ThemeToggle lang={lang} />
           </div>
         </div>
       </div>

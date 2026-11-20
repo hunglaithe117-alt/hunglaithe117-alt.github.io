@@ -55,7 +55,6 @@ for path in \
   /vi/posts/ /en/posts/ \
   /vi/tags/ /en/tags/ \
   /vi/about/ /en/about/ \
-  /vi/search/ \
   /vi/rss.xml /en/rss.xml \
   /vi/feed.json /en/feed.json \
   /sitemap-index.xml \

@@ -40,13 +40,11 @@ export default defineConfig(({ mode, isPreview }) => {
       compatibilityDate: "2026-10-02",
       compatibilityFlags: ["nodejs_compat"],
 
-      // `runWorkerFirst: ["/*"]` sends every request through this Worker so the
-      // security headers land on asset responses too; the Worker forwards to the
-      // asset binding. Verified with `wrangler dev`: `/`, nested pages, static
-      // files and 404s all carry the headers. The asset directory itself is in
-      // wrangler.config.ts (D-036).
+      // `runWorkerFirst: ["/"]` sends only the root path through this Worker for
+      // an instant HTTP 302 locale redirect; static assets and HTML pages are
+      // served directly by Cloudflare Static Assets with headers from `_headers`.
       assets: {
-        runWorkerFirst: ["/*"],
+        runWorkerFirst: ["/"],
         notFoundHandling: "404-page",
       },
 

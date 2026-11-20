@@ -2,16 +2,7 @@
 /** Locale home: the site name, one line of introduction, then every published post. */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostRow from "@/components/PostRow.astro";
-import {
-  absoluteUrl,
-  homePath,
-  HTML_LANG,
-  LOCALES,
-  postsPath,
-  searchPath,
-  UI,
-  type Lang,
-} from "@/lib/i18n";
+import { absoluteUrl, homePath, HTML_LANG, LOCALES, UI, type Lang } from "@/lib/i18n";
 import { getPostsByLang } from "@/lib/posts";
 
 export function getStaticPaths() {
@@ -44,24 +35,16 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <div data-pagefind-body>
-    <header class="measure">
-      <h1>{t.siteTitle}</h1>
-      <p class="mt-3 text-lg text-text-muted">{t.siteDescription}</p>
-    </header>
+    <h1 class="sr-only">{t.postsTitle}</h1>
 
     {posts.length === 0 ? (
-      <p class="mt-12 text-text-muted">{t.noPosts}</p>
+      <p class="text-text-muted">{t.noPosts}</p>
     ) : (
-      <ul class="post-list measure mt-10">
+      <ul class="post-list measure">
         {posts.map((post) => (
           <PostRow post={post} />
         ))}
       </ul>
     )}
-
-    <p class="mt-8 flex flex-wrap gap-x-4 text-sm">
-      <a href={postsPath(lang)}>{t.allPosts}</a>
-      <a href={searchPath(lang)}>{t.search}</a>
-    </p>
   </div>
 </BaseLayout>

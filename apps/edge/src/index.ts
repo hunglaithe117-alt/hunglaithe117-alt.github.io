@@ -1,9 +1,10 @@
 /**
  * apps/edge Worker entrypoint (D-012).
  *
- * The Worker runs for every request (`runWorkerFirst: ["/*"]` in
- * `cloudflare.config.ts`) so it can attach security headers, then delegates to
- * Workers Static Assets (`apps/web/dist`).
+ * The Worker runs for `/` (`runWorkerFirst: ["/"]` in `cloudflare.config.ts`)
+ * so it can issue a direct HTTP 302 locale redirect to `/vi/`, while static
+ * assets and HTML pages are served directly by Workers Static Assets with
+ * headers from `apps/web/public/_headers`.
  */
 
 /** Bindings available to the fetch handler. */
@@ -45,6 +46,11 @@ function withSecurityHeaders(response: Response): Response {
 
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url);
+    if (url.pathname === "/") {
+      const target = new URL("/vi/", url.origin);
+      return withSecurityHeaders(Response.redirect(target.toString(), 302));
+    }
     return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };

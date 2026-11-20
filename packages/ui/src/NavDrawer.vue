@@ -162,8 +162,41 @@ onBeforeUnmount(() => {
   background-color: var(--color-surface);
   color: var(--color-text);
   padding-inline-end: max(1rem, env(safe-area-inset-right));
+  opacity: 0;
+  transform: translateX(100%);
+  transition:
+    opacity 200ms cubic-bezier(0.2, 0, 0, 1),
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    display 240ms allow-discrete,
+    overlay 240ms allow-discrete;
+}
+.blog-nav-drawer[open] {
+  opacity: 1;
+  transform: translateX(0);
+}
+@starting-style {
+  .blog-nav-drawer[open] {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 .blog-nav-drawer::backdrop {
+  background-color: color-mix(in oklch, var(--color-text) 0%, transparent);
+  backdrop-filter: blur(0px);
+  transition:
+    background-color 220ms cubic-bezier(0.2, 0, 0, 1),
+    backdrop-filter 220ms cubic-bezier(0.2, 0, 0, 1),
+    display 220ms allow-discrete,
+    overlay 220ms allow-discrete;
+}
+.blog-nav-drawer[open]::backdrop {
   background-color: color-mix(in oklch, var(--color-text) 40%, transparent);
+  backdrop-filter: blur(2px);
+}
+@starting-style {
+  .blog-nav-drawer[open]::backdrop {
+    background-color: color-mix(in oklch, var(--color-text) 0%, transparent);
+    backdrop-filter: blur(0px);
+  }
 }
 </style>

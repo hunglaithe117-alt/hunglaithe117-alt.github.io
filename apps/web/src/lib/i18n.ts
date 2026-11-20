@@ -207,10 +207,6 @@ export function aboutPath(lang: Lang): string {
   return `/${lang}/about/`;
 }
 
-export function searchPath(lang: Lang): string {
-  return `/${lang}/search/`;
-}
-
 export function rssPath(lang: Lang): string {
   return `/${lang}/rss.xml`;
 }
