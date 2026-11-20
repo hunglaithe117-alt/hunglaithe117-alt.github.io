@@ -22,7 +22,7 @@
     "format:check": "prettier --check .",
     "lint:md": "pnpm dlx markdownlint-cli2@0.18.1",
     "check:content": "pnpm format:check && pnpm lint:md && pnpm --filter @blog/web check",
-    "security:audit": "pnpm audit --prod --audit-level=high",
+    "security:audit": "pnpm audit --audit-level=high",
     "prepare": "husky"
   },
   "devDependencies": {
