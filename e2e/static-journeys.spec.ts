@@ -9,10 +9,10 @@
 import { expect, test } from "./fixtures";
 
 test.describe("static journeys (real static build)", () => {
-  test("test_root_redirect_default_locale_vi_home", async ({ page }) => {
+  test("test_root_redirect_default_locale_en_home", async ({ page }) => {
     await page.goto("/");
-    // Astro emits a meta-refresh redirect page for `/` -> `/vi/` (default locale).
-    await expect(page).toHaveURL(/\/vi\/$/);
+    // Astro emits a meta-refresh redirect page for `/` -> `/en/` (default locale).
+    await expect(page).toHaveURL(/\/en\/$/);
     await expect(page.locator("main ul.post-list")).toBeVisible();
     await expect(page.locator("header a.site-name")).toHaveText("Chuquanpho29");
     await expect(page.locator("main header h1")).toHaveCount(0);

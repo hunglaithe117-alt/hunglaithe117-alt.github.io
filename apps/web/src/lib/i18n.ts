@@ -9,9 +9,9 @@
  * fails `astro check` rather than shipping an untranslated fallback.
  */
 
-export const LOCALES = ["vi", "en"] as const;
+export const LOCALES = ["en", "vi"] as const;
 export type Lang = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Lang = "vi";
+export const DEFAULT_LOCALE: Lang = "en";
 
 /** BCP-47 tag for `html[lang]`, `hreflang` and OG `og:locale`. */
 export const HTML_LANG: Record<Lang, string> = { vi: "vi-VN", en: "en-US" };

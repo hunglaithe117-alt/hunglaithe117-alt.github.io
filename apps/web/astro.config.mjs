@@ -45,8 +45,8 @@ export default defineConfig({
   // Bilingual VI primary + EN (D-019). Both locales are prefixed so the route and
   // feed contract is symmetric: `/vi/...` and `/en/...` (D-026/D-038).
   i18n: {
-    defaultLocale: "vi",
-    locales: ["vi", "en"],
+    defaultLocale: "en",
+    locales: ["en", "vi"],
     routing: {
       prefixDefaultLocale: true,
       redirectToDefaultLocale: false,
@@ -54,7 +54,7 @@ export default defineConfig({
   },
   // Root redirect to the default locale (static build emits a meta-refresh page).
   redirects: {
-    "/": "/vi/",
+    "/": "/en/",
   },
   // Code blocks carry both palettes as custom properties; global.css picks one per theme.
   markdown: {
@@ -77,8 +77,8 @@ export default defineConfig({
     // Sitemap with hreflang alternates per locale, plus `lastmod` for post pages.
     sitemap({
       i18n: {
-        defaultLocale: "vi",
-        locales: { vi: "vi-VN", en: "en-US" },
+        defaultLocale: "en",
+        locales: { en: "en-US", vi: "vi-VN" },
       },
       serialize(item) {
         const lastmod = dates.get(new URL(item.url).pathname);
