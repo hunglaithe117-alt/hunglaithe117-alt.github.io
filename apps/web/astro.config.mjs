@@ -10,7 +10,12 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 // `site` is an identity input for canonical URLs / feeds / sitemap — hashed via turbo `PUBLIC_*`.
-const site = process.env.PUBLIC_SITE_URL ?? "https://example.com";
+const rawSite = process.env.PUBLIC_SITE_URL?.trim();
+const site = rawSite
+  ? /^https?:\/\//.test(rawSite)
+    ? rawSite
+    : `https://${rawSite}`
+  : "https://example.com";
 
 /**
  * Route -> publication date, read from the post frontmatter so the sitemap can carry
