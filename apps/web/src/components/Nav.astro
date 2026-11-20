@@ -26,11 +26,20 @@ const { lang, links, contacts, switchHref, switchLabel } = Astro.props;
 const t = UI[lang];
 
 const itemClass = "quiet-link inline-flex min-h-11 items-center text-sm";
+
+/** Trailing-slash-insensitive: `/vi/posts` stays current on a post page. */
+const normalize = (path: string) => path.replace(/\/+$/, "") || "/";
+const pathname = normalize(Astro.url.pathname);
+const isCurrent = (href: string) => {
+  const target = normalize(href);
+  if (target === pathname) return true;
+  return target !== normalize(`/${lang}/`) && pathname.startsWith(`${target}/`);
+};
 ---
 
 <nav class="hidden items-center gap-5 desktop:flex" aria-label="Primary">
   {links.map((link) => (
-    <a href={link.href} class={itemClass}>
+    <a href={link.href} class={itemClass} aria-current={isCurrent(link.href) ? "page" : undefined}>
       {link.label}
     </a>
   ))}

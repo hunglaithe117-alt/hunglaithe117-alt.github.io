@@ -2,6 +2,7 @@
 // Astro is built ONLY by Turborepo — `cf` never builds this app (D-013, TOOLCHAIN-VERIFIED §1).
 // Astro 7 (D-035): Rust-only compiler (unclosed HTML tags fail the build), compressHTML === 'jsx',
 // Sätteri is the default Markdown processor, Tailwind v4 via @tailwindcss/vite (not @astrojs/tailwind).
+import { readFileSync, readdirSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import vue from "@astrojs/vue";
 import mdx from "@astrojs/mdx";
@@ -10,6 +11,34 @@ import tailwindcss from "@tailwindcss/vite";
 
 // `site` is an identity input for canonical URLs / feeds / sitemap — hashed via turbo `PUBLIC_*`.
 const site = process.env.PUBLIC_SITE_URL ?? "https://example.com";
+
+/**
+ * Route -> publication date, read from the post frontmatter so the sitemap can carry
+ * `lastmod`. The collection API is not available while the config is evaluated, and the
+ * schema guarantees a `date:` line, so a narrow read is enough here.
+ */
+function postDates() {
+  const root = new URL("../../packages/content/posts/", import.meta.url);
+  const dates = new Map();
+  for (const lang of ["vi", "en"]) {
+    let files;
+    try {
+      files = readdirSync(new URL(`${lang}/`, root));
+    } catch {
+      continue;
+    }
+    for (const file of files) {
+      const match = /\.mdx?$/.exec(file);
+      if (!match) continue;
+      const source = readFileSync(new URL(`${lang}/${file}`, root), "utf8");
+      const date = /^date:\s*["']?(\d{4}-\d{2}-\d{2})/m.exec(source);
+      if (date) dates.set(`/${lang}/posts/${file.slice(0, match.index)}/`, date[1]);
+    }
+  }
+  return dates;
+}
+
+const dates = postDates();
 
 export default defineConfig({
   site,
@@ -27,6 +56,13 @@ export default defineConfig({
   redirects: {
     "/": "/vi/",
   },
+  // Code blocks carry both palettes as custom properties; global.css picks one per theme.
+  markdown: {
+    shikiConfig: {
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: false,
+    },
+  },
   integrations: [
     // `pagefind-*` tags are Pagefind Component UI web components rendered inside Vue
     // islands (SearchBox.vue) — mark them as custom elements so Vue leaves them alone.
@@ -38,11 +74,15 @@ export default defineConfig({
       },
     }),
     mdx(),
-    // Sitemap with hreflang alternates per locale (§T3.2 step 5).
+    // Sitemap with hreflang alternates per locale, plus `lastmod` for post pages.
     sitemap({
       i18n: {
         defaultLocale: "vi",
         locales: { vi: "vi-VN", en: "en-US" },
+      },
+      serialize(item) {
+        const lastmod = dates.get(new URL(item.url).pathname);
+        return lastmod ? { ...item, lastmod } : item;
       },
     }),
   ],

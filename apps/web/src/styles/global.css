@@ -441,10 +441,41 @@
     background-color: var(--color-surface);
     font-size: 0.88em;
   }
+  /* Shiki ships both palettes as custom properties (`defaultColor: false`), so the
+   * block follows the same system/attribute switch as the rest of the page. */
   .prose pre {
     padding: var(--space-sm) var(--space-md);
     border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
+    background-color: var(--shiki-light-bg, var(--color-surface));
+  }
+  .prose pre,
+  .prose pre span {
+    color: var(--shiki-light, inherit);
+    font-style: var(--shiki-light-font-style, inherit);
+    font-weight: var(--shiki-light-font-weight, inherit);
+    text-decoration: var(--shiki-light-text-decoration, inherit);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .prose pre {
+      background-color: var(--shiki-dark-bg, var(--color-surface));
+    }
+    :root:not([data-theme="light"]) .prose pre,
+    :root:not([data-theme="light"]) .prose pre span {
+      color: var(--shiki-dark, inherit);
+      font-style: var(--shiki-dark-font-style, inherit);
+      font-weight: var(--shiki-dark-font-weight, inherit);
+      text-decoration: var(--shiki-dark-text-decoration, inherit);
+    }
+  }
+  :root[data-theme="dark"] .prose pre {
+    background-color: var(--shiki-dark-bg, var(--color-surface));
+  }
+  :root[data-theme="dark"] .prose pre,
+  :root[data-theme="dark"] .prose pre span {
+    color: var(--shiki-dark, inherit);
+    font-style: var(--shiki-dark-font-style, inherit);
+    font-weight: var(--shiki-dark-font-weight, inherit);
+    text-decoration: var(--shiki-dark-text-decoration, inherit);
   }
   .prose pre code {
     padding: 0;

@@ -151,7 +151,8 @@ scripts/smoke-static.sh https://<domain>
 ```
 
 It asserts every route class (`/vi/`, `/en/`, posts, tags, about, search), both feeds, the sitemap, the
-Pagefind index, 404 behaviour, the three security headers, and the canonical origin. Any failure exits
+Pagefind index, `robots.txt`, 404 behaviour, the three security headers, and the canonical origin. Any
+failure exits
 non-zero.
 
 First launch, in order:

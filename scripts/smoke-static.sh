@@ -59,6 +59,7 @@ for path in \
   /vi/rss.xml /en/rss.xml \
   /vi/feed.json /en/feed.json \
   /sitemap-index.xml \
+  /robots.txt \
   /pagefind/pagefind.js; do
   check_status "$path" 200
 done
