@@ -169,22 +169,6 @@ const contacts = contactLinks();
         </a>
 
         <div class="flex items-center gap-1 desktop:gap-4">
-          {contacts.length > 0 && (
-            <ul class="hidden list-none items-center gap-4 p-0 desktop:flex">
-              {contacts.map((link) => (
-                <li>
-                  <a
-                    class="quiet-link inline-flex min-h-11 items-center text-sm"
-                    href={link.href}
-                    rel="me noopener"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-
           {/* Menu last on phone, first on desktop (where the links are inline). */}
           <div class="order-last desktop:order-first">
             <Nav

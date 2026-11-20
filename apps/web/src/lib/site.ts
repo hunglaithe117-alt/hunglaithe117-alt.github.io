@@ -7,6 +7,8 @@
  */
 
 export interface ContactLink {
+  /** Platform key used to pick an icon when needed. */
+  kind: "github" | "linkedin" | "email";
   /** Visible label. */
   label: string;
   /** Absolute URL, or a `mailto:` URI for email. */
@@ -24,16 +26,16 @@ export const SITE: {
   linkedin: string;
 } = {
   name: "Chuquanpho29",
-  email: "",
-  github: "",
+  email: "hunglaithe117@gmail.com",
+  github: "https://github.com/hunglaithe117-alt",
   linkedin: "",
 };
 
 /** Contact links that have a value, in display order. */
 export function contactLinks(): ContactLink[] {
   const links: ContactLink[] = [];
-  if (SITE.github) links.push({ label: "GitHub", href: SITE.github });
-  if (SITE.linkedin) links.push({ label: "LinkedIn", href: SITE.linkedin });
-  if (SITE.email) links.push({ label: "Email", href: `mailto:${SITE.email}` });
+  if (SITE.github) links.push({ kind: "github", label: "GitHub", href: SITE.github });
+  if (SITE.linkedin) links.push({ kind: "linkedin", label: "LinkedIn", href: SITE.linkedin });
+  if (SITE.email) links.push({ kind: "email", label: SITE.email, href: `mailto:${SITE.email}` });
   return links;
 }
