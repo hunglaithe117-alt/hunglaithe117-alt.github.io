@@ -52,10 +52,6 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  // Root redirect to the default locale (static build emits a meta-refresh page).
-  redirects: {
-    "/": "/en/",
-  },
   // Code blocks carry both palettes as custom properties; global.css picks one per theme.
   markdown: {
     shikiConfig: {

@@ -180,7 +180,7 @@ export function postPath(lang: Lang, slug: string): string {
 
 /** Canonical path for the locale home page. */
 export function homePath(lang: Lang): string {
-  return `/${lang}/`;
+  return lang === DEFAULT_LOCALE ? "/" : `/${lang}/`;
 }
 
 /** Post index for a locale. */

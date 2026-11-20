@@ -46,11 +46,6 @@ function withSecurityHeaders(response: Response): Response {
 
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(request.url);
-    if (url.pathname === "/") {
-      const target = new URL("/en/", url.origin);
-      return withSecurityHeaders(Response.redirect(target.toString(), 302));
-    }
     return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };
