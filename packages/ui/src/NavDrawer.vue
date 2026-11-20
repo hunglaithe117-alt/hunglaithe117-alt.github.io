@@ -42,7 +42,7 @@ function hide(): void {
 
 function onClose(): void {
   open.value = false;
-  // §6.4: return focus to the toggle on close so keyboard users are not dropped.
+  // Return focus to the toggle on close for keyboard accessibility.
   trigger.value?.focus();
 }
 

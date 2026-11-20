@@ -1,4 +1,4 @@
-/** Per-locale JSON Feed 1.1: /vi/feed.json, /en/feed.json (D-038). */
+/** Per-locale JSON Feed 1.1: /en/feed.json, /vi/feed.json. */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildJsonFeed } from "@/lib/feeds";

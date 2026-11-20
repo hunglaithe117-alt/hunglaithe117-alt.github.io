@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Shared Astro + Vue components consumed by apps/web (T3.1)",
+  "description": "Shared Astro + Vue components consumed by apps/web",
   "exports": {
     "./*": "./src/*"
   },
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "echo \"@blog/ui: source-only components (built by apps/web)\"",
-    "lint": "echo \"@blog/ui: lint pending (T3.4)\"",
+    "lint": "echo \"@blog/ui: lint pending\"",
     "typecheck": "echo \"@blog/ui: typecheck via apps/web astro check\"",
     "test": "echo \"@blog/ui: no tests yet\""
   }

@@ -1,9 +1,4 @@
-/**
- * Reading-time estimate (T3.2 step 7).
- *
- * ~200 words/min. Vietnamese is syllable-segmented, so whitespace tokenisation
- * slightly over-counts vs. a linguistic word count — acceptable for a badge.
- */
+/** Reading-time estimate (~200 words/min). */
 const WORDS_PER_MINUTE = 200;
 
 export function countWords(text: string): number {

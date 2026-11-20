@@ -1,16 +1,4 @@
-/**
- * Bilingual copy for the About page (T3.3).
- *
- * The `posts` collection covers articles only; About is static page copy
- * (CONTENT-INVENTORY.md left this open, and no `pages` collection exists yet). Copy
- * lives here, typed per locale, so both languages stay in lock-step.
- *
- * PLACEHOLDER POLICY (CONTENT-INVENTORY.md — "the author has no real content yet"):
- * every value that would be a personal claim (name, history, links) is a grounded
- * stand-in, tagged with `placeholder: true` / an inline comment. Nothing here asserts
- * a fact about the author; the timeline describes *this site's* build, which is real.
- * Real copy replaces these before go-live.
- */
+/** Bilingual copy for the About page. */
 import type { Lang } from "./i18n";
 
 export interface FocusItem {

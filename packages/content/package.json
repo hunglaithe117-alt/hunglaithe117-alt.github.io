@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Bilingual MDX posts (vi/en) loaded by the apps/web `posts` collection (T3.2)",
+  "description": "Bilingual MDX posts (en/vi) loaded by the apps/web posts collection",
   "scripts": {
     "build": "echo \"@blog/content: MDX assets (indexed by apps/web build)\"",
-    "lint": "echo \"@blog/content: lint pending (T3.2)\"",
-    "typecheck": "echo \"@blog/content: typecheck pending (T3.2)\"",
+    "lint": "echo \"@blog/content: lint pending\"",
+    "typecheck": "echo \"@blog/content: typecheck pending\"",
     "test": "echo \"@blog/content: no tests yet\""
   }
 }

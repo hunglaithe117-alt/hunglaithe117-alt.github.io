@@ -1,11 +1,4 @@
-/**
- * apps/edge Worker entrypoint (D-012).
- *
- * The Worker runs for `/` (`runWorkerFirst: ["/"]` in `cloudflare.config.ts`)
- * so it can issue a direct HTTP 302 locale redirect to `/en/`, while static
- * assets and HTML pages are served directly by Workers Static Assets with
- * headers from `apps/web/public/_headers`.
- */
+/** Cloudflare Worker entrypoint: attaches security headers and serves static assets. */
 
 /** Bindings available to the fetch handler. */
 interface Env {
@@ -13,11 +6,7 @@ interface Env {
   ASSETS: Fetcher;
 }
 
-/**
- * Security headers applied to every response (T6.2). Additive only — a header
- * the asset response already carries wins, so a stricter CSP added later is not
- * clobbered. HSTS is unconditional: the Worker only ever runs behind Cloudflare TLS.
- */
+/** Conservative security headers; existing asset headers take precedence. */
 const SECURITY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   "X-Content-Type-Options": "nosniff",

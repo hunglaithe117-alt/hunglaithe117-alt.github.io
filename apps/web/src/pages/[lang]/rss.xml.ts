@@ -1,4 +1,4 @@
-/** Per-locale RSS 2.0 feed: /vi/rss.xml, /en/rss.xml (D-038). */
+/** Per-locale RSS 2.0 feed: /en/rss.xml, /vi/rss.xml. */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildRssResponse } from "@/lib/feeds";

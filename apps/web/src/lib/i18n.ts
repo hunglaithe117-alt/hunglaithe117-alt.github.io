@@ -1,12 +1,7 @@
 /**
- * Bilingual (VI primary + EN) routing + UI strings (D-019/D-026).
+ * Bilingual (EN default + VI) routing and UI strings.
  *
- * Both locales are URL-prefixed (`/vi/...`, `/en/...`) so routes, feeds and
- * hreflang alternates are symmetric (D-038). Locale is chosen via a plain `<a>`
- * language switcher — no server CMS/TMS (D-026).
- *
- * The dictionary is type-enforced (`satisfies`) so a missing key in either locale
- * fails `astro check` rather than shipping an untranslated fallback.
+ * The dictionary is type-enforced (`satisfies`) so missing keys fail `astro check`.
  */
 
 export const LOCALES = ["en", "vi"] as const;

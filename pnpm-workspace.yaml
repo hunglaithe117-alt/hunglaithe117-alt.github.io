@@ -28,3 +28,9 @@ overrides:
   "zod": ">=4.6.6"
   "undici@>=8.0.0 <8.12.2": ">=8.12.2"
   "undici@>=7.0.0 <7.30.1": "^7.30.1"
+  # URI-normalisation advisories reached through ajv.
+  "fast-uri@<3.1.9": "^3.1.9"
+  # Unterminated-tag DoS reached through @astrojs/rss.
+  "fast-xml-parser@<5.12.0": ">=5.12.0"
+  # @astrojs/astro2tsx calls the @emnapi/runtime 1.11 API; the 2.0 beta pulled via @napi-rs/wasm-runtime lacks it.
+  "@emnapi/runtime": "1.11.3"

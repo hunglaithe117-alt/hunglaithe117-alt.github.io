@@ -1,4 +1,4 @@
-/** Per-tag RSS 2.0 feeds: /<locale>/tags/<tag>/rss.xml (D-038). */
+/** Per-tag RSS 2.0 feeds: /<locale>/tags/<tag>/rss.xml. */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildRssResponse } from "@/lib/feeds";

@@ -1,8 +1,4 @@
-/**
- * Content-collection access helpers for the `posts` collection (T3.2).
- * Posts are authored folder-per-locale under packages/content/posts/{vi,en} and
- * loaded via the glob loader in `src/content.config.ts`.
- */
+/** Content-collection access helpers for `posts`. */
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import mdxRenderer from "@astrojs/mdx/server.js";
@@ -30,10 +26,7 @@ export async function postHtml(post: Post): Promise<string> {
   return container.renderToString(Content);
 }
 
-/**
- * Published posts only — `draft: true` is excluded from build output
- * (CONTENT-INVENTORY.md: `morning-notes` stays draft until go-live).
- */
+/** Published posts only (`draft: true` is excluded from build output). */
 export async function getPublishedPosts(): Promise<Post[]> {
   const posts = await getCollection("posts", ({ data }) => data.draft !== true);
   return posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -53,7 +46,7 @@ export function readingTimeOf(post: Post): number {
   return readingTimeFor(post.body);
 }
 
-/** The locale embedded in an entry id (folder-per-locale authoring, D-026). */
+/** Locale embedded in an entry id. */
 export function langOf(post: Post): Lang {
   return post.data.lang ?? getLangFromId(post.id);
 }

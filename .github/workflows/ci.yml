@@ -1,12 +1,4 @@
-# CI — affected-only lint/test/build + the D-027 content-quality gate.
-#
-# Fork-safe by construction: pull requests from forks never receive repository
-# secrets, so the remote-cache env below resolves to empty and Turborepo silently
-# falls back to the local cache. Nothing in this workflow requires a credential.
-#
-# Remote cache = Vercel Remote Cache (D-024): TURBO_TOKEN (secret) + TURBO_TEAM
-# (repository variable). Both are optional — an empty token disables upload and
-# the run still succeeds.
+# CI — lint/test/build and content-quality gate.
 name: ci
 
 on:
@@ -23,15 +15,12 @@ permissions:
   contents: read
 
 env:
-  # Empty on fork PRs -> local cache only (no failure, no upload).
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_TELEMETRY_DISABLED: "1"
   FORCE_COLOR: "1"
+  PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://example.com' }}
 
 jobs:
   ci:
-    name: lint / test / build (affected)
+    name: lint / test / build
     runs-on: ubuntu-latest
     steps:
       # Full history is required for `--filter=...[<ref>]` git filtering and for
@@ -53,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # --- D-027 content-quality gate (credential-free; must pass on fork PRs) ---
+      # --- Content-quality gate (credential-free; safe for fork PRs) ---
       - name: Prettier (format check)
         run: pnpm format:check
 
@@ -79,42 +68,14 @@ jobs:
       - name: Astro check
         run: pnpm --filter @blog/web check
 
-      # --- affected-only build / lint / test (T2.1) ---
-      - name: Determine affected base ref
-        id: base
-        shell: bash
-        env:
-          PR_BASE: ${{ github.event.pull_request.base.sha }}
-          PUSH_BEFORE: ${{ github.event.before }}
+      # --- Workspace lint, test, and build ---
+      - name: Lint & test workspace
         run: |
-          set -euo pipefail
-          ref="${PR_BASE:-${PUSH_BEFORE:-}}"
-          # First push / force-push: `before` is all zeroes -> fall back below.
-          if [ -z "$ref" ] || [ "$ref" = "0000000000000000000000000000000000000000" ]; then
-            ref=""
-          fi
-          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+          pnpm -r lint
+          pnpm -r test
 
-      - name: Turbo — lint, test, build (affected only)
-        shell: bash
-        env:
-          FROM_REF: ${{ steps.base.outputs.ref }}
-        run: |
-          set -euo pipefail
-          args=()
-          if [ -n "${FROM_REF:-}" ] && git rev-parse --verify --quiet "${FROM_REF}^{commit}" >/dev/null; then
-            # Only packages changed since the base commit.
-            args=("--filter=...[${FROM_REF}]")
-          elif git rev-parse --verify --quiet 'HEAD^1^{commit}' >/dev/null; then
-            # Push fallback: everything changed since the previous commit (T2.1).
-            args=("--filter=...[HEAD^1]")
-          fi
-          echo "turbo filter: ${args[*]:-<none — full run>}"
-          pnpm turbo run lint test build "${args[@]}"
-
-      # --- link check over the built site (D-027) ---
-      - name: Build web (guarantee dist/ exists for the link check)
-        run: pnpm turbo run build --filter=@blog/web
+      - name: Build web
+        run: pnpm --filter @blog/web build
 
       - name: Lychee (offline link check)
         uses: lycheeverse/lychee-action@v2

@@ -1,5 +1,4 @@
-// Shared ESLint flat config (@blog/config).
-// Pin one style repo-wide: ESLint flat config, no legacy `.eslintrc` (T1.3 risk note).
+// Shared ESLint flat config (@blog/config). No legacy `.eslintrc`.
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 

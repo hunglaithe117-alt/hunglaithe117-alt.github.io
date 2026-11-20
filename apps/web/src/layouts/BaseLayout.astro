@@ -84,19 +84,18 @@ const contacts = contactLinks();
 <html lang={HTML_LANG[lang]}>
   <head>
     <meta charset="utf-8" />
-    <!-- §6.1: viewport-fit=cover enables safe-area insets -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
 
-    <!-- hreflang alternates + x-default (§T3.2 step 5) -->
+    <!-- hreflang alternates + x-default -->
     {alternates.map((alt) => (
       <link rel="alternate" hreflang={HTML_LANG[alt.lang]} href={absoluteUrl(site, alt.path)} />
     ))}
     <link rel="alternate" hreflang="x-default" href={absoluteUrl(site, defaultAlt.path)} />
 
-    <!-- Feed autodiscovery (D-038): RSS 2.0 + JSON Feed -->
+    <!-- Feed autodiscovery: RSS 2.0 + JSON Feed -->
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -113,7 +112,7 @@ const contacts = contactLinks();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <!-- Preload ONLY the latin normal weight (§1.2); VI companion loads via unicode-range -->
+    <!-- Preload Latin normal weight; Vietnamese subset loads via unicode-range -->
     <link rel="preload" href={atkLatin} as="font" type="font/woff2" crossorigin />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#fcfcf9" media="(prefers-color-scheme: light)" />
@@ -138,7 +137,7 @@ const contacts = contactLinks();
       <script type="application/ld+json" set:html={JSON.stringify(jsonLdPayload)} />
     )}
 
-    <!-- No-flash theme init: apply a stored choice before first paint (§2.3). -->
+    <!-- Apply stored theme before first paint to prevent flash. -->
     <script is:inline>
       (() => {
         try {

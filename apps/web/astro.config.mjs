@@ -1,7 +1,4 @@
-// Astro 7 configuration for @blog/web (T3.1/T3.2).
-// Astro is built ONLY by Turborepo — `cf` never builds this app (D-013, TOOLCHAIN-VERIFIED §1).
-// Astro 7 (D-035): Rust-only compiler (unclosed HTML tags fail the build), compressHTML === 'jsx',
-// Sätteri is the default Markdown processor, Tailwind v4 via @tailwindcss/vite (not @astrojs/tailwind).
+// Astro 7 configuration for @blog/web.
 import { readFileSync, readdirSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import vue from "@astrojs/vue";
@@ -10,12 +7,10 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 // `site` is an identity input for canonical URLs / feeds / sitemap — hashed via turbo `PUBLIC_*`.
-const rawSite = process.env.PUBLIC_SITE_URL?.trim();
-const site = rawSite
-  ? /^https?:\/\//.test(rawSite)
-    ? rawSite
-    : `https://${rawSite}`
-  : "https://example.com";
+const site = process.env.PUBLIC_SITE_URL?.trim();
+if (!site) {
+  throw new Error("PUBLIC_SITE_URL environment variable is required.");
+}
 
 /**
  * Route -> publication date, read from the post frontmatter so the sitemap can carry
@@ -47,8 +42,7 @@ const dates = postDates();
 
 export default defineConfig({
   site,
-  // Bilingual VI primary + EN (D-019). Both locales are prefixed so the route and
-  // feed contract is symmetric: `/vi/...` and `/en/...` (D-026/D-038).
+  // Both locales use URL prefixes (`/en/...`, `/vi/...`) for symmetric routes and feeds.
   i18n: {
     defaultLocale: "en",
     locales: ["en", "vi"],
@@ -92,7 +86,6 @@ export default defineConfig({
     // Linked workspace package ships raw .vue/.astro source — keep it out of SSR externalisation.
     ssr: { noExternal: ["@blog/ui"] },
   },
-  // Astro 7 default; kept explicit because it drops whitespace between inline elements,
-  // so spacing-sensitive inline content uses `{" "}` in templates (D-035).
+  // Keep explicit `{" "}` between inline elements since `compressHTML: "jsx"` drops whitespace.
   compressHTML: "jsx",
 });

@@ -1,4 +1,4 @@
-# T6.1 — End-to-end tests (Playwright)
+# End-to-end tests (Playwright)
 
 Browser suite covering the critical static journeys of the built site:
 

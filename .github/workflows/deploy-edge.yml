@@ -1,18 +1,11 @@
-# Deploy — the single `cf` edge deployment (assets + Worker). Everything is served
-# from Workers Static Assets; the Worker only attaches security headers.
+# Deploy — Cloudflare Workers Static Assets + Worker entrypoint.
 #
-# Fork-safe contract (TOOLCHAIN-VERIFIED.md §5):
-#   * pull_request  -> credential-free `cf deploy --prebuilt --mode production --dry-run`.
-#   * push to main  -> `deploy` job, gated by the `production-edge` GitHub Environment
-#                      (required reviewers); only this job receives Cloudflare credentials.
-#   * workflow_dispatch -> same gated deploy, for a deliberate re-deploy or rollback drill.
+#   * pull_request      -> credential-free `cf deploy --prebuilt --mode production --dry-run`.
+#   * push to main      -> `deploy` job gated by `production-edge` Environment.
+#   * workflow_dispatch -> manual re-deploy or rollback.
 #
-# Both jobs build the same pair: `apps/web/dist` with the real origin, then the
-# edge artefact with `--mode production`. The mode must match the deploy or the
-# pinned CLI rejects the prebuilt Build Output (P0-1).
-#
-# The asset directory comes from the sibling apps/edge/wrangler.config.ts (D-036),
-# not cloudflare.config.ts.
+# Both build and deploy must use `--mode production` so `cf` accepts the Build Output.
+# Asset directory lives in `apps/edge/wrangler.config.ts`.
 name: deploy-edge
 
 on:
@@ -35,9 +28,6 @@ jobs:
     name: validate (dry-run, no credentials)
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    env:
-      # Deliberately no TURBO_TOKEN/TURBO_TEAM here: the PR path is credential-free.
-      TURBO_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,13 +46,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # `PUBLIC_SITE_URL` is baked into canonical URLs, feeds, and the sitemap, so
-      # it must be present here — an empty value silently falls back to
-      # `https://example.com` (P0-2).
+      # `PUBLIC_SITE_URL` is required by `astro.config.mjs` for canonical URLs, feeds, and sitemap.
       - name: Build web
-        run: pnpm turbo run build --filter=@blog/web
+        run: pnpm --filter @blog/web build
         env:
-          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://example.com' }}
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # `cf build` packages apps/web/dist as assets and records the mode in the
@@ -105,7 +93,7 @@ jobs:
             exit 0
           fi
           if git diff --name-only "$BEFORE" "${{ github.sha }}" \
-            | grep -qE '^(apps/(edge|web)/|packages/|pnpm-lock\.yaml|turbo\.json)'; then
+            | grep -qE '^(apps/(edge|web)/|packages/|pnpm-lock\.yaml)'; then
             echo "edge=true" >> "$GITHUB_OUTPUT"
           else
             echo "edge=false" >> "$GITHUB_OUTPUT"
@@ -124,11 +112,6 @@ jobs:
       )
     environment: production-edge # required reviewers; secrets exist only here
     runs-on: ubuntu-latest
-    env:
-      # Remote cache (optional); this job is the only one that receives credentials.
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,13 +131,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web
-        run: pnpm turbo run build --filter=@blog/web
+        run: pnpm --filter @blog/web build
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
-      # The account id is an identity input: `cf build` records it in the Build
-      # Output, and `cf deploy --prebuilt` must resolve the same account (P0-3).
+      # `cf build` records `CLOUDFLARE_ACCOUNT_ID`; `cf deploy --prebuilt` must match it.
       - name: Build edge artefact
         working-directory: apps/edge
         env:

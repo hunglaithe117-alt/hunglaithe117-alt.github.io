@@ -1,8 +1,4 @@
-/**
- * Root RSS alias for the default locale (`/rss.xml` -> the `vi` feed).
- * Per-locale feeds are the canonical contract (D-038); this keeps a stable
- * default-locale feed discoverable at the site root for feed readers.
- */
+/** Root RSS alias for the default locale (`/rss.xml`). */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildRssResponse } from "@/lib/feeds";

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-/**
- * Smoke Vue island (T3.1). Rendered with `client:visible` from a sample post to prove
- * islands-only hydration (D-010). Contains no Pagefind/network access (T3.3 risk note).
- */
+/** Smoke Vue island rendered with `client:visible` to verify selective hydration. */
 import { ref } from "vue";
 
 const count = ref(0);

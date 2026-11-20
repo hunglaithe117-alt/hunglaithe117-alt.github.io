@@ -11,7 +11,6 @@ on:
       - "apps/web/**"
       - "packages/**"
       - "pnpm-lock.yaml"
-      - "turbo.json"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -28,10 +27,6 @@ jobs:
   build:
     name: build (github pages)
     runs-on: ubuntu-latest
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,7 +50,7 @@ jobs:
           enablement: true
 
       - name: Build web
-        run: pnpm turbo run build --filter=@blog/web
+        run: pnpm --filter @blog/web build
         env:
           PUBLIC_SITE_URL: ${{ vars.GITHUB_PAGES_URL || steps.pages.outputs.origin }}
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}

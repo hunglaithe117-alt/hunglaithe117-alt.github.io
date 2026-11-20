@@ -8,8 +8,8 @@
     "build": "cf build --mode production",
     "dev": "cf dev",
     "deploy:edge": "cf deploy --prebuilt --mode production",
-    "lint": "echo \"@blog/edge: lint pending (T5.1)\"",
-    "typecheck": "echo \"@blog/edge: typecheck pending (T5.1)\"",
+    "lint": "echo \"@blog/edge: lint pending\"",
+    "typecheck": "echo \"@blog/edge: typecheck pending\"",
     "test": "echo \"@blog/edge: no tests yet\""
   },
   "devDependencies": {

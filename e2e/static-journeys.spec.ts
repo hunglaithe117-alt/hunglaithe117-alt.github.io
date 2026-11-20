@@ -1,10 +1,6 @@
 /**
- * Static journeys (T6.1) — REAL pages, served from the built output.
- *
- * Covers the critical reading journey end to end against the built static site:
- *   home (post list) -> header search dropdown (Pagefind) -> open a post -> language switch -> theme toggle.
- *
- * Test names follow `test_<unit>_<scenario>_<expected_result>` (code-style.md).
+ * Static journeys — end-to-end tests against the built static site:
+ *   home (post list) -> header search dropdown (Pagefind) -> open post -> language switch -> theme toggle.
  */
 import { expect, test } from "./fixtures";
 

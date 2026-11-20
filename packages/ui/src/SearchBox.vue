@@ -186,7 +186,11 @@ onBeforeUnmount(() => {
         :aria-label="triggerLabel"
         class="search-dropdown fixed inset-x-4 top-[calc(var(--header-h)+1rem)] z-50 mx-auto max-w-[36rem] rounded-xl border border-border bg-bg/95 p-4 shadow-2xl backdrop-blur-md"
       >
-        <p v-if="status === 'loading'" class="py-3 text-center text-sm text-text-muted" role="status">
+        <p
+          v-if="status === 'loading'"
+          class="py-3 text-center text-sm text-text-muted"
+          role="status"
+        >
           {{ loadingLabel }}
         </p>
         <p

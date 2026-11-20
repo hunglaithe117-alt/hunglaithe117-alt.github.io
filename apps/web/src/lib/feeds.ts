@@ -1,9 +1,4 @@
-/**
- * Feed builders (D-038): per-locale RSS 2.0 and JSON Feed 1.1, plus per-tag RSS.
- * Items carry full content, pubDate, author, category[], a permalink guid and a
- * cover `enclosure`; the channel sets <language>, <ttl>, <lastBuildDate> and
- * <atom:link rel="self">.
- */
+/** Feed builders: per-locale RSS 2.0, JSON Feed 1.1, and per-tag RSS. */
 import rss from "@astrojs/rss";
 import { stat } from "node:fs/promises";
 import path from "node:path";

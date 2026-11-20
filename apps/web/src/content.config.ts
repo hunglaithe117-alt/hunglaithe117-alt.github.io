@@ -1,12 +1,8 @@
 /**
- * `posts` content collection (T3.2 step 1).
+ * `posts` content collection.
  *
- * Authoring is folder-per-locale (D-026): packages/content/posts/{vi,en}/<slug>.mdx.
- * The glob loader generates ids like `vi/hello-world`, so the locale is embedded
- * in the id and the route slug is the remainder (`postSlug` in lib/i18n.ts).
- *
- * The zod schema is the blog's data contract — invalid frontmatter fails the build
- * (T3.2 test: a post missing `title` must fail).
+ * Posts are authored per locale (`packages/content/posts/{vi,en}/<slug>.mdx`),
+ * so entry ids carry the locale prefix and `postSlug` extracts the route slug.
  */
 import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
@@ -27,7 +23,7 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     /** Optional cover image path under public/ (per-post Open Graph image). */
     cover: z.string().optional(),
-    /** Drafts are excluded from the built site (CONTENT-INVENTORY). */
+    /** Drafts are excluded from the built site. */
     draft: z.boolean().default(false),
     /** Content language; must match the containing folder. */
     lang: z.enum(LOCALES),

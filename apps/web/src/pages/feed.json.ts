@@ -1,4 +1,4 @@
-/** Root JSON Feed alias for the default locale (`/feed.json` -> the `vi` feed). */
+/** Root JSON Feed alias for the default locale (`/feed.json`). */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildJsonFeed } from "@/lib/feeds";
