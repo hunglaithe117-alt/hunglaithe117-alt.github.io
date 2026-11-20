@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Mobile navigation drawer (phone + tablet) — the only JS-dependent nav path
- * (DESIGN-SYSTEM §6.2). Uses a native <dialog> so modal semantics — focus trap,
- * Esc to close, inert background, focus restore — come from the platform (§5/§6.4).
- * The Astro side renders a <details> fallback under <noscript>.
+ * Mobile navigation drawer (phone + tablet) — the only JS-dependent nav path.
+ * Uses a native <dialog> so modal semantics — focus trap, Esc to close, inert
+ * background, focus restore — come from the platform. The Astro side renders a
+ * <details> fallback under <noscript>.
  */
 import { onBeforeUnmount, ref, watch } from "vue";
 

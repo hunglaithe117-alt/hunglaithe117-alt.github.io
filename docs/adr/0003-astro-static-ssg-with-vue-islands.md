@@ -1,6 +1,6 @@
 # ADR-0003: Astro static SSG with Vue islands
 
-- **Status:** Accepted
+- **Status:** Partially superseded by ADR-0011 and ADR-0012 — the contact form and the view counter are gone; the island model stands.
 - **Date:** 2026-10-14
 - **Deciders:** Repository maintainers
 - **Consulted:** —

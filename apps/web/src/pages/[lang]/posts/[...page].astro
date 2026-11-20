@@ -1,0 +1,83 @@
+---
+/** Post index — every published note for a locale, newest first, paginated. */
+import type { GetStaticPaths, Page } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostRow from "@/components/PostRow.astro";
+import { LOCALES, postsPath, tagsPath, UI, type Lang } from "@/lib/i18n";
+import { getPostsByLang, type Post } from "@/lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const pages = await Promise.all(
+    LOCALES.map(async (lang) => {
+      const posts = await getPostsByLang(lang);
+      return paginate(posts, { params: { lang }, pageSize: 10 });
+    }),
+  );
+  return pages.flat();
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Post>;
+}
+const { page } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const t = UI[lang];
+const currentPage = page.currentPage;
+const canonical = currentPage === 1 ? postsPath(lang) : `${postsPath(lang)}${currentPage}/`;
+const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
+---
+
+<BaseLayout
+  lang={lang}
+  title={
+    currentPage === 1
+      ? `${t.postsTitle} — ${t.siteTitle}`
+      : `${t.postsTitle} · ${currentPage} — ${t.siteTitle}`
+  }
+  description={t.postsLead}
+  canonical={canonical}
+  alternates={currentPage === 1 ? alternates : undefined}
+>
+  <div data-pagefind-body>
+    <header class="measure">
+      <h1>{t.postsTitle}</h1>
+      <p class="mt-3 text-text-muted">{t.postsLead}</p>
+    </header>
+
+    {page.data.length === 0 ? (
+      <p class="mt-12 text-text-muted">{t.noPosts}</p>
+    ) : (
+      <ul class="post-list measure mt-10">
+        {page.data.map((post) => (
+          <PostRow post={post} />
+        ))}
+      </ul>
+    )}
+
+    {page.lastPage > 1 && (
+      <nav
+        class="measure mt-10 flex items-center justify-between text-sm"
+        aria-label={t.postsTitle}
+      >
+        {page.url.prev ? (
+          <a class="quiet-link inline-flex min-h-11 items-center" href={page.url.prev} rel="prev">
+            ‹ {t.prevPost}
+          </a>
+        ) : (
+          <span />
+        )}
+        {page.url.next ? (
+          <a class="quiet-link inline-flex min-h-11 items-center" href={page.url.next} rel="next">
+            {t.nextPost} ›
+          </a>
+        ) : (
+          <span />
+        )}
+      </nav>
+    )}
+
+    <p class="mt-8 text-sm">
+      <a href={tagsPath(lang)}>{t.browseByTag}</a>
+    </p>
+  </div>
+</BaseLayout>

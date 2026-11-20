@@ -14,9 +14,8 @@ interface Env {
 
 /**
  * Security headers applied to every response (T6.2). Additive only — a header
- * already set by the Astro `_headers` file (T6.4) wins, so a stricter CSP added
- * later is not clobbered. HSTS is unconditional: the Worker only ever runs
- * behind Cloudflare TLS.
+ * the asset response already carries wins, so a stricter CSP added later is not
+ * clobbered. HSTS is unconditional: the Worker only ever runs behind Cloudflare TLS.
  */
 const SECURITY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",

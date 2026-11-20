@@ -1,6 +1,6 @@
 # ADR-0010: Observability with Workers Logs and `slog`
 
-- **Status:** Accepted
+- **Status:** Partially superseded by ADR-0012 — Workers Logs and the redaction policy stand; the Go logger and container signals are gone.
 - **Date:** 2026-10-14
 - **Deciders:** Repository maintainers
 - **Consulted:** —

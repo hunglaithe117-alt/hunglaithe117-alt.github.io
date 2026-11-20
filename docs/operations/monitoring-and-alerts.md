@@ -54,7 +54,7 @@ parameters and any address carried in a URL out of the log store. If traffic gro
 ## 3. Reading the signals
 
 Tail the Worker in production. The deployed name is derived from the mode the deploy ran with:
-`apps/edge/cloudflare.config.ts` computes `blog-edge-${mode ?? "prod"}`, and the workflow passes
+`apps/edge/cloudflare.config.ts` computes `blog-edge-${mode ?? "default"}`, and the workflow passes
 `--mode production`:
 
 ```bash

@@ -1,0 +1,14 @@
+{
+  "name": "Chuquanpho29",
+  "short_name": "Chuquanpho29",
+  "description": "Notes on the web, tools and everyday life.",
+  "start_url": "/vi/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fcfcf9",
+  "theme_color": "#fcfcf9",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

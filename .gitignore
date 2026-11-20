@@ -26,6 +26,8 @@ secrets.json
 dist/
 build/
 coverage/
+# Build-generated Open Graph cards (scripts/generate-og.mjs).
+apps/web/public/og/
 *.tsbuildinfo
 
 # ---------------------------------------------------------------------------

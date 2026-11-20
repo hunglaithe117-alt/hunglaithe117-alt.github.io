@@ -107,6 +107,8 @@ const contacts = contactLinks();
     />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Preload ONLY the latin normal weight (§1.2); VI companion loads via unicode-range -->
     <link rel="preload" href={atkLatin} as="font" type="font/woff2" crossorigin />
     <meta name="generator" content={Astro.generator} />
@@ -216,7 +218,7 @@ const contacts = contactLinks();
       </div>
     </header>
 
-    <main id="main" class="container-content py-10 desktop:py-14">
+    <main id="main" class="container-content w-full flex-1 py-10 desktop:py-14">
       <slot />
     </main>
 

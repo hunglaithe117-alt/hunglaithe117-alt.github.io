@@ -48,7 +48,7 @@ const alternates = translations.map((p) => ({
 const dateFormatter = new Intl.DateTimeFormat(lang, { dateStyle: "long" });
 const dateIso = post.data.date.toISOString();
 const readingMinutes = readingTimeOf(post);
-const coverUrl = post.data.cover ? absoluteUrl(site, post.data.cover) : undefined;
+const ogImage = absoluteUrl(site, post.data.cover ?? `/og/${lang}/${slug}.png`);
 
 // Prev/next within the same locale: newest first, so "previous" is the older note.
 const siblings = await getPostsByLang(lang);
@@ -81,7 +81,7 @@ const jsonLd = {
   mainEntityOfPage: absoluteUrl(site, canonical),
   url: absoluteUrl(site, canonical),
   keywords: post.data.tags,
-  ...(coverUrl ? { image: coverUrl } : {}),
+  ...{ image: ogImage },
 };
 ---
 
@@ -91,7 +91,7 @@ const jsonLd = {
   description={post.data.description}
   canonical={canonical}
   alternates={alternates}
-  image={coverUrl}
+  image={ogImage}
   jsonLd={jsonLd}
   ogType="article"
 >

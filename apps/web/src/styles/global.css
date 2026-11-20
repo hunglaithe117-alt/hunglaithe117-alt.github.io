@@ -110,8 +110,9 @@
     --duration-fast: 120ms;
     --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
-    /* Sticky-header offset used by the article TOC rail and heading anchors. */
-    --header-h: 3.75rem;
+    /* Sticky-header offset used by the article TOC rail and heading anchors.
+     * 61px = one header row; below 390px the header wraps and the offset grows. */
+    --header-h: 3.8125rem;
 
     /* Default = system preference; the manual [data-theme] attribute wins. */
     color-scheme: light;
@@ -127,6 +128,11 @@
   :root[data-theme="light"] {
     color-scheme: light;
   }
+  @media (width < 24.375rem) {
+    :root {
+      --header-h: 6rem;
+    }
+  }
 
   html {
     -webkit-text-size-adjust: 100%;
@@ -137,6 +143,8 @@
 
   body {
     margin: 0;
+    display: flex;
+    flex-direction: column;
     min-block-size: 100dvh;
     font-family: var(--font-sans);
     font-size: var(--text-base);
