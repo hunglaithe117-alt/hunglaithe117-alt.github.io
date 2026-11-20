@@ -6,11 +6,12 @@ is small and the remaining gaps are stated rather than filled with convention.
 
 ## Pages
 
-| Page                                                   | Answers                                                                                       | Read it when                                          |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| [`ci-cd-pipeline.md`](ci-cd-pipeline.md)               | What CI and the deploy do, which credentials they need, and what is still stale               | You are changing or running the pipeline              |
-| [`monitoring-and-alerts.md`](monitoring-and-alerts.md) | Which signals exist, how to read them, and what is not monitored                              | Something looks wrong, or you are defining uptime     |
-| [`disaster-recovery.md`](disaster-recovery.md)         | What can be lost (nothing at runtime), how to redeploy an earlier build, and what is unproven | A deploy failed, or the site serves the wrong version |
+| Page                                                   | Answers                                                                                                   | Read it when                                          |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [`cloudflare-setup.md`](cloudflare-setup.md)           | The first-time Cloudflare setup, step by step: account id, token, environment, preview, domain, analytics | You are deploying for the first time                  |
+| [`ci-cd-pipeline.md`](ci-cd-pipeline.md)               | What CI and the deploy do, which credentials they need, and what is still stale                           | You are changing or running the pipeline              |
+| [`monitoring-and-alerts.md`](monitoring-and-alerts.md) | Which signals exist, how to read them, and what is not monitored                                          | Something looks wrong, or you are defining uptime     |
+| [`disaster-recovery.md`](disaster-recovery.md)         | What can be lost (nothing at runtime), how to redeploy an earlier build, and what is unproven             | A deploy failed, or the site serves the wrong version |
 
 ## Runbooks
 

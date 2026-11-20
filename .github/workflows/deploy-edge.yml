@@ -168,4 +168,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          # Same value as the build step: a deploy must never re-evaluate the config
+          # with the hostname missing.
+          SITE_DOMAIN: ${{ vars.SITE_DOMAIN }}
         run: pnpm exec cf deploy --prebuilt --mode production
