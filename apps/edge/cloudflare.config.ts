@@ -25,7 +25,11 @@ export default defineConfig(({ mode, isPreview }) => {
   // and the deploy rejects the mismatch (P0-1). Never treat `undefined` as
   // production, so a forgotten `--mode` cannot claim the production domain.
   const isProd = mode === "production";
-  const workerName = isPreview ? `blog-edge-preview-${mode}` : `blog-edge-${mode ?? "default"}`;
+  const workerName = isPreview
+    ? `blog-preview-${mode}`
+    : isProd
+      ? "blog"
+      : `blog-${mode ?? "default"}`;
 
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const siteDomain = process.env.SITE_DOMAIN;
