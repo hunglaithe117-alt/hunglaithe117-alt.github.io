@@ -40,7 +40,7 @@ const jsonLd = {
     {posts.length === 0 ? (
       <p class="text-text-muted">{t.noPosts}</p>
     ) : (
-      <ul class="post-list measure">
+      <ul class="post-list">
         {posts.map((post) => (
           <PostRow post={post} />
         ))}

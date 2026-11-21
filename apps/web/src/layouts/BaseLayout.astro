@@ -6,6 +6,7 @@
 import "@/styles/global.css";
 import atkLatin from "@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url";
 import Footer from "@/components/Footer.astro";
+import BackToTop from "@/components/BackToTop.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import Nav from "@/components/Nav.astro";
 import ThemeToggle from "@/components/ThemeToggle.astro";
@@ -17,6 +18,7 @@ import {
   HTML_LANG,
   LOCALES,
   LOCALE_LABEL,
+  postsPath,
   tagsPath,
   UI,
   type Lang,
@@ -74,6 +76,7 @@ const switchHref = otherAlt?.path ?? homePath(otherLang);
 const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0]!;
 
 const navLinks = [
+  { href: postsPath(lang), label: t.posts },
   { href: tagsPath(lang), label: t.tags },
   { href: `/${lang}/about/`, label: t.about },
 ];
@@ -158,18 +161,23 @@ const contacts = contactLinks();
     </a>
 
     <header class="site-header" data-pagefind-ignore>
-      <div class="container-content flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2">
+      {/* Phone/tablet: a wrapped flex row — site name, then controls, menu last.
+          Desktop: a 3-slot grid (`1fr auto 1fr`) so the primary links sit on the
+          page centre, not on the space left over between name and controls. The
+          inner wrapper collapses with `contents` so its two children become the
+          middle and right slots. */}
+      <div class="container-content flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2 desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:justify-normal">
         <a
-          class="site-name"
+          class="site-name justify-self-start"
           href={homePath(lang)}
           aria-current={Astro.url.pathname.replace(/\/+$/, "") === `/${lang}` ? "page" : undefined}
         >
           {t.siteTitle}
         </a>
 
-        <div class="flex items-center gap-1 desktop:gap-4">
-          {/* Menu last on phone, first on desktop (where the links are inline). */}
-          <div class="order-last desktop:order-first">
+        <div class="flex items-center gap-1 desktop:contents">
+          {/* Menu last on phone, its own slot on desktop (where the links are inline). */}
+          <div class="order-last desktop:order-none">
             <Nav
               lang={lang}
               links={navLinks}
@@ -179,7 +187,7 @@ const contacts = contactLinks();
             />
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 desktop:justify-self-end">
             <SearchBox
               client:load
               lang={lang}
@@ -192,14 +200,6 @@ const contacts = contactLinks();
 
             <LanguageSwitcher lang={lang} target={otherLang} href={switchHref} variant="compact" />
 
-            <a
-              href={rssHref}
-              class="quiet-link hidden min-h-11 items-center px-2 text-sm desktop:inline-flex"
-              aria-label={t.rssFeed}
-            >
-              RSS
-            </a>
-
             <ThemeToggle lang={lang} />
           </div>
         </div>
@@ -211,6 +211,8 @@ const contacts = contactLinks();
     </main>
 
     <Footer lang={lang} />
+
+    <BackToTop lang={lang} />
 
     {analyticsToken && (
       <script

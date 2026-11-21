@@ -47,7 +47,7 @@ const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
     {page.data.length === 0 ? (
       <p class="mt-12 text-text-muted">{t.noPosts}</p>
     ) : (
-      <ul class="post-list measure mt-10">
+      <ul class="post-list mt-10">
         {page.data.map((post) => (
           <PostRow post={post} />
         ))}
@@ -55,10 +55,7 @@ const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
     )}
 
     {page.lastPage > 1 && (
-      <nav
-        class="measure mt-10 flex items-center justify-between text-sm"
-        aria-label={t.postsTitle}
-      >
+      <nav class="mt-10 flex items-center justify-between text-sm" aria-label={t.postsTitle}>
         {page.url.prev ? (
           <a class="quiet-link inline-flex min-h-11 items-center" href={page.url.prev} rel="prev">
             ‹ {t.prevPost}

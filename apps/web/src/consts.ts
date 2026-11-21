@@ -5,6 +5,3 @@
 import { SITE } from "./lib/site";
 
 export const SITE_AUTHOR = SITE.name;
-
-/** Public site origin; mirrors `site` in astro.config.mjs. */
-export const FALLBACK_SITE_URL = "https://example.com";

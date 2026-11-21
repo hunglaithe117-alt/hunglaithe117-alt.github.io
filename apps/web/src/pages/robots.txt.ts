@@ -5,7 +5,12 @@
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = ({ site }) => {
-  const origin = (site ?? new URL("https://example.com")).href.replace(/\/$/, "");
+  // `astro.config.mjs` already refuses to start without PUBLIC_SITE_URL, so a missing
+  // origin here means the config was bypassed — fail rather than emit a placeholder domain.
+  if (!site) {
+    throw new Error("robots.txt needs the site origin: set PUBLIC_SITE_URL before building.");
+  }
+  const origin = site.href.replace(/\/$/, "");
   const body = ["User-agent: *", "Allow: /", "", `Sitemap: ${origin}/sitemap-index.xml`, ""].join(
     "\n",
   );

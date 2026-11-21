@@ -1,0 +1,100 @@
+---
+/**
+ * Back-to-top control. Fixed to the bottom-inline-end and revealed once the page has
+ * scrolled past one viewport, so a short page never shows it. The scroll honours
+ * `prefers-reduced-motion` — `instant` rather than `auto`, because the stylesheet sets
+ * `scroll-behavior: smooth` on `html` and `auto` would inherit it.
+ */
+import { UI, type Lang } from "@/lib/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = UI[lang];
+---
+
+<button
+  type="button"
+  data-back-to-top
+  class="back-to-top"
+  aria-label={t.backToTop}
+  title={t.backToTop}
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    inset-block-end: max(1.25rem, env(safe-area-inset-bottom));
+    inset-inline-end: max(1.25rem, env(safe-area-inset-right));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    box-shadow: 0 6px 18px oklch(20% 0.02 70 / 0.12);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 8px;
+    transition:
+      opacity 180ms var(--ease-standard),
+      translate 180ms var(--ease-standard),
+      visibility 180ms allow-discrete,
+      color var(--duration-fast) var(--ease-standard);
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+  }
+
+  .back-to-top:hover {
+    color: var(--color-text);
+  }
+
+  @media print {
+    .back-to-top {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>("[data-back-to-top]");
+
+  if (button) {
+    const sync = () => {
+      button.classList.toggle("is-visible", window.scrollY > window.innerHeight);
+    };
+
+    window.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync, { passive: true });
+    sync();
+
+    button.addEventListener("click", () => {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
+      button.classList.remove("is-visible");
+    });
+  }
+</script>

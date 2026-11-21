@@ -16,7 +16,7 @@ permissions:
 
 env:
   FORCE_COLOR: "1"
-  PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://example.com' }}
+  PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
 
 jobs:
   ci:

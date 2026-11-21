@@ -122,8 +122,8 @@
     --duration-fast: 120ms;
     --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
-    /* Sticky-header offset used by the article TOC rail and heading anchors.
-     * 61px = one header row; below 390px the header wraps and the offset grows. */
+    /* Header row height. The header scrolls away, so this is only the vertical offset
+     * for the fixed search dropdown; the TOC rail and heading anchors no longer need it. */
     --header-h: 3.8125rem;
 
     /* Default = system preference; the manual [data-theme] attribute wins. */
@@ -326,14 +326,11 @@
   }
 
   /* ---- Header ---- */
+  /* Scrolls away with the page: no `position: sticky`, so the solid background and the
+   * border are all that is needed — no translucency or backdrop blur over content. */
   .site-header {
-    position: sticky;
-    inset-block-start: 0;
-    z-index: 40;
     border-block-end: 1px solid var(--color-border);
-    background-color: color-mix(in oklch, var(--color-bg) 85%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color: var(--color-bg);
   }
   .site-name {
     font-size: var(--text-lg);
@@ -415,9 +412,7 @@
     font-variant-numeric: tabular-nums;
   }
   .post-list .post-title {
-    transition:
-      transform var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
+    transition: color var(--duration-fast) var(--ease-standard);
   }
   .post-list > li > a:hover,
   .post-list > li > a:focus-visible {
@@ -426,7 +421,6 @@
   .post-list > li > a:hover .post-title,
   .post-list > li > a:focus-visible .post-title {
     color: var(--color-link);
-    transform: translateX(4px);
     text-decoration: underline;
     text-underline-offset: 0.16em;
   }
@@ -458,8 +452,9 @@
       display: block;
       position: sticky;
       align-self: start;
-      inset-block-start: calc(var(--header-h) + var(--space-md));
-      max-block-size: calc(100dvh - var(--header-h) - var(--space-2xl));
+      /* The header scrolls away, so nothing needs clearing at the top. */
+      inset-block-start: var(--space-md);
+      max-block-size: calc(100dvh - var(--space-md) - var(--space-2xl));
       overflow-y: auto;
     }
     .toc-phone {
@@ -488,7 +483,7 @@
     font-family: var(--font-sans);
     font-weight: 600;
     margin-block-start: 2.2em;
-    scroll-margin-block-start: calc(var(--header-h) + var(--space-md));
+    scroll-margin-block-start: var(--space-md);
   }
   .prose h2 + *,
   .prose h3 + *,

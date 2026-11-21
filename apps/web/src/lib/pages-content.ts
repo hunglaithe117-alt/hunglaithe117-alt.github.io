@@ -7,5 +7,5 @@
 
 /** About prose, one entry per paragraph. */
 export const ABOUT: readonly string[] = [
-  "I am a junior developer — still learning, and eager to connect with more people.",
+  "I am a developer — still learning, and eager to connect with more people.",
 ];

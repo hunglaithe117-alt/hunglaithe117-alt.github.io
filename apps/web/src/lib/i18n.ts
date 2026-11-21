@@ -36,6 +36,7 @@ export const UI = {
     languageSwitcher: "Ngôn ngữ",
     changeLanguage: "Đổi ngôn ngữ",
     themeToggle: "Đổi chế độ sáng/tối",
+    backToTop: "Lên đầu trang",
     rssFeed: "RSS",
     contact: "Liên hệ",
     readingTime: (minutes: number) => `${minutes} phút đọc`,
@@ -76,7 +77,6 @@ export const UI = {
     // Feeds
     // About / portfolio
     aboutTitle: "Giới thiệu",
-    aboutLead: "",
   },
   en: {
     siteTitle: "Chuquanpho29",
@@ -92,6 +92,7 @@ export const UI = {
     languageSwitcher: "Language",
     changeLanguage: "Change language",
     themeToggle: "Toggle light/dark theme",
+    backToTop: "Back to top",
     rssFeed: "RSS",
     contact: "Contact",
     readingTime: (minutes: number) => `${minutes} min read`,
@@ -132,7 +133,6 @@ export const UI = {
     // Feeds
     // About / portfolio
     aboutTitle: "About",
-    aboutLead: "",
   },
 } as const satisfies Record<Lang, Record<string, unknown>>;
 

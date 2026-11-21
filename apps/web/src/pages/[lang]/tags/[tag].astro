@@ -51,14 +51,14 @@ const otherTags = collectTags(all).filter((other) => other !== tag);
       </p>
     </header>
 
-    <ul class="post-list measure mt-8">
+    <ul class="post-list mt-8">
       {posts.map((post) => (
         <PostRow post={post} />
       ))}
     </ul>
 
     {otherTags.length > 0 && (
-      <section class="measure mt-14" aria-labelledby="other-tags" data-pagefind-ignore>
+      <section class="mt-14" aria-labelledby="other-tags" data-pagefind-ignore>
         <h2 id="other-tags" class="text-sm font-semibold text-text-muted">
           {t.tagFilters}
         </h2>

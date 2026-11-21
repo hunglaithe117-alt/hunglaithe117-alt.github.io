@@ -50,7 +50,7 @@ jobs:
       - name: Build web
         run: pnpm --filter @blog/web build
         env:
-          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://example.com' }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # `cf build` packages apps/web/dist as assets and records the mode in the

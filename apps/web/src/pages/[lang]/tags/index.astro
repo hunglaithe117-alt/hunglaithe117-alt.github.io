@@ -35,7 +35,7 @@ const alternates = LOCALES.map((l) => ({ lang: l, path: tagsPath(l) }));
     {tags.length === 0 ? (
       <p class="mt-12 text-text-muted">{t.noTags}</p>
     ) : (
-      <ul class="measure mt-8 list-none p-0">
+      <ul class="mt-8 list-none p-0">
         {tags.map(({ tag, count }) => (
           <li class="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-border">
             <a

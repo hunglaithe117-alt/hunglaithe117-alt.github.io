@@ -104,20 +104,6 @@ const jsonLd = {
           <span aria-hidden="true"> · </span>
           <span>{t.readingTime(readingMinutes)}</span>
         </p>
-        {post.data.tags.length > 0 && (
-          <ul class="mt-1 flex list-none flex-wrap gap-x-3 p-0 text-sm" data-pagefind-ignore>
-            {post.data.tags.map((tag) => (
-              <li>
-                <a
-                  class="inline-flex min-h-9 items-center text-text-muted no-underline hover:text-link hover:underline hover:underline-offset-4"
-                  href={tagPath(lang, tag)}
-                >
-                  {tag}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
       </header>
 
       <div class="mt-6">
@@ -141,8 +127,22 @@ const jsonLd = {
     </aside>
   </div>
 
+  {post.data.tags.length > 0 && (
+    <div class="mt-14 flex flex-wrap items-baseline gap-x-3 text-sm" data-pagefind-ignore>
+      <span class="text-text-muted">{t.tags}:</span>
+      {post.data.tags.map((tag) => (
+        <a
+          class="inline-flex min-h-9 items-center text-text-muted no-underline hover:text-link hover:underline hover:underline-offset-4"
+          href={tagPath(lang, tag)}
+        >
+          {tag}
+        </a>
+      ))}
+    </div>
+  )}
+
   {related.length > 0 && (
-    <section class="measure mt-16" aria-labelledby="related" data-pagefind-ignore>
+    <section class="mt-16" aria-labelledby="related" data-pagefind-ignore>
       <h2 id="related" class="text-sm font-semibold text-text-muted">
         {t.relatedPosts}
       </h2>
