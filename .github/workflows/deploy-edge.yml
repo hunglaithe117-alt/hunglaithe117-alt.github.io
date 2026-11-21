@@ -47,10 +47,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # `PUBLIC_SITE_URL` is required by `astro.config.mjs` for canonical URLs, feeds, and sitemap.
+      # The Worker is a mirror of the GitHub Pages site, so it is built uncrawlable
+      # (`PUBLIC_NOINDEX`) and canonicalises to the Pages origin.
       - name: Build web
         run: pnpm --filter @blog/web build
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_NOINDEX: "1"
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # `cf build` packages apps/web/dist as assets and records the mode in the
@@ -134,6 +137,7 @@ jobs:
         run: pnpm --filter @blog/web build
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_NOINDEX: "1"
           PUBLIC_ANALYTICS_TOKEN: ${{ vars.PUBLIC_ANALYTICS_TOKEN }}
 
       # `cf build` records `CLOUDFLARE_ACCOUNT_ID`; `cf deploy --prebuilt` must match it.

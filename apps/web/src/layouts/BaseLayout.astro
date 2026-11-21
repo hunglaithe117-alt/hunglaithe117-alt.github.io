@@ -23,6 +23,7 @@ import {
   UI,
   type Lang,
 } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/indexing";
 import { contactLinks } from "@/lib/site";
 
 interface Alternate {
@@ -90,6 +91,7 @@ const contacts = contactLinks();
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {NOINDEX && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
 
     <!-- hreflang alternates + x-default -->
