@@ -59,12 +59,12 @@ const linkClass =
 )}
 
 {show && variant === "rail" && (
-  <nav class="toc" aria-label={title}>
+  <nav class="toc" aria-label={title} data-toc-rail>
     <p class="text-sm text-text-muted">{title}</p>
-    <ol class="mt-2 flex list-none flex-col p-0 text-sm">
+    <ol class="toc-list mt-2 list-none p-0 text-sm">
       {items.map((h) => (
-        <li class={h.depth === 3 ? "ps-3" : ""}>
-          <a href={`#${h.slug}`} class={linkClass}>
+        <li>
+          <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug} data-depth={h.depth}>
             {h.text}
           </a>
         </li>
@@ -72,3 +72,133 @@ const linkClass =
     </ol>
   </nav>
 )}
+
+<script>
+  import { type HeadingPosition, resolveActiveHeadingId } from "../lib/toc";
+
+  const rail = document.querySelector<HTMLElement>("nav[data-toc-rail]");
+  const links = rail
+    ? Array.from(rail.querySelectorAll<HTMLAnchorElement>("a[data-toc-link]"))
+    : [];
+
+  if (rail && links.length > 0) start(rail, links);
+
+  /** Scrollspy for the desktop rail; short posts render no rail, so nothing runs there. */
+  function start(rail: HTMLElement, links: HTMLAnchorElement[]): void {
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    /** CSS scroll-margin-block-start is 24px, so a heading needs room to settle below it. */
+    const HEADING_OFFSET = 96;
+    const SETTLE_MS = 700;
+
+    let activeId: string | null = null;
+    let frame = 0;
+    let settleUntil = 0;
+    let settleTimer = 0;
+
+    function setActive(id: string | null): void {
+      if (id === activeId) return;
+      activeId = id;
+      for (const link of links) {
+        const match = link.dataset.tocLink === id;
+        if (match) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+        if (match) revealRail(link);
+      }
+    }
+
+    /** Keeps the active item inside the rail's own scroll box, never the page. */
+    function revealRail(link: HTMLAnchorElement): void {
+      if (rail.scrollHeight <= rail.clientHeight) return;
+      const linkBox = link.getBoundingClientRect();
+      const railBox = rail.getBoundingClientRect();
+      if (linkBox.top >= railBox.top && linkBox.bottom <= railBox.bottom) return;
+      const centred =
+        rail.scrollTop + linkBox.top - railBox.top - (rail.clientHeight - linkBox.height) / 2;
+      rail.scrollTo({ top: centred, behavior: reducedMotion.matches ? "instant" : "smooth" });
+    }
+
+    function update(): void {
+      frame = 0;
+      if (!desktop.matches || performance.now() < settleUntil) return;
+
+      const positions: HeadingPosition[] = [];
+      for (const link of links) {
+        const id = link.dataset.tocLink;
+        const heading = id ? document.getElementById(id) : null;
+        if (id && heading) positions.push({ id, top: heading.getBoundingClientRect().top });
+      }
+
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      setActive(resolveActiveHeadingId(positions, { offset: HEADING_OFFSET, atBottom }));
+    }
+
+    function schedule(): void {
+      if (frame === 0) frame = requestAnimationFrame(update);
+    }
+
+    /**
+     * Holds `id` while a click or hash jump scrolls, then hands control back to
+     * the scroll position — a wheel scroll inside the hold would otherwise leave
+     * the highlight stale, because no scroll event arrives after it expires.
+     */
+    function pin(id: string): void {
+      setActive(id);
+      settleUntil = performance.now() + SETTLE_MS;
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(schedule, SETTLE_MS + 32);
+    }
+
+    /** `location.hash` owns the highlight on load and on hashchange while its jump settles. */
+    function applyHash(): void {
+      // Browsers percent-encode the fragment, so a Vietnamese slug arrives as `v%C3%AC-sao`
+      // and would never match the raw `data-toc-link` value.
+      let id: string;
+      try {
+        id = decodeURIComponent(window.location.hash.slice(1));
+      } catch {
+        return;
+      }
+      if (!id || !links.some((link) => link.dataset.tocLink === id)) return;
+      pin(id);
+    }
+
+    function onHashChange(): void {
+      applyHash();
+      schedule();
+    }
+
+    function onDesktopChange(): void {
+      if (!desktop.matches) {
+        window.removeEventListener("scroll", schedule);
+        window.removeEventListener("resize", schedule);
+        window.removeEventListener("hashchange", onHashChange);
+        // Nothing below the desktop breakpoint may keep a frame or a timer alive.
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+        window.clearTimeout(settleTimer);
+        return;
+      }
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule);
+      window.addEventListener("hashchange", onHashChange);
+      schedule();
+    }
+
+    rail.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest("a[data-toc-link]");
+      const id = link instanceof HTMLAnchorElement ? link.dataset.tocLink : undefined;
+      if (!id) return;
+      pin(id);
+    });
+
+    desktop.addEventListener("change", onDesktopChange);
+    /* Webfont metrics shift heading positions without a scroll event; re-measure once
+     * they settle so the rail is not left on the wrong section after first paint. */
+    void document.fonts.ready.then(schedule);
+    if (desktop.matches) applyHash();
+    onDesktopChange();
+  }
+</script>

@@ -1,15 +1,13 @@
 ---
 /**
- * 404 page (default locale). Bilingual routes are prefixed, so a single root
- * `404.html` is served for anything unmatched; copy defaults to Vietnamese with an
- * English line for the other locale.
+ * 404 page. Every site route is unprefixed (`/`, `/posts/`, …), so a single root
+ * `404.html` serves anything unmatched; copy is the default-locale (English) text.
  */
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { homePath, UI } from "@/lib/i18n";
+import { DEFAULT_LOCALE, homePath, UI } from "@/lib/i18n";
 
-const lang = "vi" as const;
+const lang = DEFAULT_LOCALE;
 const t = UI[lang];
-const other = UI.en;
 ---
 
 <BaseLayout
@@ -22,9 +20,8 @@ const other = UI.en;
     <p class="text-sm text-text-muted">404</p>
     <h1 class="mt-2">{t.notFoundTitle}</h1>
     <p class="mt-4 text-text-muted">{t.notFoundBody}</p>
-    <p class="mt-1 text-sm text-text-muted">{other.notFoundBody}</p>
     <p class="mt-8">
-      <a href={homePath(lang)}>{t.notFoundCta}</a>
+      <a href={homePath()}>{t.notFoundCta}</a>
     </p>
   </div>
 </BaseLayout>

@@ -1,14 +1,14 @@
-/** Root JSON Feed alias for the default locale (`/feed.json`). */
+/** Site-wide JSON Feed 1.1 (`/feed.json`). */
 import type { APIRoute } from "astro";
 import { SITE_AUTHOR } from "@/consts";
 import { buildJsonFeed } from "@/lib/feeds";
 import { DEFAULT_LOCALE, UI } from "@/lib/i18n";
-import { getPostsByLang } from "@/lib/posts";
+import { getListingPosts } from "@/lib/posts";
 
 export const GET: APIRoute = async ({ site }) => {
   const lang = DEFAULT_LOCALE;
   const t = UI[lang];
-  const posts = await getPostsByLang(lang);
+  const posts = await getListingPosts();
 
   const feed = await buildJsonFeed(
     {

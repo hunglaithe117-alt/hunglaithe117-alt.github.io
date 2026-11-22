@@ -1,10 +1,11 @@
-/** Feed builders: per-locale RSS 2.0, JSON Feed 1.1, and per-tag RSS. */
+/** Feed builders: unified RSS 2.0, JSON Feed 1.1, and per-tag RSS. */
 import rss from "@astrojs/rss";
 import { stat } from "node:fs/promises";
 import path from "node:path";
 import { absoluteUrl, FEED_LANG, homePath, postPath, type Lang } from "./i18n";
 import { postHtml, slugOf, type Post } from "./posts";
 
+/** Channel-level metadata. `lang` is the feed's own language; each item keeps its post's. */
 export interface FeedMeta {
   lang: Lang;
   title: string;
@@ -52,7 +53,7 @@ function channelExtras(meta: FeedMeta, selfPath: string): string {
   ].join("");
 }
 
-/** RSS 2.0 response for a locale (or a single tag within a locale). */
+/** RSS 2.0 response for the unified listing (optionally narrowed to one tag). */
 export async function buildRssResponse(
   meta: FeedMeta,
   posts: Post[],
@@ -63,7 +64,7 @@ export async function buildRssResponse(
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.date,
-      link: postPath(meta.lang, slugOf(post)),
+      link: postPath(post.data.lang, slugOf(post)),
       categories: post.data.tags,
       author: meta.author,
       content: await postHtml(post),
@@ -81,7 +82,7 @@ export async function buildRssResponse(
   });
 }
 
-/** JSON Feed 1.1 document for a locale. */
+/** JSON Feed 1.1 document for the unified listing. */
 export async function buildJsonFeed(
   meta: FeedMeta,
   posts: Post[],
@@ -89,7 +90,7 @@ export async function buildJsonFeed(
 ): Promise<Record<string, unknown>> {
   const items = await Promise.all(
     posts.map(async (post) => {
-      const url = absoluteUrl(meta.site, postPath(meta.lang, slugOf(post)));
+      const url = absoluteUrl(meta.site, postPath(post.data.lang, slugOf(post)));
       const item: Record<string, unknown> = {
         id: url,
         url,
@@ -97,7 +98,7 @@ export async function buildJsonFeed(
         summary: post.data.description,
         date_published: post.data.date.toISOString(),
         tags: post.data.tags,
-        language: FEED_LANG[meta.lang],
+        language: FEED_LANG[post.data.lang],
         content_html: await postHtml(post),
       };
       if (post.data.cover) {
@@ -114,7 +115,7 @@ export async function buildJsonFeed(
   return {
     version: "https://jsonfeed.org/version/1.1",
     title: meta.title,
-    home_page_url: absoluteUrl(meta.site, homePath(meta.lang)),
+    home_page_url: absoluteUrl(meta.site, homePath()),
     feed_url: absoluteUrl(meta.site, selfPath),
     description: meta.description,
     language: FEED_LANG[meta.lang],

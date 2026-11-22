@@ -27,8 +27,11 @@ const posts = defineCollection({
     draft: z.boolean().default(false),
     /** Content language; must match the containing folder. */
     lang: z.enum(LOCALES),
-    /** Shared across a post's language variants (hreflang pairing). */
-    translationKey: z.string().min(1),
+    /**
+     * Optional key shared by a post's language variants. A monolingual post omits
+     * it and is then its own only variant: no switcher, no `hreflang` alternate.
+     */
+    translationKey: z.string().min(1).optional(),
   }),
 });
 

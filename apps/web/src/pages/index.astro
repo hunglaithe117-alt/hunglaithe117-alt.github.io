@@ -1,6 +1,46 @@
 ---
-/** Root home page: serves the default English post list directly at `/`. */
-import HomeView from "@/components/HomeView.astro";
+/**
+ * Root home page: the unified post list (English-primary) served directly at `/`.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostRow from "@/components/PostRow.astro";
+import { absoluteUrl, DEFAULT_LOCALE, homePath, HTML_LANG, UI } from "@/lib/i18n";
+import { getListingPosts } from "@/lib/posts";
+
+const site = Astro.site!;
+const lang = DEFAULT_LOCALE;
+const t = UI[lang];
+const posts = await getListingPosts();
+const canonical = homePath();
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: t.siteTitle,
+  description: t.siteDescription,
+  url: absoluteUrl(site, canonical),
+  inLanguage: HTML_LANG[lang],
+};
 ---
 
-<HomeView lang="en" />
+<BaseLayout
+  lang={lang}
+  title={t.siteTitle}
+  description={t.siteDescription}
+  canonical={canonical}
+  jsonLd={jsonLd}
+>
+  <div data-pagefind-body>
+    <h1 class="sr-only">{t.postsTitle}</h1>
+
+    {posts.length === 0 ? (
+      <p class="text-text-muted">{t.noPosts}</p>
+    ) : (
+      <ul class="post-list">
+        {posts.map((post) => (
+          <PostRow post={post} />
+        ))}
+      </ul>
+    )}
+  </div>
+</BaseLayout>

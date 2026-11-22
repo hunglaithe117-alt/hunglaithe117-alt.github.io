@@ -11,7 +11,7 @@
     "check": "astro check",
     "typecheck": "astro check",
     "lint": "echo \"@blog/web: lint pending\"",
-    "test": "echo \"@blog/web: no tests yet\""
+    "test": "node --test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/mdx": "8.0.3",

@@ -441,6 +441,45 @@
   .toc {
     display: none;
   }
+
+  /* Rail list: a hairline track with the active bar laid over it — the 2px border
+   * is pulled back 1px so it covers the track instead of sitting beside it. Colour
+   * never carries the active state alone; the bar and the weight carry it too, so it
+   * survives greyscale and low vision. */
+  .toc-list {
+    border-inline-start: 1px solid var(--color-border);
+  }
+  .toc-link {
+    display: block;
+    margin-inline-start: -1px;
+    border-inline-start: 2px solid transparent;
+    padding-block: var(--space-2xs);
+    padding-inline-start: var(--space-xs);
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
+  }
+  .toc-link[data-depth="3"] {
+    padding-inline-start: var(--space-md);
+    font-size: var(--text-xs);
+  }
+  .toc-link:hover {
+    color: var(--color-link);
+  }
+  /* The rail is a scroll container, so `overflow` would clip the global 2px-offset
+   * ring at its edges: draw the ring just inside the link instead, where it stays whole. */
+  .toc-link:focus-visible {
+    outline-offset: -2px;
+  }
+  .toc-link[aria-current="location"] {
+    border-inline-start-color: var(--color-link);
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
   @media (width >= 64rem) {
     .article-layout {
       display: grid;
@@ -448,10 +487,17 @@
       gap: var(--space-lg);
       align-items: start;
     }
+    /* `align-items: start` shrinks the aside cell to the rail's own height, so
+     * `position: sticky` has nothing to travel along. Stretching the cell to the
+     * grid row gives the rail the whole article to stick against, and ends it
+     * where `<article>` ends: tags, related posts and the footer live outside
+     * `.article-layout`, so the rail can never travel over them. */
+    .article-layout > aside {
+      align-self: stretch;
+    }
     .toc {
       display: block;
       position: sticky;
-      align-self: start;
       /* The header scrolls away, so nothing needs clearing at the top. */
       inset-block-start: var(--space-md);
       max-block-size: calc(100dvh - var(--space-md) - var(--space-2xl));

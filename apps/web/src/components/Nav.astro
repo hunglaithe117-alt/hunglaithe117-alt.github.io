@@ -4,8 +4,6 @@
  * control below that. The menu is the existing `NavDrawer` island (native <dialog>,
  * so focus handling and Esc come from the platform); a `<details>` fallback covers
  * the no-JS case.
- *
- * The language switch lives in BaseLayout so it stays visible at every width.
  */
 import NavDrawer from "@blog/ui/NavDrawer.vue";
 import { UI, type Lang } from "@/lib/i18n";
@@ -19,21 +17,23 @@ interface Props {
   links: NavLink[];
   /** Owner-supplied contact links; empty when nothing is configured. */
   contacts: NavLink[];
-  switchHref: string;
-  switchLabel: string;
 }
-const { lang, links, contacts, switchHref, switchLabel } = Astro.props;
+const { lang, links, contacts } = Astro.props;
 const t = UI[lang];
 
 const itemClass = "quiet-link inline-flex min-h-11 items-center text-sm";
 
-/** Trailing-slash-insensitive: `/vi/posts` stays current on a post page. */
+/** Trailing-slash-insensitive: `/posts` and `/posts/` resolve to one target. */
 const normalize = (path: string) => path.replace(/\/+$/, "") || "/";
 const pathname = normalize(Astro.url.pathname);
 const isCurrent = (href: string) => {
   const target = normalize(href);
   if (target === pathname) return true;
-  return target !== normalize(`/${lang}/`) && pathname.startsWith(`${target}/`);
+  // An article keeps its locale in the URL, so the unprefixed Posts item stays
+  // current on `/[lang]/posts/<slug>`.
+  if (target === "/posts" && /^\/(en|vi)\/posts\//.test(pathname)) return true;
+  // A bare `/` target must not prefix-match every path.
+  return target !== "/" && pathname.startsWith(`${target}/`);
 };
 ---
 
@@ -54,10 +54,7 @@ const isCurrent = (href: string) => {
       menu: t.menu,
       open: t.openMenu,
       close: t.closeMenu,
-      language: t.languageSwitcher,
     }}
-    switchHref={switchHref}
-    switchLabel={switchLabel}
   />
 </div>
 
@@ -80,11 +77,6 @@ const isCurrent = (href: string) => {
             </a>
           </li>
         ))}
-        <li>
-          <a href={switchHref} class={itemClass}>
-            {switchLabel}
-          </a>
-        </li>
       </ul>
     </nav>
   </details>

@@ -40,7 +40,7 @@ export default defineConfig({
     ? undefined
     : {
         command: "node e2e/serve-dist.mjs",
-        url: `${baseURL}/en/`,
+        url: `${baseURL}/`,
         reuseExistingServer: !process.env.CI,
         timeout: 60_000,
         env: { PORT: String(port), HOST: host },

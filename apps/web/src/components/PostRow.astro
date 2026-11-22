@@ -4,8 +4,10 @@
  * then title, nothing else — no cover, no description, no card. It renders the
  * <li> itself so the call sites stay a plain <ul class="post-list">.
  *
+ * The unified listing formats every date in `DEFAULT_LOCALE` so the column stays
+ * aligned; a post in another locale gets a small subordinate label beside its title.
  */
-import { postPath } from "@/lib/i18n";
+import { DEFAULT_LOCALE, HTML_LANG, LOCALE_SHORT, postPath } from "@/lib/i18n";
 import { slugOf, type Post } from "@/lib/posts";
 
 interface Props {
@@ -13,13 +15,26 @@ interface Props {
 }
 const { post } = Astro.props;
 const href = postPath(post.data.lang, slugOf(post));
-const dateFormatter = new Intl.DateTimeFormat(post.data.lang, { dateStyle: "medium" });
+const dateFormatter = new Intl.DateTimeFormat(DEFAULT_LOCALE, { dateStyle: "medium" });
 const dateIso = post.data.date.toISOString();
 ---
 
 <li>
   <a href={href}>
     <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>{" "}
-    <span class="post-title">{post.data.title}</span>
+    <span class="min-w-0">
+      <span
+        class="post-title"
+        lang={post.data.lang === DEFAULT_LOCALE ? undefined : HTML_LANG[post.data.lang]}
+      >
+        {post.data.title}
+      </span>
+      {post.data.lang !== DEFAULT_LOCALE && (
+        <span class="text-xs font-medium tracking-[0.08em] text-text-muted uppercase">
+          {"\u00A0"}
+          {LOCALE_SHORT[post.data.lang]}
+        </span>
+      )}
+    </span>
   </a>
 </li>

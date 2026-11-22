@@ -1,0 +1,3 @@
+# Keep Deepwork resume state readable to ripgrep/AI tooling (git ignores it).
+!.slim/deepwork/
+!.slim/deepwork/**

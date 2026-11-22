@@ -7,18 +7,18 @@ import "@/styles/global.css";
 import atkLatin from "@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url";
 import Footer from "@/components/Footer.astro";
 import BackToTop from "@/components/BackToTop.astro";
-import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import Nav from "@/components/Nav.astro";
 import ThemeToggle from "@/components/ThemeToggle.astro";
 import SearchBox from "@blog/ui/SearchBox.vue";
 import {
   absoluteUrl,
+  aboutPath,
   DEFAULT_LOCALE,
   homePath,
   HTML_LANG,
-  LOCALES,
-  LOCALE_LABEL,
+  jsonFeedPath,
   postsPath,
+  rssPath,
   tagsPath,
   UI,
   type Lang,
@@ -50,7 +50,7 @@ const {
   title,
   description,
   canonical,
-  alternates = [{ lang, path: homePath(lang) }],
+  alternates = [],
   image,
   jsonLd,
   ogType = "website",
@@ -66,20 +66,20 @@ const t = UI[lang];
 const analyticsToken = import.meta.env.PROD ? import.meta.env.PUBLIC_ANALYTICS_TOKEN : undefined;
 const canonicalUrl = absoluteUrl(site, canonical);
 const ogImage = image ?? absoluteUrl(site, "/og-default.png");
-const rssHref = absoluteUrl(site, `/${lang}/rss.xml`);
-const jsonFeedHref = absoluteUrl(site, `/${lang}/feed.json`);
+const rssHref = absoluteUrl(site, rssPath());
+const jsonFeedHref = absoluteUrl(site, jsonFeedPath());
 const jsonLdNodes = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const jsonLdPayload = jsonLdNodes.length === 1 ? jsonLdNodes[0] : jsonLdNodes;
 
-const otherLang = LOCALES.find((l) => l !== lang)!;
-const otherAlt = alternates.find((a) => a.lang === otherLang);
-const switchHref = otherAlt?.path ?? homePath(otherLang);
-const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0]!;
+// A single-variant post yields one alternate, which carries no hreflang value.
+const showAlternates = alternates.length > 1;
+const defaultAlt = alternates.find((a) => a.lang === DEFAULT_LOCALE) ?? alternates[0];
+const isHome = (Astro.url.pathname.replace(/\/+$/, "") || "/") === "/";
 
 const navLinks = [
-  { href: postsPath(lang), label: t.posts },
-  { href: tagsPath(lang), label: t.tags },
-  { href: `/${lang}/about/`, label: t.about },
+  { href: postsPath(), label: t.posts },
+  { href: tagsPath(), label: t.tags },
+  { href: aboutPath(), label: t.about },
 ];
 const contacts = contactLinks();
 ---
@@ -94,11 +94,15 @@ const contacts = contactLinks();
     {NOINDEX && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
 
-    <!-- hreflang alternates + x-default -->
-    {alternates.map((alt) => (
-      <link rel="alternate" hreflang={HTML_LANG[alt.lang]} href={absoluteUrl(site, alt.path)} />
-    ))}
-    <link rel="alternate" hreflang="x-default" href={absoluteUrl(site, defaultAlt.path)} />
+    <!-- hreflang alternates + x-default: only when a page has more than one locale -->
+    {showAlternates && defaultAlt && (
+      <>
+        {alternates.map((alt) => (
+          <link rel="alternate" hreflang={HTML_LANG[alt.lang]} href={absoluteUrl(site, alt.path)} />
+        ))}
+        <link rel="alternate" hreflang="x-default" href={absoluteUrl(site, defaultAlt.path)} />
+      </>
+    )}
 
     <!-- Feed autodiscovery: RSS 2.0 + JSON Feed -->
     <link
@@ -129,9 +133,11 @@ const contacts = contactLinks();
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={t.siteTitle} />
     <meta property="og:locale" content={HTML_LANG[lang].replace("-", "_")} />
-    {LOCALES.filter((l) => l !== lang).map((l) => (
-      <meta property="og:locale:alternate" content={HTML_LANG[l].replace("-", "_")} />
-    ))}
+    {alternates
+      .filter((alt) => alt.lang !== lang)
+      .map((alt) => (
+        <meta property="og:locale:alternate" content={HTML_LANG[alt.lang].replace("-", "_")} />
+      ))}
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
@@ -171,8 +177,8 @@ const contacts = contactLinks();
       <div class="container-content flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2 desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:justify-normal">
         <a
           class="site-name justify-self-start"
-          href={homePath(lang)}
-          aria-current={Astro.url.pathname.replace(/\/+$/, "") === `/${lang}` ? "page" : undefined}
+          href={homePath()}
+          aria-current={isHome ? "page" : undefined}
         >
           {t.siteTitle}
         </a>
@@ -180,13 +186,7 @@ const contacts = contactLinks();
         <div class="flex items-center gap-1 desktop:contents">
           {/* Menu last on phone, its own slot on desktop (where the links are inline). */}
           <div class="order-last desktop:order-none">
-            <Nav
-              lang={lang}
-              links={navLinks}
-              contacts={contacts}
-              switchHref={switchHref}
-              switchLabel={LOCALE_LABEL[otherLang]}
-            />
+            <Nav lang={lang} links={navLinks} contacts={contacts} />
           </div>
 
           <div class="flex items-center gap-1 desktop:justify-self-end">
@@ -199,8 +199,6 @@ const contacts = contactLinks();
               unavailableLabel={t.searchUnavailable}
               defaultMessage={t.searchDefaultMessage}
             />
-
-            <LanguageSwitcher lang={lang} target={otherLang} href={switchHref} variant="compact" />
 
             <ThemeToggle lang={lang} />
           </div>

@@ -2,28 +2,21 @@
 /** Per-tag listing — posts carrying a tag, plus the per-tag feed link. */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostRow from "@/components/PostRow.astro";
-import { LOCALES, tagFeedPath, tagPath, tagsPath, UI, type Lang } from "@/lib/i18n";
-import { collectTags, getPostsByLang } from "@/lib/posts";
+import { DEFAULT_LOCALE, tagFeedPath, tagPath, tagsPath, UI } from "@/lib/i18n";
+import { collectTags, getListingPosts } from "@/lib/posts";
 
 export async function getStaticPaths() {
-  const paths: { params: { lang: Lang; tag: string } }[] = [];
-  for (const lang of LOCALES) {
-    const posts = await getPostsByLang(lang);
-    for (const tag of collectTags(posts)) {
-      paths.push({ params: { lang, tag } });
-    }
-  }
-  return paths;
+  const tags = collectTags(await getListingPosts());
+  return tags.map((tag) => ({ params: { tag } }));
 }
 
-const lang = Astro.params.lang as Lang;
 const tag = Astro.params.tag as string;
+const lang = DEFAULT_LOCALE;
 const t = UI[lang];
-const all = await getPostsByLang(lang);
+const all = await getListingPosts();
 const posts = all.filter((post) => post.data.tags.includes(tag));
 const title = t.postsWithTag(tag);
-const canonical = tagPath(lang, tag);
-const alternates = LOCALES.map((l) => ({ lang: l, path: tagPath(l, tag) }));
+const canonical = tagPath(tag);
 const otherTags = collectTags(all).filter((other) => other !== tag);
 ---
 
@@ -32,11 +25,10 @@ const otherTags = collectTags(all).filter((other) => other !== tag);
   title={`${title} — ${t.siteTitle}`}
   description={`${t.tagsLead} ${title}.`}
   canonical={canonical}
-  alternates={alternates}
 >
   <div data-pagefind-body>
     <nav aria-label={t.tagsTitle} class="text-sm" data-pagefind-ignore>
-      <a class="inline-flex min-h-11 items-center" href={tagsPath(lang)}>
+      <a class="inline-flex min-h-11 items-center" href={tagsPath()}>
         {t.tagsTitle}
       </a>
     </nav>
@@ -45,7 +37,7 @@ const otherTags = collectTags(all).filter((other) => other !== tag);
       <h1>{title}</h1>
       <p class="mt-3 flex flex-wrap items-center gap-x-4 text-sm text-text-muted">
         <span>{t.tagCount(posts.length)}</span>{" "}
-        <a href={tagFeedPath(lang, tag)} aria-label={`${t.tagFeedLabel}: ${tag}`}>
+        <a href={tagFeedPath(tag)} aria-label={`${t.tagFeedLabel}: ${tag}`}>
           {t.tagFeedLabel} (RSS)
         </a>
       </p>
@@ -67,7 +59,7 @@ const otherTags = collectTags(all).filter((other) => other !== tag);
             <li>
               <a
                 class="inline-flex min-h-11 items-center text-text no-underline hover:text-link hover:underline hover:underline-offset-4"
-                href={tagPath(lang, other)}
+                href={tagPath(other)}
               >
                 {other}
               </a>

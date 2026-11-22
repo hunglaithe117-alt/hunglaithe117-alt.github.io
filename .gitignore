@@ -64,3 +64,6 @@ Thumbs.db
 # ---------------------------------------------------------------------------
 /docs/
 /templates/
+
+# Deepwork session state (local resume index)
+.slim/deepwork/

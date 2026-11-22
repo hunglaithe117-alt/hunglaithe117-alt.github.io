@@ -1,6 +1,10 @@
 /**
  * Bilingual (EN default + VI) routing and UI strings.
  *
+ * The site shell is English-primary and unprefixed (`/`, `/posts/`, …); only an
+ * article keeps its locale in the URL (`/[lang]/posts/<slug>`), because that is
+ * what pairs a post with its translation and with its `hreflang` alternate.
+ *
  * The dictionary is type-enforced (`satisfies`) so missing keys fail `astro check`.
  */
 
@@ -14,10 +18,10 @@ export const HTML_LANG: Record<Lang, string> = { vi: "vi-VN", en: "en-US" };
 /** RSS 2.0 `<language>` uses bare ISO codes. */
 export const FEED_LANG: Record<Lang, string> = { vi: "vi", en: "en" };
 
-/** Locale display names for the language switcher. */
+/** Locale display names for the per-post language switch. */
 export const LOCALE_LABEL: Record<Lang, string> = { vi: "Tiếng Việt", en: "English" };
 
-/** Short locale codes for the compact header switcher. */
+/** Short locale codes for the listing label on a post that is not in the default locale. */
 export const LOCALE_SHORT: Record<Lang, string> = { vi: "VI", en: "EN" };
 
 /** Type-enforced UI dictionary — one entry per locale, no missing keys. */
@@ -33,8 +37,6 @@ export const UI = {
     menu: "Menu",
     openMenu: "Mở menu",
     closeMenu: "Đóng menu",
-    languageSwitcher: "Ngôn ngữ",
-    changeLanguage: "Đổi ngôn ngữ",
     themeToggle: "Đổi chế độ sáng/tối",
     backToTop: "Lên đầu trang",
     rssFeed: "RSS",
@@ -61,6 +63,7 @@ export const UI = {
     tagFilters: "Bộ lọc theo thẻ",
     // Article
     tocTitle: "Trong bài này",
+    readInLanguage: (label: string) => `Đọc bằng ${label}`,
     prevPost: "Bài trước",
     nextPost: "Bài tiếp theo",
     backToPosts: "Tất cả bài viết",
@@ -89,8 +92,6 @@ export const UI = {
     menu: "Menu",
     openMenu: "Open menu",
     closeMenu: "Close menu",
-    languageSwitcher: "Language",
-    changeLanguage: "Change language",
     themeToggle: "Toggle light/dark theme",
     backToTop: "Back to top",
     rssFeed: "RSS",
@@ -117,6 +118,7 @@ export const UI = {
     tagFilters: "Filter by tag",
     // Article
     tocTitle: "On this page",
+    readInLanguage: (label: string) => `Read in ${label}`,
     prevPost: "Previous",
     nextPost: "Next",
     backToPosts: "All posts",
@@ -162,46 +164,50 @@ export function getLangFromId(id: string): Lang {
   return isLang(first) ? first : DEFAULT_LOCALE;
 }
 
-/** Canonical path for a post, shared by pages, feeds and hreflang alternates. */
+/**
+ * Canonical path for a post. The locale stays in the URL so translations can pair.
+ * The trailing slash is the built form (`dist/<lang>/posts/<slug>/index.html`), so a
+ * canonical, alternate or feed link never points at a host redirect.
+ */
 export function postPath(lang: Lang, slug: string): string {
-  return `/${lang}/posts/${slug}`;
+  return `/${lang}/posts/${slug}/`;
 }
 
-/** Canonical path for the locale home page. */
-export function homePath(lang: Lang): string {
-  return lang === DEFAULT_LOCALE ? "/" : `/${lang}/`;
+/** Canonical path for the home page. */
+export function homePath(): string {
+  return "/";
 }
 
-/** Post index for a locale. */
-export function postsPath(lang: Lang): string {
-  return `/${lang}/posts/`;
+/** Post index for the unified listing. */
+export function postsPath(): string {
+  return "/posts/";
 }
 
-/** Tag index for a locale. */
-export function tagsPath(lang: Lang): string {
-  return `/${lang}/tags/`;
+/** Tag index for the unified listing. */
+export function tagsPath(): string {
+  return "/tags/";
 }
 
-/** Per-tag listing for a locale. */
-export function tagPath(lang: Lang, tag: string): string {
-  return `/${lang}/tags/${encodeURIComponent(tag)}/`;
+/** Per-tag listing. */
+export function tagPath(tag: string): string {
+  return `/tags/${encodeURIComponent(tag)}/`;
 }
 
-/** Per-tag RSS feed for a locale. */
-export function tagFeedPath(lang: Lang, tag: string): string {
-  return `/${lang}/tags/${encodeURIComponent(tag)}/rss.xml`;
+/** Per-tag RSS feed. */
+export function tagFeedPath(tag: string): string {
+  return `/tags/${encodeURIComponent(tag)}/rss.xml`;
 }
 
-export function aboutPath(lang: Lang): string {
-  return `/${lang}/about/`;
+export function aboutPath(): string {
+  return "/about/";
 }
 
-export function rssPath(lang: Lang): string {
-  return `/${lang}/rss.xml`;
+export function rssPath(): string {
+  return "/rss.xml";
 }
 
-export function jsonFeedPath(lang: Lang): string {
-  return `/${lang}/feed.json`;
+export function jsonFeedPath(): string {
+  return "/feed.json";
 }
 
 /** Fully-qualified URL for a root-relative path. */

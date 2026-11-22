@@ -2,7 +2,7 @@
   "name": "Chuquanpho29",
   "short_name": "Chuquanpho29",
   "description": "Notes on the web, tools and everyday life.",
-  "start_url": "/vi/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#fcfcf9",

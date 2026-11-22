@@ -16,9 +16,7 @@ defineProps<{
   links: NavLink[];
   /** Owner-supplied contact links; empty when nothing is configured. */
   contacts: NavLink[];
-  labels: { menu: string; open: string; close: string; language: string };
-  switchHref: string;
-  switchLabel: string;
+  labels: { menu: string; open: string; close: string };
 }>();
 
 const dialog = ref<HTMLDialogElement | null>(null);
@@ -140,11 +138,6 @@ onBeforeUnmount(() => {
           >
         </li>
       </ul>
-
-      <a :href="switchHref" class="flex min-h-12 items-center gap-2 px-3" @click="hide">
-        <span class="text-sm text-text-muted">{{ labels.language }}:</span>
-        <span>{{ switchLabel }}</span>
-      </a>
     </div>
   </dialog>
 </template>

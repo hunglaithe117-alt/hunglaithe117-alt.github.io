@@ -6,13 +6,14 @@
  */
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import PostRow from "@/components/PostRow.astro";
 import PrevNext from "@/components/PrevNext.astro";
 import Toc from "@/components/Toc.astro";
 import { SITE_AUTHOR } from "@/consts";
 import { absoluteUrl, HTML_LANG, postPath, tagPath, UI, type Lang } from "@/lib/i18n";
 import {
-  getPostsByLang,
+  getListingPosts,
   getPublishedPosts,
   getTranslations,
   readingTimeOf,
@@ -39,7 +40,8 @@ const slug = slugOf(post);
 const canonical = postPath(lang, slug);
 
 const { Content, headings } = await render(post);
-const translations = await getTranslations(post.data.translationKey);
+const translations = await getTranslations(post);
+const otherTranslations = translations.filter((p) => p.data.lang !== lang);
 const alternates = translations.map((p) => ({
   lang: p.data.lang,
   path: postPath(p.data.lang, slugOf(p)),
@@ -50,12 +52,15 @@ const dateIso = post.data.date.toISOString();
 const readingMinutes = readingTimeOf(post);
 const ogImage = absoluteUrl(site, post.data.cover ?? `/og/${lang}/${slug}.png`);
 
-// Prev/next within the same locale: newest first, so "previous" is the older note.
-const siblings = await getPostsByLang(lang);
+// Prev/next walk the unified listing (one row per article), so from a Vietnamese
+// article the neighbour may be an English-only note — the plan prefers that over
+// navigation that stops at the locale boundary.
+const siblings = await getListingPosts(lang);
 const index = siblings.findIndex((p) => p.id === post.id);
 const older = index >= 0 ? siblings[index + 1] : undefined;
 const newer = index > 0 ? siblings[index - 1] : undefined;
-const toNav = (p?: Post) => (p ? { href: postPath(lang, slugOf(p)), title: p.data.title } : null);
+const toNav = (p?: Post) =>
+  p ? { href: postPath(p.data.lang, slugOf(p)), title: p.data.title } : null;
 
 // Related: other posts sharing at least one tag, most overlap first.
 const related = siblings
@@ -103,6 +108,15 @@ const jsonLd = {
           <time datetime={dateIso}>{dateFormatter.format(post.data.date)}</time>
           <span aria-hidden="true"> · </span>
           <span>{t.readingTime(readingMinutes)}</span>
+          {otherTranslations.length > 0 && (
+            <LanguageSwitcher
+              lang={lang}
+              translations={otherTranslations.map((p) => ({
+                lang: p.data.lang,
+                path: postPath(p.data.lang, slugOf(p)),
+              }))}
+            />
+          )}
         </p>
       </header>
 
@@ -133,7 +147,7 @@ const jsonLd = {
       {post.data.tags.map((tag) => (
         <a
           class="inline-flex min-h-9 items-center text-text-muted no-underline hover:text-link hover:underline hover:underline-offset-4"
-          href={tagPath(lang, tag)}
+          href={tagPath(tag)}
         >
           {tag}
         </a>

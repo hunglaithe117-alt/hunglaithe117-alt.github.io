@@ -50,16 +50,19 @@ body_of() {
 }
 
 # --- Routes that must exist -------------------------------------------------
+# The site shell is unprefixed; only articles keep their locale in the URL.
 for path in \
-  /vi/ /en/ \
-  /vi/posts/ /en/posts/ \
-  /vi/tags/ /en/tags/ \
-  /vi/about/ /en/about/ \
-  /vi/rss.xml /en/rss.xml \
-  /vi/feed.json /en/feed.json \
+  / \
+  /posts/ \
+  /tags/ \
+  /about/ \
+  /rss.xml \
+  /feed.json \
   /sitemap-index.xml \
   /robots.txt \
-  /pagefind/pagefind.js; do
+  /pagefind/pagefind.js \
+  /en/posts/hello-world/ \
+  /vi/posts/hello-world/; do
   check_status "$path" 200
 done
 
@@ -67,7 +70,7 @@ done
 check_status "/this-path-does-not-exist-$$" 404
 
 # --- Security headers -------------------------------------------------------
-headers="$(curl -sSI --max-time 20 "$ORIGIN/vi/" || true)"
+headers="$(curl -sSI --max-time 20 "$ORIGIN/" || true)"
 for header in strict-transport-security x-content-type-options x-frame-options; do
   if printf '%s' "$headers" | grep -qi "^$header:"; then
     pass "header $header"
@@ -77,21 +80,41 @@ for header in strict-transport-security x-content-type-options x-frame-options; 
 done
 
 # --- Canonical origin is the environment's own ------------------------------
-canonical="$(body_of /vi/ | grep -o '<link rel="canonical" href="[^"]*"' | head -1 | sed 's/.*href="//; s/"$//')"
+canonical="$(body_of / | grep -o '<link rel="canonical" href="[^"]*"' | head -1 | sed 's/.*href="//; s/"$//')"
 if [ -z "$canonical" ]; then
-  fail "canonical link missing on /vi/"
-elif [ "${canonical#"$CANONICAL"}" != "$canonical" ]; then
+  fail "canonical link missing on /"
+elif [ "$canonical" = "$CANONICAL/" ]; then
   pass "canonical $canonical"
 else
-  fail "canonical $canonical (want prefix $CANONICAL)"
+  fail "canonical $canonical (want $CANONICAL/)"
 fi
 
 # --- Feeds name the same origin --------------------------------------------
-rss_body="$(body_of /vi/rss.xml)"
+rss_body="$(body_of /rss.xml)"
 if printf '%s' "$rss_body" | grep -q "<link>$CANONICAL/"; then
   pass "rss.xml origin"
 else
   fail "rss.xml does not link $CANONICAL"
+fi
+
+# --- Article metadata is truthful about translations ------------------------
+# CI does not run Playwright, so the per-post switch contract is guarded here.
+bilingual="$(body_of /en/posts/hello-world/)"
+if printf '%s' "$bilingual" | grep -q 'hreflang="vi-VN"' &&
+  printf '%s' "$bilingual" | grep -q 'og:locale:alternate' &&
+  printf '%s' "$bilingual" | grep -q 'post-lang-switch'; then
+  pass "bilingual article advertises its vi-VN variant"
+else
+  fail "bilingual article is missing its vi-VN alternate or switch"
+fi
+
+monolingual="$(body_of /en/posts/write-english-to-learn/)"
+if printf '%s' "$monolingual" | grep -q 'hreflang="vi-VN"' ||
+  printf '%s' "$monolingual" | grep -q 'og:locale:alternate' ||
+  printf '%s' "$monolingual" | grep -q 'post-lang-switch'; then
+  fail "monolingual article advertises a translation it does not have"
+else
+  pass "monolingual article advertises no alternate"
 fi
 
 # --- The 404 page is the site's own, not a platform page --------------------

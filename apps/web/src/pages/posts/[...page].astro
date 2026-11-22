@@ -1,30 +1,23 @@
 ---
-/** Post index — every published note for a locale, newest first, paginated. */
+/** Post index — every published note, newest first, paginated. */
 import type { GetStaticPaths, Page } from "astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostRow from "@/components/PostRow.astro";
-import { LOCALES, postsPath, tagsPath, UI, type Lang } from "@/lib/i18n";
-import { getPostsByLang, type Post } from "@/lib/posts";
+import { DEFAULT_LOCALE, postsPath, tagsPath, UI } from "@/lib/i18n";
+import { getListingPosts, type Post } from "@/lib/posts";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const pages = await Promise.all(
-    LOCALES.map(async (lang) => {
-      const posts = await getPostsByLang(lang);
-      return paginate(posts, { params: { lang }, pageSize: 10 });
-    }),
-  );
-  return pages.flat();
+  return paginate(await getListingPosts(), { pageSize: 10 });
 }) satisfies GetStaticPaths;
 
 interface Props {
   page: Page<Post>;
 }
 const { page } = Astro.props;
-const lang = Astro.params.lang as Lang;
+const lang = DEFAULT_LOCALE;
 const t = UI[lang];
 const currentPage = page.currentPage;
-const canonical = currentPage === 1 ? postsPath(lang) : `${postsPath(lang)}${currentPage}/`;
-const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
+const canonical = currentPage === 1 ? postsPath() : `${postsPath()}${currentPage}/`;
 ---
 
 <BaseLayout
@@ -36,7 +29,6 @@ const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
   }
   description={t.postsLead}
   canonical={canonical}
-  alternates={currentPage === 1 ? alternates : undefined}
 >
   <div data-pagefind-body>
     <header class="measure">
@@ -74,7 +66,7 @@ const alternates = LOCALES.map((l) => ({ lang: l, path: postsPath(l) }));
     )}
 
     <p class="mt-8 text-sm">
-      <a href={tagsPath(lang)}>{t.browseByTag}</a>
+      <a href={tagsPath()}>{t.browseByTag}</a>
     </p>
   </div>
 </BaseLayout>

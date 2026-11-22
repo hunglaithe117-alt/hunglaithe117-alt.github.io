@@ -4,7 +4,7 @@
  * owner has supplied grouped at the right edge. Excluded from the Pagefind index.
  */
 import { contactLinks } from "@/lib/site";
-import { homePath, UI, type Lang } from "@/lib/i18n";
+import { homePath, rssPath, UI, type Lang } from "@/lib/i18n";
 
 interface Props {
   lang: Lang;
@@ -21,14 +21,14 @@ const linkClass = "quiet-link inline-flex min-h-11 items-center gap-1.5 text-sm"
   <div class="container-content flex flex-wrap items-center justify-between gap-x-5 gap-y-1 py-4 text-sm text-text-muted">
     <p class="flex items-center gap-1.5">
       <span>© {year}</span>
-      <a class={linkClass} href={homePath(lang)}>
+      <a class={linkClass} href={homePath()}>
         {t.siteTitle}
       </a>
     </p>
 
     {/* Feed and contacts stay right-aligned even on their own wrapped row. */}
     <div class="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1">
-      <a class={linkClass} href={`/${lang}/rss.xml`}>
+      <a class={linkClass} href={rssPath()}>
         {t.rssFeed}
       </a>
       {contacts.map((link) => (

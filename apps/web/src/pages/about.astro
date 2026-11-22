@@ -4,18 +4,13 @@
  * the links the owner has actually supplied in `lib/site.ts`, one per line.
  */
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { aboutPath, absoluteUrl, HTML_LANG, LOCALES, UI, type Lang } from "@/lib/i18n";
+import { aboutPath, absoluteUrl, DEFAULT_LOCALE, HTML_LANG, UI } from "@/lib/i18n";
 import { ABOUT } from "@/lib/pages-content";
 import { contactLinks, type ContactLink } from "@/lib/site";
 
-export function getStaticPaths() {
-  return LOCALES.map((lang) => ({ params: { lang } }));
-}
-
-const lang = Astro.params.lang as Lang;
+const lang = DEFAULT_LOCALE;
 const t = UI[lang];
-const canonical = aboutPath(lang);
-const alternates = LOCALES.map((l) => ({ lang: l, path: aboutPath(l) }));
+const canonical = aboutPath();
 const contacts = contactLinks();
 
 /** Readable text for a contact link: the address for email, the bare host for the web. */
@@ -38,7 +33,6 @@ const jsonLd = {
   title={`${t.aboutTitle} — ${t.siteTitle}`}
   description={ABOUT.join(" ")}
   canonical={canonical}
-  alternates={alternates}
   jsonLd={jsonLd}
 >
   <div class="measure" data-pagefind-body>

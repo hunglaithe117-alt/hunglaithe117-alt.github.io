@@ -42,15 +42,6 @@ const dates = postDates();
 
 export default defineConfig({
   site,
-  // Both locales use URL prefixes (`/en/...`, `/vi/...`) for symmetric routes and feeds.
-  i18n: {
-    defaultLocale: "en",
-    locales: ["en", "vi"],
-    routing: {
-      prefixDefaultLocale: true,
-      redirectToDefaultLocale: false,
-    },
-  },
   // Code blocks carry both palettes as custom properties; global.css picks one per theme.
   markdown: {
     shikiConfig: {

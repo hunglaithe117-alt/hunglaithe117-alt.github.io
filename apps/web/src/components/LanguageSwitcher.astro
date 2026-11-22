@@ -1,36 +1,42 @@
 ---
 /**
- * Language switcher: a plain <a> between the paired routes — no JS, no TMS.
- * The destination is resolved by the caller: on a post it points at the paired
- * translation, elsewhere at the same page in the other locale.
+ * Inline per-post language switch: a plain text link to each published translation,
+ * separated by ` · `. Renders nothing when the post has no other locale.
  *
- * Rendered as plain Astro rather than a Vue island: there is no interactivity to
- * hydrate, and a link keeps the language switch working with JS disabled.
+ * Plain Astro, not a Vue island: there is no interactivity to hydrate, and the link
+ * keeps working with JS disabled.
  */
-import { HTML_LANG, LOCALE_LABEL, LOCALE_SHORT, UI, type Lang } from "@/lib/i18n";
+import { HTML_LANG, LOCALE_LABEL, UI, type Lang } from "@/lib/i18n";
 
 interface Props {
-  /** The locale the visitor is leaving (for aria labels). */
+  /** Locale the visitor is reading (for aria labels). */
   lang: Lang;
-  /** Locale of the destination. */
-  target: Lang;
-  /** Root-relative path of the destination. */
-  href: string;
-  /** `compact` shows the short code (VI/EN); otherwise the full language name. */
-  variant?: "full" | "compact";
+  /** Published translations of this post, excluding the current locale. */
+  translations: { lang: Lang; path: string }[];
   class?: string;
 }
-const { lang, target, href, variant = "full", class: className = "" } = Astro.props;
-
-const aria = `${UI[lang].changeLanguage}: ${LOCALE_LABEL[target]}`;
+const { lang, translations, class: className = "" } = Astro.props;
 ---
 
-<a
-  href={href}
-  hreflang={HTML_LANG[target]}
-  lang={HTML_LANG[target]}
-  class={`lang-switch quiet-link inline-flex min-h-11 min-w-11 items-center justify-center text-sm ${className}`}
-  aria-label={aria}
->
-  {variant === "compact" ? LOCALE_SHORT[target] : LOCALE_LABEL[target]}
-</a>
+{translations.length > 0 && (
+  <>
+    {translations.map((item) => (
+      <>
+        <span aria-hidden="true"> · </span>
+        {/* The base `a` rule supplies the underline and `--color-link-hover`;
+              `text-text-muted` keeps the link subordinate to the date. `min-h-11`
+              gives a 44px touch target and `-my-3` collapses its margin box so the
+              meta line does not grow. */}
+        <a
+          href={item.path}
+          hreflang={HTML_LANG[item.lang]}
+          lang={HTML_LANG[item.lang]}
+          aria-label={UI[lang].readInLanguage(LOCALE_LABEL[item.lang])}
+          class={`post-lang-switch inline-flex min-h-11 items-center -my-3 text-text-muted hover:text-link-hover ${className}`}
+        >
+          {LOCALE_LABEL[item.lang]}
+        </a>
+      </>
+    ))}
+  </>
+)}
