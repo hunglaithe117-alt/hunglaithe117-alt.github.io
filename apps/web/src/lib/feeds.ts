@@ -6,7 +6,7 @@ import { absoluteUrl, FEED_LANG, homePath, postPath, type Lang } from "./i18n";
 import { postHtml, slugOf, type Post } from "./posts";
 
 /** Channel-level metadata. `lang` is the feed's own language; each item keeps its post's. */
-export interface FeedMeta {
+interface FeedMeta {
   lang: Lang;
   title: string;
   description: string;

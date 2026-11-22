@@ -1,4 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Blog">
-  <rect width="32" height="32" rx="7" fill="#201c18" />
-  <path d="M8 9h16M8 16h16M8 23h10" stroke="#fcfcf9" stroke-width="2.5" stroke-linecap="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Chuquanpho29">
+  <defs>
+    <clipPath id="head-clip">
+      <path d="M134 182C120 140 114 94 124 76c10-11 50 24 82 54 25-6 51-6 76 0 32-30 72-65 82-54 10 18 4 64-10 106 24 30 32 66 28 104-6 48-40 82-86 94-30 8-74 8-104 0-46-12-80-46-86-94-4-38 4-74 28-104Z" />
+    </clipPath>
+  </defs>
+  <style>
+    .whiskers { stroke: #201c18; }
+    .head { fill: #fcfcf9; stroke: #201c18; stroke-width: 16; }
+    .head-fill { fill: #fcfcf9; }
+    .head-outline { fill: none; stroke: #201c18; stroke-width: 16; }
+    .bandana { fill: #fcfcf9; stroke: #201c18; stroke-width: 15; }
+    .tail { fill: #fcfcf9; stroke: #201c18; stroke-width: 14; }
+    .knot { fill: #fcfcf9; stroke: #201c18; stroke-width: 13; }
+    .chin-sep { stroke: none; }
+    .ink-fill { fill: #201c18; }
+    .paper-fill { fill: #fcfcf9; }
+    .ink-stroke { stroke: #201c18; }
+    .eye-ring { fill: #fcfcf9; stroke: #201c18; stroke-width: 10; }
+    .mask { fill: #fcfcf9; stroke: #201c18; stroke-width: 12; }
+    @media (prefers-color-scheme: dark) {
+      .whiskers { stroke: #fcfcf9; }
+      .head-outline, .bandana, .tail { stroke: none; }
+      .knot { stroke-width: 9; }
+      .chin-sep { stroke: #201c18; stroke-width: 12; }
+      .eye-ring { stroke-width: 9; }
+      .mask { stroke-width: 11; }
+    }
+  </style>
+  <g transform="translate(-24 -30.7) scale(1.12)">
+    <g class="whiskers" fill="none" stroke-width="13" stroke-linecap="round">
+      <path d="M102 282Q75 278 48 275" />
+      <path d="M106 309Q77 316 52 329" />
+      <path d="M386 282Q413 278 440 275" />
+      <path d="M382 309Q411 316 436 329" />
+    </g>
+    <path class="tail" d="M366 382c32-20 62-30 86-30-14 26-38 42-76 44Z" stroke-linejoin="round" />
+    <path class="tail" d="M364 396c38 6 64 20 80 42-30 2-56-10-80-30Z" stroke-linejoin="round" />
+    <path class="bandana" d="M148 360c44 34 148 34 192 0 8 20 8 42-4 56-50 22-134 22-184 0-12-14-12-36-4-56Z" stroke-linejoin="round" />
+    <circle class="knot" cx="358" cy="390" r="18" />
+    <g class="ink-fill">
+      <circle cx="182" cy="400" r="6.5" />
+      <circle cx="218" cy="410" r="6.5" />
+      <circle cx="256" cy="412" r="6.5" />
+      <circle cx="294" cy="408" r="6.5" />
+      <circle cx="326" cy="398" r="6" />
+      <circle cx="408" cy="374" r="5.5" />
+      <circle cx="404" cy="416" r="5.5" />
+    </g>
+    <path class="head-fill" d="M134 182C120 140 114 94 124 76c10-11 50 24 82 54 25-6 51-6 76 0 32-30 72-65 82-54 10 18 4 64-10 106 24 30 32 66 28 104-6 48-40 82-86 94-30 8-74 8-104 0-46-12-80-46-86-94-4-38 4-74 28-104Z" />
+    <g class="ink-fill" clip-path="url(#head-clip)">
+      <path d="M142 154c-6-24-6-42-2-54 12 8 26 22 38 36-13 4-26 10-36 18Z" />
+      <path d="M346 154c6-24 6-42 2-54-12 8-26 22-38 36 13 4 26 10 36 18Z" />
+      <path d="M232 120c4 36 8 60 12 70 4-10 8-34 12-70Z" />
+      <path d="M205 123c0 28 2 47 7 57 7-10 11-31 12-58Z" />
+      <path d="M283 123c0 28-2 47-7 57-7-10-11-31-12-58Z" />
+      <path d="M100 227c24 2 39 6 46 12-10 6-24 7-46 5Z" />
+      <path d="M388 227c-24 2-39 6-46 12 10 6 24 7 46 5Z" />
+    </g>
+    <g class="ink-stroke" clip-path="url(#head-clip)" stroke-width="10" stroke-linecap="round">
+      <line x1="164" y1="286" x2="104" y2="251" />
+      <line x1="166" y1="338" x2="114" y2="310" />
+      <line x1="324" y1="286" x2="384" y2="251" />
+      <line x1="322" y1="338" x2="374" y2="310" />
+    </g>
+    <path class="head-outline" d="M134 182C120 140 114 94 124 76c10-11 50 24 82 54 25-6 51-6 76 0 32-30 72-65 82-54 10 18 4 64-10 106 24 30 32 66 28 104-6 48-40 82-86 94-30 8-74 8-104 0-46-12-80-46-86-94-4-38 4-74 28-104Z" stroke-linejoin="round" stroke-linecap="round" />
+    <path class="chin-sep" d="M144 355c46 37 154 37 200 0" fill="none" stroke-linecap="round" />
+    <g>
+      <circle class="eye-ring" cx="192" cy="228" r="29" />
+      <circle class="ink-fill" cx="192" cy="228" r="13.5" />
+      <circle class="paper-fill" cx="187" cy="222" r="4.5" />
+      <circle class="eye-ring" cx="296" cy="228" r="29" />
+      <circle class="ink-fill" cx="296" cy="228" r="13.5" />
+      <circle class="paper-fill" cx="291" cy="222" r="4.5" />
+    </g>
+    <path class="mask" d="M164 286c26-20 60-24 80-24s54 4 80 24c4 22 4 46-2 64-26 18-54 24-78 24s-52-6-78-24c-6-18-6-42-2-64Z" stroke-linejoin="round" />
+    <path
+      class="ink-stroke"
+      d="M188 306q56-6 112 0M190 334q54 6 108 0"
+      fill="none"
+      stroke-width="8"
+      stroke-linecap="round"
+    />
+  </g>
 </svg>

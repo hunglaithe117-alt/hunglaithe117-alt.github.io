@@ -4,7 +4,7 @@ export interface HeadingPosition {
   top: number;
 }
 
-export interface ResolveActiveOptions {
+interface ResolveActiveOptions {
   /** Pixels from the viewport top at which a heading counts as reached. */
   offset?: number;
   /** True once the reader has reached the bottom of the page. */

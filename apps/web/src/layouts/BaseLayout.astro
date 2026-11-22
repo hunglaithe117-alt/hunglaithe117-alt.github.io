@@ -185,7 +185,7 @@ const contacts = contactLinks();
 
         <div class="flex items-center gap-1 desktop:contents">
           {/* Menu last on phone, its own slot on desktop (where the links are inline). */}
-          <div class="order-last desktop:order-none">
+          <div class="order-last desktop:order-0">
             <Nav lang={lang} links={navLinks} contacts={contacts} />
           </div>
 

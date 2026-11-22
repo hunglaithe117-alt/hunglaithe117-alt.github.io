@@ -42,8 +42,6 @@ export const UI = {
     rssFeed: "RSS",
     contact: "Liên hệ",
     readingTime: (minutes: number) => `${minutes} phút đọc`,
-    publishedOn: "Đăng ngày",
-    updatedOn: "Cập nhật",
     noPosts: "Chưa có bài viết.",
     notFoundTitle: "Không tìm thấy trang",
     notFoundBody: "Trang bạn tìm không tồn tại hoặc đã được di chuyển.",
@@ -51,7 +49,6 @@ export const UI = {
     // Post index + archive
     postsTitle: "Bài viết",
     postsLead: "Tất cả ghi chú, bài mới nhất ở trên cùng.",
-    allPosts: "Tất cả bài viết",
     browseByTag: "Duyệt theo thẻ",
     // Tags
     tagsTitle: "Thẻ",
@@ -66,20 +63,16 @@ export const UI = {
     readInLanguage: (label: string) => `Đọc bằng ${label}`,
     prevPost: "Bài trước",
     nextPost: "Bài tiếp theo",
-    backToPosts: "Tất cả bài viết",
     relatedPosts: "Bài cùng chủ đề",
     commentsTitle: "Thảo luận",
     commentsNoJs: "Bật JavaScript để tải bình luận, hoặc tham gia trực tiếp trên",
     commentsGitHubLink: "GitHub Discussions",
     // Search
-    searchTitle: "Tìm kiếm",
-    searchLead: "Tìm trong toàn bộ trang.",
     searchPlaceholder: "Nhập từ khoá để tìm…",
     searchDefaultMessage: "Nhập để tìm bài viết.",
     searchLoading: "Đang tải tìm kiếm…",
     searchUnavailable:
       "Tìm kiếm chưa khả dụng trong bản dựng này. Nó xuất hiện sau khi trang được lập chỉ mục.",
-    searchNoJs: "Bật JavaScript để dùng tìm kiếm, hoặc ",
     // Feeds
     // About / portfolio
     aboutTitle: "Giới thiệu",
@@ -100,8 +93,6 @@ export const UI = {
     rssFeed: "RSS",
     contact: "Contact",
     readingTime: (minutes: number) => `${minutes} min read`,
-    publishedOn: "Published",
-    updatedOn: "Updated",
     noPosts: "No posts yet.",
     notFoundTitle: "Page not found",
     notFoundBody: "The page you requested does not exist or has moved.",
@@ -109,7 +100,6 @@ export const UI = {
     // Post index + archive
     postsTitle: "Posts",
     postsLead: "Every note, newest at the top.",
-    allPosts: "All posts",
     browseByTag: "Browse by tag",
     // Tags
     tagsTitle: "Tags",
@@ -124,32 +114,21 @@ export const UI = {
     readInLanguage: (label: string) => `Read in ${label}`,
     prevPost: "Previous",
     nextPost: "Next",
-    backToPosts: "All posts",
     relatedPosts: "Related posts",
     commentsTitle: "Discussion",
     commentsNoJs: "Enable JavaScript to load comments, or join the conversation on",
     commentsGitHubLink: "GitHub Discussions",
     // Search
-    searchTitle: "Search",
-    searchLead: "Search across the whole page.",
     searchPlaceholder: "Type to search…",
     searchDefaultMessage: "Start typing to search.",
     searchLoading: "Loading search…",
     searchUnavailable:
       "Search isn't available in this build yet. It appears once the site has been indexed.",
-    searchNoJs: "Enable JavaScript to use search, or ",
     // Feeds
     // About / portfolio
     aboutTitle: "About",
   },
 } as const satisfies Record<Lang, Record<string, unknown>>;
-
-export type UIStrings = (typeof UI)[Lang];
-
-/** Returns the UI dictionary for a locale. */
-export function useTranslations(lang: Lang): UIStrings {
-  return UI[lang];
-}
 
 /** Type guard for an arbitrary route segment. */
 export function isLang(value: string | undefined): value is Lang {
@@ -163,11 +142,6 @@ export function isLang(value: string | undefined): value is Lang {
 export function postSlug(id: string): string {
   const [, ...rest] = id.split("/");
   return rest.join("/");
-}
-
-export function getLangFromId(id: string): Lang {
-  const first = id.split("/")[0];
-  return isLang(first) ? first : DEFAULT_LOCALE;
 }
 
 /**

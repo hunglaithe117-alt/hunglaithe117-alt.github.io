@@ -1,13 +1,13 @@
 /** Reading-time estimate (~200 words/min). */
 const WORDS_PER_MINUTE = 200;
 
-export function countWords(text: string): number {
+function countWords(text: string): number {
   const matches = text.trim().match(/[\p{L}\p{N}]+/gu);
   return matches ? matches.length : 0;
 }
 
 /** Whole minutes, never below 1. */
-export function readingTimeMinutes(text: string, wordsPerMinute = WORDS_PER_MINUTE): number {
+function readingTimeMinutes(text: string, wordsPerMinute = WORDS_PER_MINUTE): number {
   const words = countWords(text);
   return Math.max(1, Math.round(words / wordsPerMinute));
 }

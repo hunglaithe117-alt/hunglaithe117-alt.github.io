@@ -140,9 +140,3 @@ export async function getTranslations(post: Post): Promise<Post[]> {
 export function collectTags(posts: Post[]): string[] {
   return [...new Set(posts.flatMap((post) => post.data.tags))].sort((a, b) => a.localeCompare(b));
 }
-
-/** True when a published variant of this post exists in the given locale. */
-export async function hasTranslation(post: Post, lang: Lang): Promise<boolean> {
-  const translations = await getTranslations(post);
-  return translations.some((translation) => translation.data.lang === lang);
-}
