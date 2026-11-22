@@ -2,15 +2,17 @@
 /**
  * Post page: title, date, reading time, tags as plain links, the rendered MDX prose
  * marked with `data-pagefind-body`, a quiet TOC (a `<details>` on phone, a sticky rail
- * on desktop), prev/next, and related notes as a dated list.
+ * on desktop), prev/next, related notes as a dated list, and optional Giscus comments.
  */
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Comments from "@/components/Comments.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import PostRow from "@/components/PostRow.astro";
 import PrevNext from "@/components/PrevNext.astro";
 import Toc from "@/components/Toc.astro";
 import { SITE_AUTHOR } from "@/consts";
+import { resolveDiscussionTerm } from "@/lib/comments";
 import { absoluteUrl, HTML_LANG, postPath, tagPath, UI, type Lang } from "@/lib/i18n";
 import {
   getListingPosts,
@@ -38,6 +40,7 @@ const site = Astro.site!;
 const t = UI[lang];
 const slug = slugOf(post);
 const canonical = postPath(lang, slug);
+const discussionTerm = resolveDiscussionTerm({ translationKey: post.data.translationKey, slug });
 
 const { Content, headings } = await render(post);
 const translations = await getTranslations(post);
@@ -154,6 +157,8 @@ const jsonLd = {
       ))}
     </div>
   )}
+
+  <Comments lang={lang} term={discussionTerm} enabled={post.data.comments} />
 
   {related.length > 0 && (
     <section class="mt-16" aria-labelledby="related" data-pagefind-ignore>

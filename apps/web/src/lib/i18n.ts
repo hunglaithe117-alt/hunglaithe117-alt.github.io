@@ -68,6 +68,9 @@ export const UI = {
     nextPost: "Bài tiếp theo",
     backToPosts: "Tất cả bài viết",
     relatedPosts: "Bài cùng chủ đề",
+    commentsTitle: "Thảo luận",
+    commentsNoJs: "Bật JavaScript để tải bình luận, hoặc tham gia trực tiếp trên",
+    commentsGitHubLink: "GitHub Discussions",
     // Search
     searchTitle: "Tìm kiếm",
     searchLead: "Tìm trong toàn bộ trang.",
@@ -123,6 +126,9 @@ export const UI = {
     nextPost: "Next",
     backToPosts: "All posts",
     relatedPosts: "Related posts",
+    commentsTitle: "Discussion",
+    commentsNoJs: "Enable JavaScript to load comments, or join the conversation on",
+    commentsGitHubLink: "GitHub Discussions",
     // Search
     searchTitle: "Search",
     searchLead: "Search across the whole page.",

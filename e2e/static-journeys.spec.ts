@@ -3,6 +3,7 @@
  *   root home (unified post list) -> header search dropdown (Pagefind) -> open post
  *   -> per-post language switch -> theme toggle -> mobile drawer.
  */
+import { isCommentsEnabled } from "../apps/web/src/lib/comments";
 import { expect, test } from "./fixtures";
 
 test.describe("static journeys (real static build)", () => {
@@ -130,6 +131,67 @@ test.describe("static journeys (real static build)", () => {
     await page.locator('header button[aria-haspopup="dialog"]').click();
     await expect(page.locator("dialog.blog-nav-drawer")).toBeVisible();
     await expect(page.locator('dialog.blog-nav-drawer a[href^="/vi/"]')).toHaveCount(0);
+  });
+
+  test("test_post_comments_section_matches_configuration", async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+
+    // The widget mounts low on the page, so reach the bottom to trigger its scroll path.
+    await page.goto("/en/posts/hello-world/");
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+    const section = page.locator("section[data-comments]");
+    if (isCommentsEnabled()) {
+      await expect(section).toBeVisible();
+      await section.scrollIntoViewIfNeeded();
+      await expect(section.locator("#comments")).toBeVisible();
+      await expect(section).toHaveAttribute("data-pagefind-ignore", /.*/);
+      await expect(page.locator("article.article-main section[data-comments]")).toHaveCount(0);
+      const widget = page.locator("div[data-giscus]");
+      await expect(widget).toHaveCount(1);
+      await expect(widget).toHaveAttribute("data-term", "hello-world");
+      await expect(widget).toHaveAttribute("data-lang", "en");
+
+      // The client script must have run: it injects client.js and mirrors the site theme.
+      await expect(section.locator('script[src="https://giscus.app/client.js"]')).toHaveAttribute(
+        "data-mapping",
+        "specific",
+      );
+      const initialWidgetTheme = await widget.getAttribute("data-theme");
+      await page.locator("[data-theme-toggle]").click();
+      await expect.poll(() => widget.getAttribute("data-theme")).not.toBe(initialWidgetTheme);
+      await expect
+        .poll(async () => {
+          const site = await page.evaluate(() => document.documentElement.dataset.theme);
+          return (
+            (await widget.getAttribute("data-theme")) ===
+            (site === "dark" ? "noborder_dark" : "noborder_light")
+          );
+        })
+        .toBe(true);
+    } else {
+      await expect(section).toHaveCount(0);
+      await expect(page.locator("[data-giscus]")).toHaveCount(0);
+    }
+
+    // Give the deferred script time to inject so a late page error is still caught.
+    await page.waitForTimeout(400);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("test_bilingual_post_shares_one_discussion_term", async ({ page }) => {
+    test.skip(!isCommentsEnabled(), "Giscus is not configured, so the comments section is hidden.");
+
+    // Same translation key, one thread: only the UI language differs.
+    for (const lang of ["en", "vi"]) {
+      await page.goto(`/${lang}/posts/hello-world/`);
+      const widget = page.locator('div[data-giscus][data-term="hello-world"]');
+      await expect(widget).toHaveCount(1);
+      await expect(widget).toHaveAttribute("data-lang", lang);
+    }
+
+    await expect(page.locator("section[data-comments] #comments")).toHaveText("Thảo luận");
   });
 
   test("test_toc_rail_is_sticky_and_tracks_active_section", async ({ page }) => {

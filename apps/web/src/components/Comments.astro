@@ -1,0 +1,133 @@
+---
+/** Giscus comments; renders nothing until the GitHub IDs in `comments.ts` are filled. */
+import { GISCUS_CONFIG, discussionsUrl, isCommentsEnabled } from "@/lib/comments";
+import { UI, type Lang } from "@/lib/i18n";
+
+interface Props {
+  lang: Lang;
+  term: string;
+  enabled?: boolean;
+}
+const { lang, term, enabled = true } = Astro.props;
+const t = UI[lang];
+const show = enabled && isCommentsEnabled();
+---
+
+{show && (
+  <section
+    class="measure mt-14 border-t border-border pt-10"
+    aria-labelledby="comments"
+    data-pagefind-ignore
+    data-comments
+  >
+    <h2 id="comments" class="text-sm font-semibold text-text-muted">
+      {t.commentsTitle}
+    </h2>
+    <div
+      class="mt-6"
+      data-giscus
+      data-repo={GISCUS_CONFIG.repo}
+      data-repo-id={GISCUS_CONFIG.repoId}
+      data-category={GISCUS_CONFIG.category}
+      data-category-id={GISCUS_CONFIG.categoryId}
+      data-term={term}
+      data-lang={lang}
+      data-strict={GISCUS_CONFIG.strict}
+      data-reactions-enabled={GISCUS_CONFIG.reactionsEnabled}
+      data-emit-metadata={GISCUS_CONFIG.emitMetadata}
+      data-input-position={GISCUS_CONFIG.inputPosition}
+      data-theme={GISCUS_CONFIG.themes.light}
+    />
+    <noscript>
+      <p class="mt-4 text-sm text-text-muted">
+        {t.commentsNoJs}{" "}
+        <a class="underline" href={discussionsUrl(GISCUS_CONFIG.repo)}>
+          {t.commentsGitHubLink}
+        </a>
+        .
+      </p>
+    </noscript>
+  </section>
+)}
+
+<script>
+  import { giscusThemeFor } from "../lib/comments";
+
+  const GISCUS_ORIGIN = "https://giscus.app";
+
+  for (const mount of Array.from(document.querySelectorAll<HTMLElement>("[data-giscus]"))) {
+    start(mount);
+  }
+
+  function start(mount: HTMLElement): void {
+    function effectiveTheme(): "light" | "dark" {
+      const attr = document.documentElement.dataset.theme;
+      if (attr === "light" || attr === "dark") return attr;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    let iframeAlive = false;
+    let postedTheme: string | null = null;
+
+    /** Pushes the site theme into the widget; deduped so giscus messages cannot loop back. */
+    function syncTheme(fromMessage = false): void {
+      const theme = giscusThemeFor(effectiveTheme());
+      mount.dataset.theme = theme;
+      if (fromMessage) iframeAlive = true;
+
+      const frame = mount.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+      if (!frame) return;
+      // Before the iframe answers, a post may be dropped, so it is not recorded as sent.
+      if (iframeAlive && postedTheme === theme) return;
+      frame.contentWindow?.postMessage({ giscus: { setConfig: { theme } } }, GISCUS_ORIGIN);
+      if (iframeAlive) postedTheme = theme;
+    }
+
+    let loading = false;
+
+    function load(): void {
+      if (loading) return;
+      loading = true;
+      syncTheme();
+
+      const script = document.createElement("script");
+      script.src = "https://giscus.app/client.js";
+      script.async = true;
+      script.crossOrigin = "anonymous";
+      for (const [key, value] of Object.entries(mount.dataset)) {
+        // Skip the marker itself so the injected script is not a second `[data-giscus]` node.
+        if (key !== "giscus") script.dataset[key] = value;
+      }
+      // `specific` is what makes giscus honour `data-term`.
+      script.dataset.mapping = "specific";
+      mount.append(script);
+    }
+
+    const target = mount.closest("section") ?? mount;
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          load();
+        },
+        { rootMargin: "300px" },
+      );
+      observer.observe(target);
+    } else {
+      load();
+    }
+
+    new MutationObserver(() => syncTheme()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => syncTheme());
+
+    const onMessage = (event: MessageEvent): void => {
+      if (event.origin !== GISCUS_ORIGIN) return;
+      syncTheme(true);
+    };
+    window.addEventListener("message", onMessage);
+  }
+</script>

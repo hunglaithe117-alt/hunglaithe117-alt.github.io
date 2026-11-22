@@ -32,6 +32,8 @@ const posts = defineCollection({
      * it and is then its own only variant: no switcher, no `hreflang` alternate.
      */
     translationKey: z.string().min(1).optional(),
+    /** Set `false` in frontmatter to hide the discussion section on a post. */
+    comments: z.boolean().default(true),
   }),
 });
 
