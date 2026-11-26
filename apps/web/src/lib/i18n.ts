@@ -79,7 +79,7 @@ export const UI = {
   },
   en: {
     siteTitle: "Chuquanpho29",
-    siteDescription: "Notes on the web, tools and everyday life.",
+    siteDescription: "Notes on work and everyday life.",
     skipToContent: "Skip to content",
     posts: "Posts",
     about: "About",
